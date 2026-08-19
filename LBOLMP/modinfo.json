@@ -3,6 +3,7 @@
   "Description": "Coop mod for LBoL. Press F2 in the main menu to open the network menu. Host a session over Steam or over a direct IP connection, have other players join, then everyone start a new run, pick a character and click Confirm. The host sets the difficulty for everyone.",
   "Brief": "Cooperative multiplayer",
   "Changelog": [
+	"0.9.5: \nMoved ally player units around a little bit, to ensure player 4 no longer goes offscreen.\nThe F2 menu now always opens in the top-right to avoid accidental menu clicks.",
     "0.9.4: \nFixed Junko scaling up absurdly fast in multiplayer. Her overflowing blemishes and rainbow mana required are now scaled to playercount, and shared with all players.",
     "0.9.3: \nAchievements and character records can now be earned in multiplayer.",
     "0.9.2: \nFixed players fighting completely different enemies at the same map node, especially when some players were newer and had not seen certain scripted encounters yet.",
@@ -30,7 +31,7 @@
     "0.2.0: \nFixed map voting getting stuck in many cases. Tweaked extra turn and end-of-turn behaviors.",
     "0.1.0: \nInitial development build."
   ],
-  "Version": "0.9.4",
+  "Version": "0.9.5",
   "Author": "Rokk",
   "Tags": [
     "Mod",

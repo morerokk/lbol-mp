@@ -18,8 +18,11 @@ namespace LBOLMP.UI
         private static readonly Color LocalColour = new Color(0.6f, 1f, 0.7f);
         private static readonly Color DeadColour = new Color(0.7f, 0.35f, 0.35f);
 
+        // Margin from the right edge of the screen when opened, so that players stop clicking "through" the window in the main menu
+        private const float Margin = 40f;
+
         private bool _visible;
-        private Rect _window = new Rect(40f, 40f, 460f, 420f);
+        private Rect _window = new Rect(Margin, Margin, 460f, 420f);
         private string _address = "127.0.0.1";
         private string _port = "7777";
         private string _name = "Player";
@@ -43,8 +46,18 @@ namespace LBOLMP.UI
         {
             if (Input.GetKeyDown(MpPlugin.LobbyHotkey.Value))
             {
+                if (!_visible)
+                {
+                    AnchorRight();
+                }
                 _visible = !_visible;
             }
+        }
+
+        private void AnchorRight()
+        {
+            _window.x = Mathf.Max(Margin, Screen.width - _window.width - Margin);
+            _window.y = Margin;
         }
 
         private void EnsureStyles()

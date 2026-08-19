@@ -55,9 +55,9 @@ namespace LBOLMP.UI
         /// </summary>
         private static readonly Vector2[] Offsets =
         {
-            new Vector2(-1.35f, -1.45f),
-            new Vector2(-2.60f, 0.55f),
-            new Vector2(-3f, -2.80f)
+            new Vector2(-1.35f, -1.75f),
+            new Vector2(-1.35f, 0.8f),
+            new Vector2(-2.7f, -0.70f)
         };
 
         /// <summary>The mirror unit for a player, usable as the source of a replicated action.</summary>
