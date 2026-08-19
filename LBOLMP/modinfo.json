@@ -1,0 +1,49 @@
+﻿{
+  "Title": "LBOL MP",
+  "Description": "Coop mod for LBoL. Press F2 in the main menu to open the network menu. Host a session over Steam or over a direct IP connection, have other players join, then everyone start a new run, pick a character and click Confirm. The host sets the difficulty for everyone.",
+  "Brief": "Cooperative multiplayer",
+  "Changelog": [
+    "0.9.4: \nFixed Junko scaling up absurdly fast in multiplayer. Her overflowing blemishes and rainbow mana required are now scaled to playercount, and shared with all players.",
+    "0.9.3: \nAchievements and character records can now be earned in multiplayer.",
+    "0.9.2: \nFixed players fighting completely different enemies at the same map node, especially when some players were newer and had not seen certain scripted encounters yet.",
+    "0.9.1: \nFixed the map vote portraits not appearing, and sometimes being left behind on nodes nobody voted for, after using Restart Level or between acts.",
+    "0.9.0: \nFixed desync issues caused by Steam networking.",
+    "0.8.9: \nYou can now save & quit and continue a multiplayer run later. Everyone has to be continuing the same run for this to work (can't carry over singleplayer runs).\nReturning to the main menu after winning/losing a run no longer requires disconnecting and reconnecting to start a new run.\nThe party status panel in combat is now hidden by default. Press F3 to show it.\nLooking at another player's draw/discard/exile pile or library now shows their character portrait on the side, instead of yours.",
+    "0.8.8: \nFixed a desync after using Restart Level.\nMore enemy defenses now scale with multiplayer health, including healing and barrier effects.\nFixed a desync caused by Cirno's Cold.\nFixed intermittent connection issues causing softlocks.",
+    "0.8.7: \nYou can now look at another player\u0027s exact hand and game state by right-clicking them. You can also view their draw/discard/exile pile and their library in this state.\nFixed Midsummer Flowers tooltip.\nFixed occasional desync on enemies that summon or spellcard.",
+    "0.8.6: \nFixed restarting level at the wrong time causing softlocks. Fixed minor damage desync, especially on Seija.",
+    "0.8.5: \nEnemies now get a \u0027Resilient\u0027 status effect in multiplayer. For each player past the first, an enemy loses 1 more Weak, Vulnerable, and Lock On at the end of its turn, and gains 1 less Firepower Down (minimum of 1).",
+    "0.8.4: \nEnemy health now scales up further in later acts, so 3 and 4 player groups aren\u0027t as easy. Each extra player adds a stacking bonus on top of the usual \u002B100%, which grows per act. For example, the 2nd player adds \u002B15% enemy HP to Act 3, the 3rd player adds another \u002B30%.\nAdded a Balance settings window to the F2 lobby menu, letting you change the config settings more easily.\nFixed revival HP not being host-enforced.\nSanae\u0027s self-heal now scales with her multiplayer health.\nFixed a softlock in Doremy\u0027s Act 3 event when choosing the \u0027Search for Treasure\u0027 option.",
+    "0.8.3: \nTenshi Hinanawi, Lovesick Girl and Sanae Kochiya are now scaled appropriately in multiplayer.\nBorder Sensor exhibit is now shared between players, so only 1 player has to complete the trade chain to access Act 4.\nFixed spell cards sometimes failing to trigger.\nRestart Level in the pause menu can now only be used by the host, and restarts the level for everyone.\nFixed events in Act 2 and 3 offering every player the same exhibits.",
+    "0.8.2: \nAdded Simplified Chinese and Traditional Chinese translations. Translations done by Lvalon (thanks!)\nMajor QoL tweaks to visuals and other effects to reduce jank.\nDoremy\u0027s Barrier now scales with the amount of players.\nTweaked Eiki Shiki\u0027s fight. The mirror boss spawned by her is specific to you, meaning each player will be fighting their own mirror copy independently. Eiki Shiki herself is still shared.\nWhen waiting for other players to end their turn, you can now press the 1, 2 or 3 keys to emote.",
+    "0.8.1: \nFixed Great Tengu\u0027s Decree applying Block to everyone, instead of only the player who hit the enemy.",
+    "0.8.0: \nReworked Act 1 boss selection. The host chooses the actual boss to fight, other players choose the character they want to get a shining exhibit from.\nAdded map vote indicators to show who wants to go where.",
+    "0.7.1: \nSeija\u0027s damage cap now scales with the number of players.\nEnemy Graze and Wind God Girl is now increased by \u002B1 for each player in the lobby.",
+    "0.7.0: \nSessions can now be hosted over Steam instead of a direct IP connection. Use the steam overlay to join or invite friends!",
+    "0.6.1: \nDoremy\u0027s \u0027skip to the boss\u0027 event option is no longer offered in multiplayer.",
+    "0.6.0: \nImplemented automatic difficulty syncing. The host is the only one that can decide the game difficulty now, but players can still choose to enable/disable Requests for themselves.",
+    "0.5.0: \nImplemented event combats. People who didn\u0027t choose a combat option in an event will spectate the fight instead.",
+    "0.4.1: \nFixed a bunch of RNG issues.",
+    "0.4.0: \nEnemy health now stays in step between players. Enemies that react to being hit, like the kedama\u0027s Fluffy, used to spend that reaction on a different attack on each screen and leave the enemy a few HP apart for the rest of the fight. The host\u0027s numbers are now authoritative and everyone else corrects towards them.",
+    "0.3.2: \nFixed a stray status effect sweep that could strip Rin\u0027s summon mechanic off her on one player\u0027s screen.\nEnemy starting max HP is now rolled identically for everyone, including summoned enemies.",
+    "0.3.1: \nBeing defeated no longer immediately ends the run for the defeated player. Instead, you spectate the combat. If the party wins, you get healed for 20% Max HP but get a Regret added to your deck.",
+    "0.2.0: \nFixed map voting getting stuck in many cases. Tweaked extra turn and end-of-turn behaviors.",
+    "0.1.0: \nInitial development build."
+  ],
+  "Version": "0.9.4",
+  "Author": "Rokk",
+  "Tags": [
+    "Mod",
+    "Gameplay",
+    "Misc"
+  ],
+  "PublishedFileId": 3784495171,
+  "AuthorId": 76561197996000877,
+  "GUID": "rokk.lbol.gameplay.lbolmp",
+  "Dependencies": [
+    "BepInEx-BepInExPack-5.4.2100",
+    "neo.lbol.frameworks.entitySideloader",
+    "neo.lbol.fix.rngFix"
+  ],
+  "LastUpdateTime": 1786884455
+}

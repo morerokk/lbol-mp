@@ -1,0 +1,6 @@
+MpResilient:
+  Name: Resilient
+  Description: |-
+    At the end of its turn, loses {Level} more |Weak|, |Vulnerable|, and |Lock On|.
+    Gains {Level} less |Firepower Down|, to a minimum of 1.
+  Brief: Loses |Weak|, |Vulnerable| and |Lock On| faster, and takes less |Firepower Down|.

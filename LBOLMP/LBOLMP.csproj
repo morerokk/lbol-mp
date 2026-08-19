@@ -1,0 +1,142 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>LBOLMP</AssemblyName>
+    <RootNamespace>LBOLMP</RootNamespace>
+    <!-- Keep in step with MpInfo.Version, modinfo.json and manifest.json. -->
+    <Version>0.9.4</Version>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <DebugType>none</DebugType>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>$(MSBuildThisFileDirectory)..\..\lbol\Mods\LBOLMP\</OutputPath>
+    <NoWarn>$(NoWarn);CS0649;CS0169;CS0414;NU1701</NoWarn>
+    <PublicizerRuntimeStrategies>IgnoresAccessChecksTo</PublicizerRuntimeStrategies>
+    <PublicizerClearCacheOnClean>true</PublicizerClearCacheOnClean>
+    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GameFolder>$(MSBuildThisFileDirectory)..\..\lbol</GameFolder>
+    <ManagedFolder>$(GameFolder)\LBoL_Data\Managed</ManagedFolder>
+    <BepInExCore>C:\Program Files (x86)\Steam\steamapps\workshop\content\1140150\3483706823\BepInEx\core_5_4_23_4</BepInExCore>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Krafs.Publicizer" Version="2.2.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- Publicize the whole game so we can reach private/internal state without reflection soup. -->
+  <ItemGroup>
+    <Publicize Include="LBoL.Base" />
+    <Publicize Include="LBoL.ConfigData" />
+    <Publicize Include="LBoL.Core" />
+    <Publicize Include="LBoL.EntityLib" />
+    <Publicize Include="LBoL.Presentation" />
+    <Publicize Include="Untitled.ConfigDataBuilder.Base" />
+  </ItemGroup>
+
+  <!--
+    Members this mod *overrides* rather than calls, which publicizing would break.
+
+    Publicizing turns `protected virtual` into `public virtual`, and C# refuses to let an override
+    change an inherited member's accessibility - so any entity logic type we write through the
+    Entity Sideloader stops compiling the moment it overrides one of these. The Sideloader template
+    ships a long list of them covering every entity type a mod might define; only the ones we
+    actually override are listed here, because taking a member off the publicized list also takes
+    it away from the ~8000 lines of this mod that reach into the game the ordinary way.
+
+    Add to this list when a new sideloaded entity overrides something new. The symptom is CS0507 at
+    the override, and the fix is always one more line here.
+  -->
+  <ItemGroup>
+    <!-- LBOLMP.Entities.MpResilient -->
+    <DoNotPublicize Include="LBoL.Core:LBoL.Core.StatusEffects.StatusEffect.OnAdded" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BepInEx">
+      <HintPath>$(BepInExCore)\BepInEx.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(BepInExCore)\0Harmony.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="LBoL.Base"><HintPath>$(ManagedFolder)\LBoL.Base.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="LBoL.ConfigData"><HintPath>$(ManagedFolder)\LBoL.ConfigData.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="LBoL.Core"><HintPath>$(ManagedFolder)\LBoL.Core.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="LBoL.EntityLib"><HintPath>$(ManagedFolder)\LBoL.EntityLib.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="LBoL.Presentation"><HintPath>$(ManagedFolder)\LBoL.Presentation.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="Untitled.ConfigDataBuilder.Base"><HintPath>$(ManagedFolder)\Untitled.ConfigDataBuilder.Base.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="UniTask"><HintPath>$(ManagedFolder)\UniTask.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="DOTween"><HintPath>$(ManagedFolder)\DOTween.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="DOTween.Modules"><HintPath>$(ManagedFolder)\DOTween.Modules.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="spine-csharp"><HintPath>$(ManagedFolder)\spine-csharp.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="spine-unity"><HintPath>$(ManagedFolder)\spine-unity.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="Unity.TextMeshPro"><HintPath>$(ManagedFolder)\Unity.TextMeshPro.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="Unity.Addressables"><HintPath>$(ManagedFolder)\Unity.Addressables.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="Unity.ResourceManager"><HintPath>$(ManagedFolder)\Unity.ResourceManager.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="Unity.InputSystem"><HintPath>$(ManagedFolder)\Unity.InputSystem.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="YamlDotNet"><HintPath>$(ManagedFolder)\YamlDotNet.dll</HintPath><Private>False</Private></Reference>
+    <!-- Steamworks.NET, as shipped by the game. Never copied to the output: the mod must bind to
+         the exact assembly the game already loaded, or the Steam context would be a different one. -->
+    <Reference Include="com.rlabrecque.steamworks.net"><HintPath>$(ManagedFolder)\com.rlabrecque.steamworks.net.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="UnityEngine"><HintPath>$(ManagedFolder)\UnityEngine.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>$(ManagedFolder)\UnityEngine.CoreModule.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="UnityEngine.IMGUIModule"><HintPath>$(ManagedFolder)\UnityEngine.IMGUIModule.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="UnityEngine.InputLegacyModule"><HintPath>$(ManagedFolder)\UnityEngine.InputLegacyModule.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="UnityEngine.TextRenderingModule"><HintPath>$(ManagedFolder)\UnityEngine.TextRenderingModule.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="UnityEngine.UI"><HintPath>$(ManagedFolder)\UnityEngine.UI.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="UnityEngine.UIModule"><HintPath>$(ManagedFolder)\UnityEngine.UIModule.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="UnityEngine.ImageConversionModule"><HintPath>$(ManagedFolder)\UnityEngine.ImageConversionModule.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule"><HintPath>$(ManagedFolder)\UnityEngine.ParticleSystemModule.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="UnityEngine.AudioModule"><HintPath>$(ManagedFolder)\UnityEngine.AudioModule.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="UnityEngine.AnimationModule"><HintPath>$(ManagedFolder)\UnityEngine.AnimationModule.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="UnityEngine.PhysicsModule"><HintPath>$(ManagedFolder)\UnityEngine.PhysicsModule.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="UnityEngine.AssetBundleModule"><HintPath>$(ManagedFolder)\UnityEngine.AssetBundleModule.dll</HintPath><Private>False</Private></Reference>
+    <!-- Entity Sideloader, which registers the Resilient status effect with the game. A hard
+         dependency, declared in modinfo.json and on the plugin. Kept in ..\lib rather than read out
+         of a game install, because it is not part of the game and this workspace's copy has no
+         mods installed into it. Never copied to the output: players get it from the workshop, and
+         two copies of it in one process would be two separate entity registries. -->
+    <Reference Include="LBoL-Entity-Sideloader"><HintPath>$(MSBuildThisFileDirectory)..\lib\LBoL-Entity-Sideloader.dll</HintPath><Private>False</Private></Reference>
+  </ItemGroup>
+
+  <!--
+    Everything that ships, so that the output folder *is* the package.
+
+    The point of listing all of it here rather than copying the odd file by hand afterwards: the
+    version lives in four places, and manifest.json is the one nothing at runtime reads. A stale
+    modinfo.json is visible in the game's own mod list; a stale manifest.json is invisible until
+    Thunderstore rejects the upload or, worse, accepts it under last release's number. It went out
+    at 0.9.3 while everything else said 0.9.4 for exactly this reason.
+
+    So: build, then copy the whole output folder wherever it is going. Nothing has to be remembered
+    by name, which is the only version of this that survives being done in a hurry.
+  -->
+  <ItemGroup>
+    <!-- Read by the game's mod loader. -->
+    <None Update="modinfo.json"><CopyToOutputDirectory>Always</CopyToOutputDirectory></None>
+    <!-- Thunderstore's package manifest. Nothing reads it at runtime, which is the problem. -->
+    <None Update="manifest.json"><CopyToOutputDirectory>Always</CopyToOutputDirectory></None>
+    <!-- Thunderstore's package icon, and the preview the in-game mod loader shows. -->
+    <None Update="icon.png"><CopyToOutputDirectory>Always</CopyToOutputDirectory></None>
+    <!-- Read at runtime by MpResilientDefinition, through a DirectorySource pointed at the folder
+         this mod's dll was loaded from. They have to travel with the dll. -->
+    <None Update="Resources\**"><CopyToOutputDirectory>Always</CopyToOutputDirectory></None>
+  </ItemGroup>
+
+  <Target Name="CleanupDeps" AfterTargets="PostBuildEvent">
+    <Delete Files="$(OutputPath)$(AssemblyName).deps.json" ContinueOnError="true" />
+  </Target>
+
+</Project>
