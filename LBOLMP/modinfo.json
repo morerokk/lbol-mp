@@ -3,6 +3,7 @@
   "Description": "Coop mod for LBoL. Press F2 in the main menu to open the network menu. Host a session over Steam or over a direct IP connection, have other players join, then everyone start a new run, pick a character and click Confirm. The host sets the difficulty for everyone.",
   "Brief": "Cooperative multiplayer",
   "Changelog": [
+    "0.9.7: \nAdded Japanese localization by neff.jp (thanks!)\nAct 1 boss picks are now remembered in the save data when the run is reloaded.\nFixed Act 1 boss going missing sometimes.\nFixed some more Steam networking issues.",
     "0.9.6: \nAnother attempt at mitigating bad connections.",
     "0.9.5: \nMoved ally player units around a little bit, to ensure player 4 no longer goes offscreen.\nThe F2 menu now always opens in the top-right to avoid accidental menu clicks.",
     "0.9.4: \nFixed Junko scaling up absurdly fast in multiplayer. Her overflowing blemishes and rainbow mana required are now scaled to playercount, and shared with all players.",
