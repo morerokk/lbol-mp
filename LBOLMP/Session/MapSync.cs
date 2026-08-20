@@ -70,6 +70,7 @@ namespace LBOLMP.Session
         public static void Update()
         {
             Patches.MapVotingPatch.Update();
+            Patches.SetBossSyncPatch.Tick();
             Patches.BossMapIconPatch.Update();
             UI.MapVoteMarkers.Update();
             ResendLocalVote();

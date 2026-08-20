@@ -412,53 +412,138 @@ namespace LBOLMP.Patches
         /// <summary>Which stage that pick was made on, so it cannot leak into another act or run.</summary>
         internal static int LocalPickStage = -1;
 
+        /// <summary>
+        /// The boss the party settled on, by stage index.
+        /// </summary>
+        private static readonly Dictionary<int, string> PartyBoss = new Dictionary<int, string>();
+
         public static void Reset()
         {
             LocalPick = string.Empty;
             LocalPickStage = -1;
+            PartyBoss.Clear();
         }
 
         [HarmonyPrefix]
-        private static bool Prefix(Stage __instance, string enemyGroupName)
+        private static bool Prefix(Stage __instance, ref string enemyGroupName)
         {
-            return MpSafe.Run("SetBossSyncPatch", () =>
+            string requested = enemyGroupName;
+            string allowed = MpSafe.Run("SetBossSyncPatch", () => Decide(__instance, requested), requested);
+
+            if (allowed == null)
             {
-                if (ApplyingRemote || !MpSession.IsActive || !MpSession.IsInRun)
-                {
-                    return true;
-                }
-
-                if (__instance.IsSelectingBoss)
-                {
-                    LocalPick = enemyGroupName;
-                    LocalPickStage = __instance.Index;
-                }
-
-                if (MpNet.IsHost)
-                {
-                    MpNet.Send(new Session.Messages.BossChosenMessage
-                    {
-                        StageIndex = __instance.Index,
-                        BossId = enemyGroupName
-                    });
-                    return true;
-                }
-
-                MpPlugin.Log.LogInfo($"Ignoring local boss pick '{enemyGroupName}'; waiting for the host");
                 return false;
-            }, true);
+            }
+
+            enemyGroupName = allowed;
+            return true;
+        }
+
+        /// <summary>
+        /// Which boss this call should actually set, or null to refuse it.
+        /// </summary>
+        private static string Decide(Stage stage, string requested)
+        {
+            if (ApplyingRemote || !MpSession.IsActive || !MpSession.IsInRun || !stage.IsSelectingBoss)
+            {
+                return requested;
+            }
+
+            if (!IsLiveStage(stage))
+            {
+                if (stage.Boss != null)
+                {
+                    return null;
+                }
+
+                return PartyBoss.TryGetValue(stage.Index, out string saved) ? saved : requested;
+            }
+
+            LocalPick = requested;
+            LocalPickStage = stage.Index;
+
+            if (!MpNet.IsHost)
+            {
+                MpPlugin.Log.LogInfo($"Ignoring local boss pick '{requested}'; waiting for the host");
+                return null;
+            }
+
+            // Setting a boss twice throws, so the host does not get to decide again either.
+            if (stage.Boss != null)
+            {
+                return null;
+            }
+
+            PartyBoss[stage.Index] = requested;
+            MpNet.Send(new Session.Messages.BossChosenMessage
+            {
+                StageIndex = stage.Index,
+                BossId = requested
+            });
+            return requested;
+        }
+
+        private static bool IsLiveStage(Stage stage)
+        {
+            var stages = GameMaster.Instance?.CurrentGameRun?.Stages;
+            if (stages == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < stages.Count; i++)
+            {
+                if (ReferenceEquals(stages[i], stage))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>Applies the host's pick on a client.</summary>
         public static void ApplyHostChoice(int stageIndex, string bossId)
         {
-            MpSafe.Run("SetBossSyncPatch.Apply", () =>
+            if (string.IsNullOrEmpty(bossId))
             {
-                var gameRun = GameMaster.Instance?.CurrentGameRun;
-                var stage = gameRun?.Stages.FirstOrDefault(s => s.Index == stageIndex);
-                if (stage == null || stage.Boss != null)
+                return;
+            }
+
+            PartyBoss[stageIndex] = bossId;
+            MpSafe.Run("SetBossSyncPatch.Apply", () => ApplyKnownBosses());
+        }
+
+        /// <summary>
+        /// Put the party's boss onto any stage that is missing it.
+        /// </summary>
+        public static void Tick()
+        {
+            if (!MpSession.IsActive || !MpSession.IsInRun || PartyBoss.Count == 0)
+            {
+                return;
+            }
+
+            MpSafe.Run("SetBossSyncPatch.Tick", ApplyKnownBosses);
+        }
+
+        private static void ApplyKnownBosses()
+        {
+            var stages = GameMaster.Instance?.CurrentGameRun?.Stages;
+            if (stages == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < stages.Count; i++)
+            {
+                var stage = stages[i];
+
+                // Act 1 is the only act the party picks a boss for.
+                if (stage == null || !stage.IsSelectingBoss || stage.Boss != null
+                    || !PartyBoss.TryGetValue(stage.Index, out string bossId))
                 {
-                    return;
+                    continue;
                 }
 
                 ApplyingRemote = true;
@@ -474,7 +559,7 @@ namespace LBOLMP.Patches
                 // The map icon is not touched here on purpose.
                 // The panel is usually not built yet at this point. BossMapIconPatch waits for one instead.
                 MpPlugin.Log.LogInfo($"Act boss set by the host: {bossId}");
-            });
+            }
         }
     }
 
@@ -570,7 +655,7 @@ namespace LBOLMP.Patches
                     return;
                 }
 
-                var widget = UiManager.GetPanel<MapPanel>()?.FinalWidget;
+                var widget = FinalMapWidget();
                 if (widget == null)
                 {
                     return;
@@ -579,6 +664,27 @@ namespace LBOLMP.Patches
                 widget.SetBoss(settled);
                 _applied = settled;
             });
+        }
+
+        /// <summary>
+        /// The boss node's widget, or null while there is no map to find it on.
+        /// </summary>
+        private static MapNodeWidget FinalMapWidget()
+        {
+            var manager = UiManager.Instance;
+            if (manager == null
+                || !manager._panelTable.TryGetValue(typeof(MapPanel), out var panel))
+            {
+                return null;
+            }
+
+            var map = panel as MapPanel;
+            if (map == null || map._map == null || map._mapNodeWidgets == null)
+            {
+                return null;
+            }
+
+            return map.FinalWidget;
         }
     }
 
