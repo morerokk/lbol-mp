@@ -160,11 +160,6 @@ namespace LBOLMP.Session.Messages
     [NetMessage(35, Unreliable = true)]
     public sealed class BattleStatusMessage : NetMessage
     {
-        /// <summary>
-        /// The fight <see cref="CompletedRound"/> and <see cref="Finished"/> describe, or zero for none.
-        /// </summary>
-        public ulong BattleSeed;
-
         public int Hp;
         public int MaxHp;
         public int Block;
@@ -173,23 +168,11 @@ namespace LBOLMP.Session.Messages
         public int DrawCount;
         public int DiscardCount;
 
-        /// <summary>
-        /// Last round this player finished their player phase for, or -1.
-        /// Resent on a timer.
-        /// </summary>
-        public int CompletedRound = -1;
-
-        /// <summary>
-        /// Whether this player's fight is over.
-        /// </summary>
-        public bool Finished;
-
         /// <summary>Status effects, encoded as "Id:level:duration" with -1 meaning "not applicable".</summary>
         public List<string> StatusEffects = new List<string>();
 
         public override void Write(NetWriter w)
         {
-            w.ULong(BattleSeed);
             w.Int(Hp);
             w.Int(MaxHp);
             w.Int(Block);
@@ -197,14 +180,11 @@ namespace LBOLMP.Session.Messages
             w.Int(HandCount);
             w.Int(DrawCount);
             w.Int(DiscardCount);
-            w.Int(CompletedRound);
-            w.Bool(Finished);
             w.StringList(StatusEffects);
         }
 
         public override void Read(NetReader r)
         {
-            BattleSeed = r.ULong();
             Hp = r.Int();
             MaxHp = r.Int();
             Block = r.Int();
@@ -212,9 +192,48 @@ namespace LBOLMP.Session.Messages
             HandCount = r.Int();
             DrawCount = r.Int();
             DiscardCount = r.Int();
+            StatusEffects = new List<string>(r.StringArray());
+        }
+    }
+
+    /// <summary>
+    /// How far through the fight a player is.
+    /// Most wait-gates wait on these messages.
+    ///
+    /// Split away from <see cref="BattleStatusMessage"/> because that one is marked unreliable.
+    /// "I ended my turn" or "I'm done with the combat" are comparatively a lot rarer and should be sent reliably.
+    /// </summary>
+    [NetMessage(51)]
+    public sealed class BattleProgressMessage : NetMessage
+    {
+        /// <summary>The fight this describes, or zero for none. See <see cref="TurnCompleteMessage.BattleSeed"/>.</summary>
+        public ulong BattleSeed;
+
+        /// <summary>Last round this player finished their player phase for, or -1.</summary>
+        public int CompletedRound = -1;
+
+        /// <summary>
+        /// Whether this player's combat is done.
+        /// </summary>
+        public bool Finished;
+
+        /// <summary>Whether the player is still alive, for seats that are out of play.</summary>
+        public bool Alive = true;
+
+        public override void Write(NetWriter w)
+        {
+            w.ULong(BattleSeed);
+            w.Int(CompletedRound);
+            w.Bool(Finished);
+            w.Bool(Alive);
+        }
+
+        public override void Read(NetReader r)
+        {
+            BattleSeed = r.ULong();
             CompletedRound = r.Int();
             Finished = r.Bool();
-            StatusEffects = new List<string>(r.StringArray());
+            Alive = r.Bool();
         }
     }
 

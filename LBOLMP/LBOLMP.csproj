@@ -113,4 +113,7 @@
     <Delete Files="$(OutputPath)$(AssemblyName).deps.json" ContinueOnError="true" />
   </Target>
 
+  <!-- Stop VS from """helpfully""" incorrectly assuming the schema for the Thunderstore manifest.json file and then complaining about it -->
+  <ProjectExtensions><VisualStudio><UserProperties manifest_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
+
 </Project>

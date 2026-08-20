@@ -246,6 +246,7 @@ namespace LBOLMP.Session.Battle
             MpNet.On<RemoteHitMessage>(OnRemoteHit);
             MpNet.On<RemoteEmoteMessage>(OnRemoteEmote);
             MpNet.On<BattleStatusMessage>(OnBattleStatus);
+            MpNet.On<BattleProgressMessage>(OnBattleProgress);
             MpNet.On<BattleFinishedMessage>(OnBattleFinished);
             MpNet.On<EnemyVitalsMessage>(OnEnemyVitals);
             MpDownedPlayers.RegisterHandlers();
@@ -261,6 +262,7 @@ namespace LBOLMP.Session.Battle
             _playerAppliedToEnemies.Clear();
             _reportedSilent.Clear();
             _lastStatus = null;
+            _lastProgress = null;
             InBattle = false;
             _atEndOfBattleGate = false;
             _reportedFinished = false;
@@ -325,6 +327,7 @@ namespace LBOLMP.Session.Battle
             _seenVitals.Clear();
 
             _lastStatus = null;
+            _lastProgress = null;
 
             SetWaitingHook(gameRun.Battle, true);
 
@@ -1317,12 +1320,33 @@ namespace LBOLMP.Session.Battle
                 HandCount = battle?.HandZone.Count ?? 0,
                 DrawCount = battle?.DrawZone.Count ?? 0,
                 DiscardCount = battle?.DiscardZone.Count ?? 0,
-                BattleSeed = InBattle ? BattleSeed : _finishedSeed,
-                CompletedRound = InBattle ? GetSeat(MpNet.LocalPlayerId)?.CompletedRound ?? -1 : -1,
-                Finished = InBattle
-                    ? GetSeat(MpNet.LocalPlayerId)?.Finished ?? false
-                    : _finishedSeed != 0,
                 StatusEffects = effects
+            });
+
+            PublishLocalProgress(player);
+        }
+
+        /// <summary>
+        /// Separately publish how far along in the fight we are, in a reliable manner.
+        /// Status updates don't matter as much, but end of turn/end of combat absolutely does.
+        /// </summary>
+        private static void PublishLocalProgress(PlayerUnit player)
+        {
+            ulong seed = InBattle ? BattleSeed : _finishedSeed;
+            if (seed == 0)
+            {
+                // Not in a fight and not fresh out of one, so there is nothing anyone can be waiting for.
+                return;
+            }
+
+            var local = InBattle ? GetSeat(MpNet.LocalPlayerId) : null;
+
+            SendProgressIfWorthIt(new BattleProgressMessage
+            {
+                BattleSeed = seed,
+                CompletedRound = local?.CompletedRound ?? -1,
+                Finished = !InBattle || (local?.Finished ?? false),
+                Alive = player.Hp > 0
             });
         }
 
@@ -1339,6 +1363,9 @@ namespace LBOLMP.Session.Battle
         private static byte[] _lastStatus;
         private static float _nextStatusKeepAlive;
 
+        private static byte[] _lastProgress;
+        private static float _nextProgressKeepAlive;
+
         /// <summary>
         /// Send the player's current information if it's been longer than 1 second ago since they last sent it.
         /// </summary>
@@ -1354,6 +1381,21 @@ namespace LBOLMP.Session.Battle
 
             _lastStatus = payload;
             _nextStatusKeepAlive = Time.unscaledTime + StatusKeepAliveSeconds;
+            MpNet.Send(message);
+        }
+
+        private static void SendProgressIfWorthIt(BattleProgressMessage message)
+        {
+            var payload = MpNet.BodyOf(message);
+            bool due = Time.unscaledTime >= _nextProgressKeepAlive;
+
+            if (!due && MpNet.SameBytes(_lastProgress, payload))
+            {
+                return;
+            }
+
+            _lastProgress = payload;
+            _nextProgressKeepAlive = Time.unscaledTime + StatusKeepAliveSeconds;
             MpNet.Send(message);
         }
 
@@ -1377,26 +1419,43 @@ namespace LBOLMP.Session.Battle
             seat.HandCount = message.HandCount;
             seat.DrawCount = message.DrawCount;
             seat.DiscardCount = message.DiscardCount;
-            seat.Alive = message.Hp > 0;
-            seat.ReportedSeed = message.BattleSeed;
-
-            if (IsAboutThisFight(message.BattleSeed))
-            {
-                // This should only ever increase
-                if (message.CompletedRound > seat.CompletedRound)
-                {
-                    seat.CompletedRound = message.CompletedRound;
-                }
-
-                if (message.Finished)
-                {
-                    seat.Finished = true;
-                }
-            }
-
             seat.StatusEffects = message.StatusEffects;
 
             UI.MpAllyUnits.SyncVitals(seat);
+        }
+
+        private static void OnBattleProgress(BattleProgressMessage message)
+        {
+            if (message.SenderId == MpNet.LocalPlayerId)
+            {
+                return;
+            }
+
+            var seat = GetSeat(message.SenderId);
+            if (seat == null)
+            {
+                return;
+            }
+
+            seat.ReportedSeed = message.BattleSeed;
+
+            if (!IsAboutThisFight(message.BattleSeed))
+            {
+                return;
+            }
+
+            // This should only ever increase
+            if (message.CompletedRound > seat.CompletedRound)
+            {
+                seat.CompletedRound = message.CompletedRound;
+            }
+
+            if (message.Finished)
+            {
+                seat.Finished = true;
+            }
+
+            seat.Alive = message.Alive;
         }
 
         /// <summary>
