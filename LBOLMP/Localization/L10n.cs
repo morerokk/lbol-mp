@@ -47,9 +47,12 @@ namespace LBOLMP
                 // Collapse everything into Simplified/Traditional Chinese, and otherwise English.
                 switch (locale)
                 {
+                    // Explicitly supported languages
                     case Locale.ZhHans:
                     case Locale.ZhHant:
+                    case Locale.Ja:
                         return locale;
+                    // Anything else falls back to English (including English)
                     default:
                         return Locale.En;
                 }

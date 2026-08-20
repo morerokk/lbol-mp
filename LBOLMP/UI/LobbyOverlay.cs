@@ -22,7 +22,7 @@ namespace LBOLMP.UI
         private const float Margin = 40f;
 
         private bool _visible;
-        private Rect _window = new Rect(Margin, Margin, 460f, 420f);
+        private Rect _window = new Rect(Margin, Margin, 460f, 460f);
         private string _address = "127.0.0.1";
         private string _port = "7777";
         private string _name = "Player";
