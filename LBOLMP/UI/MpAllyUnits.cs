@@ -13,6 +13,7 @@ using LBoL.Core.Cards;
 using LBoL.Core.StatusEffects;
 using LBoL.Core.Units;
 using LBoL.Presentation;
+using LBoL.Presentation.Effect;
 using LBoL.Presentation.UI;
 using LBoL.Presentation.UI.Panels;
 using LBoL.Presentation.Units;
@@ -41,6 +42,9 @@ namespace LBOLMP.UI
             public int LastHp = int.MinValue;
             public int LastBlock = int.MinValue;
             public int LastShield = int.MinValue;
+
+            /// <summary>Whether we have seen a status effect list from this player yet.</summary>
+            public bool StatusPrimed;
         }
 
         private static readonly Dictionary<int, Ally> Allies = new Dictionary<int, Ally>();
@@ -374,6 +378,8 @@ namespace LBOLMP.UI
                     view.SetStatusVisible(true, true);
                 }
 
+                RestoreEffectLoops(ally);
+
                 MpPlugin.Log.LogInfo($"Spawned ally unit for {player.Name} ({ally.CharacterId})");
             }
             catch (Exception e)
@@ -575,6 +581,7 @@ namespace LBOLMP.UI
                     unit._statusEffects.Remove(existing);
                     existing.Owner = null;
                     ally.View?.OnRemoveStatusEffect(existing);
+                    StopUnitEffects(ally, existing);
                 }
             }
 
@@ -606,9 +613,15 @@ namespace LBOLMP.UI
                     effect.Owner = unit;
                     unit._statusEffects.Add(effect);
                     ally.View?.OnAddStatusEffect(effect, StatusEffectAddResult.Added);
+                    StartUnitEffects(ally, effect, ally.StatusPrimed);
                 }
                 else
                 {
+                    // Ensure that multiple applications of a status replay the effect each time
+                    bool gained = ally.StatusPrimed &&
+                        ((current.HasLevel && entry.Value.Level >= 0 && entry.Value.Level > current.Level) ||
+                         (current.HasDuration && entry.Value.Duration >= 0 && entry.Value.Duration > current.Duration));
+
                     if (current.HasLevel && entry.Value.Level >= 0 && current.Level != entry.Value.Level)
                     {
                         current.Level = entry.Value.Level;
@@ -617,7 +630,130 @@ namespace LBOLMP.UI
                     {
                         current.Duration = entry.Value.Duration;
                     }
+
+                    if (gained && ally.View != null)
+                    {
+                        Announce(ally.View, current);
+                    }
                 }
+            }
+
+            ally.StatusPrimed = true;
+        }
+
+        // Burst FX that should be replicated
+        private const string BurstId = "Burst";
+        private const string BurstLoop = "MarisaBurstLoop";
+        private const string BurstStart = "MarisaBurstStart";
+        private const string BurstEnd = "MarisaBurstEnd";
+        private const string BurstGainSfx = "MarisaBurst";
+        private const string BurstLoseSfx = "MarisaBurstLose";
+
+        /// <summary>
+        /// Whitelist of status effects whose special effects should be replayed on other clients (like Graze or Mental States)
+        /// </summary>
+        private static readonly HashSet<string> Announced = new HashSet<string>
+        {
+            BurstId,
+            "MoodPassion", "MoodPeace", "MoodEpiphany",
+            "Graze",
+            "Invincible", "InvincibleEternal", "Grace", "Immune",
+            "Firepower", "TempFirepower"
+        };
+
+        /// <summary>
+        /// Play a status effect's special effects and audio cues on allies, at half volume.
+        /// </summary>
+        private static void StartUnitEffects(Ally ally, StatusEffect effect, bool audible)
+        {
+            var view = ally.View;
+            if (view == null)
+            {
+                return;
+            }
+
+            if (audible)
+            {
+                Announce(view, effect);
+            }
+
+            string loop = effect.UnitEffectName;
+            if (!string.IsNullOrEmpty(loop) && view.TryPlayEffectLoop(loop))
+            {
+                view.SendEffectMessage(loop, "OnPropertyChanged", effect);
+            }
+
+            if (effect.Id == BurstId)
+            {
+                view.TryPlayEffectLoop(BurstLoop);
+            }
+        }
+
+        /// <summary>Stop special FX like mental states or burst and graze.</summary>
+        private static void StopUnitEffects(Ally ally, StatusEffect effect)
+        {
+            var view = ally.View;
+            if (view == null)
+            {
+                return;
+            }
+
+            EndLoop(view, effect.UnitEffectName);
+
+            if (effect.Id == BurstId)
+            {
+                view.PlayEffectOneShot(BurstEnd, 0f);
+                AudioManager.PlaySfx(BurstLoseSfx, AllyVolume);
+                EndLoop(view, BurstLoop);
+            }
+        }
+
+        /// <summary>
+        /// Plays one-shot effects like firepower gain.
+        /// </summary>
+        private static void Announce(UnitView view, StatusEffect effect)
+        {
+            var config = effect.Config;
+
+            if (config != null && !string.IsNullOrEmpty(config.VFX) && config.VFX != "Default")
+            {
+                EffectManager.CreateEffect(config.VFX, view.EffectRoot, 0f, null, false, true);
+            }
+
+            if (effect.Id == BurstId)
+            {
+                // Burst's own flash and cue are not in its config, so they go on by hand.
+                view.PlayEffectOneShot(BurstStart, 0f);
+                AudioManager.PlaySfx(BurstGainSfx, AllyVolume);
+            }
+            else if (Announced.Contains(effect.Id) && config != null
+                && !string.IsNullOrEmpty(config.SFX) && config.SFX != "Default")
+            {
+                AudioManager.PlaySfx(config.SFX, AllyVolume);
+            }
+        }
+
+        private static void EndLoop(UnitView view, string effectName)
+        {
+            if (!string.IsNullOrEmpty(effectName) && view._effectDictionary.ContainsKey(effectName))
+            {
+                view.EndEffectLoop(effectName, true);
+            }
+        }
+
+        /// <summary>
+        /// Start status FX loops for an ally's statuses at any arbitrary point in time, even if their model loads in later.
+        /// </summary>
+        private static void RestoreEffectLoops(Ally ally)
+        {
+            if (ally.Unit == null)
+            {
+                return;
+            }
+
+            foreach (var effect in ally.Unit.StatusEffects.ToList())
+            {
+                StartUnitEffects(ally, effect, false);
             }
         }
 
