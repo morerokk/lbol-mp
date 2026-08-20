@@ -3,6 +3,7 @@
   "Description": "Coop mod for LBoL. Press F2 in the main menu to open the network menu. Host a session over Steam or over a direct IP connection, have other players join, then everyone start a new run, pick a character and click Confirm. The host sets the difficulty for everyone.",
   "Brief": "Cooperative multiplayer",
   "Changelog": [
+    "0.9.8: \nRaised the player lobby cap to 6 players. Anything above 4 players is not officially supported and may result in UI jank, but go nuts!",
     "0.9.7: \nAdded Japanese localization by neff.jp (thanks!)\nAct 1 boss picks are now remembered in the save data when the run is reloaded.\nFixed Act 1 boss going missing sometimes.\nFixed some more Steam networking issues.\nFixed desynced combats in Act 3 if players choose differently at the Miyoi event.",
     "0.9.6: \nAnother attempt at mitigating bad connections.",
     "0.9.5: \nMoved ally player units around a little bit, to ensure player 4 no longer goes offscreen.\nThe F2 menu now always opens in the top-right to avoid accidental menu clicks.",
@@ -33,7 +34,7 @@
     "0.2.0: \nFixed map voting getting stuck in many cases. Tweaked extra turn and end-of-turn behaviors.",
     "0.1.0: \nInitial development build."
   ],
-  "Version": "0.9.6",
+  "Version": "0.9.8",
   "Author": "Rokk",
   "Tags": [
     "Mod",

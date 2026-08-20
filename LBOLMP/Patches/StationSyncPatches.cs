@@ -223,6 +223,11 @@ namespace LBOLMP.Patches
         private const int VisibleSlots = 3;
 
         /// <summary>
+        /// If parties get bigger than this number, the game cannot feasibly avoid characters as bosses that no one is playing.
+        /// </summary>
+        private const int PartyAvoidanceLimit = 4;
+
+        /// <summary>
         /// The array we installed on the station, or null when we left the game's own in place.
         /// </summary>
         internal static EnemyUnit[] Installed { get; private set; }
@@ -251,7 +256,8 @@ namespace LBOLMP.Patches
                 var ids = BuildShortlist(gameRun, stage.Index);
                 if (ids == null)
                 {
-                    // Should never happen, but it can maybe happen if we ever decide that more than 4 players should be possible.
+                    // Should never happen: it needs a roster too small to name three characters
+                    // that are not yours.
                     MpPlugin.Log.LogWarning(
                         "Not enough opponents to build a personal boss list! Using the game's own...");
                     return;
@@ -301,8 +307,9 @@ namespace LBOLMP.Patches
             var roster = Library.EnumerateOpponentIds().ToList();
             var remaining = new List<string>(roster);
 
-            string first = Take(remaining, id => !party.Contains(id), rng)
-                           ?? Take(remaining, id => id != mine, rng);
+            string first = MpSession.ConnectedCount <= PartyAvoidanceLimit
+                ? Take(remaining, id => !party.Contains(id), rng) ?? Take(remaining, id => id != mine, rng)
+                : Take(remaining, id => id != mine, rng);
             string second = Take(remaining, id => id != mine, rng);
             string third = Take(remaining, id => id != mine, rng);
 

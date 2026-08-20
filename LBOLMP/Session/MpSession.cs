@@ -418,7 +418,7 @@ namespace LBOLMP.Session
                 return;
             }
 
-            // Sorry, only 4 players
+            // The lobby is full
             if (PlayersById.Count >= MpInfo.MaxPlayers)
             {
                 string reason = L10n.Encode(MpText.ReasonSessionFull);

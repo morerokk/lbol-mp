@@ -57,7 +57,11 @@ namespace LBOLMP.UI
         {
             new Vector2(-1.35f, -1.75f),
             new Vector2(-1.35f, 0.8f),
-            new Vector2(-2.7f, -0.70f)
+            new Vector2(-2.7f, -0.70f),
+            new Vector2(-2.7f, 1.85f),
+            //new Vector2(-4.05f, 0.35f)
+            // Player 6 would cover up the UI, so she's placed above and slightly behind the local player instead
+            new Vector2(-0.6f, 2f)
         };
 
         /// <summary>The mirror unit for a player, usable as the source of a replicated action.</summary>
