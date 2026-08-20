@@ -3,8 +3,13 @@ using System.Collections.Generic;
 using HarmonyLib;
 using LBOLMP.Session;
 using LBOLMP.Session.Battle;
+using LBoL.Base;
 using LBoL.Core;
+using LBoL.Core.Adventures;
+using LBoL.Core.Randoms;
 using LBoL.Core.Stations;
+using LBoL.EntityLib.Adventures.FirstPlace;
+using LBoL.EntityLib.Stages.NormalStages;
 using LBoL.Presentation;
 using LBoL.Presentation.UI.Panels;
 
@@ -198,6 +203,83 @@ namespace LBOLMP.Patches
             MpSafe.Run("EventBattleSpectateDone", MpEventBattle.ClearLocalRole);
 
             MpSafe.Run("EventAbortClearAfterWatch", MpEventBattle.ClearEventAbort);
+        }
+    }
+
+    /// <summary>
+    /// Prevents the Miyoi Bartender (Geidontei) event from removing different encounters from the Act 3 hard encounters pool,
+    /// if 1 player picks fight and the other player doesn't.
+    /// </summary>
+    [HarmonyPatch(typeof(MiyoiBartender), "InitVariables")]
+    public static class MiyoiOpponentPoolPatch
+    {
+        private sealed class Borrowed
+        {
+            public Stage Stage;
+            public UniqueRandomPool<string> Real;
+            public string Pick;
+        }
+
+        [HarmonyPrefix]
+        private static void Prefix(Adventure __instance, out object __state)
+        {
+            __state = MpSafe.Run<object>("MiyoiOpponentPool", () => Borrow(__instance), null);
+        }
+
+        /// <summary>
+        /// Restores the pool after the event ended.
+        /// I really don't like putting this in finalizers but it is what it is.
+        /// </summary>
+        [HarmonyFinalizer]
+        private static void Finalizer(object __state)
+        {
+            var borrowed = __state as Borrowed;
+            if (borrowed == null)
+            {
+                return;
+            }
+
+            MpSafe.Run("MiyoiOpponentPoolReturn", () =>
+            {
+                borrowed.Stage.EnemyPoolAct3 = borrowed.Real;
+                borrowed.Real.Remove(borrowed.Pick, false);
+
+                MpPlugin.Log.LogInfo($"Miyoi is offering the whole party a fight against '{borrowed.Pick}'");
+            });
+        }
+
+        private static Borrowed Borrow(Adventure adventure)
+        {
+            if (!MpSession.IsActive || !MpSession.IsInRun)
+            {
+                return null;
+            }
+
+            var stage = adventure?.Stage;
+            if (!(stage is WindGodLake))
+            {
+                return null;
+            }
+
+            var real = stage.EnemyPoolAct3;
+            if (real == null || real.IsEmpty)
+            {
+                return null;
+            }
+
+            string pick = new UniqueRandomPool<string>(real).Sample(
+                new RandomGen(MpBattleSync.StationSeed(adventure.GameRun, "MiyoiOpponent")));
+            if (string.IsNullOrEmpty(pick))
+            {
+                return null;
+            }
+
+            // Falls back the same way the real pool does if it's out of entries
+            var standIn = new UniqueRandomPool<string>(true);
+            standIn.Add(pick, 1f);
+            stage.EnemyPoolAct3 = standIn;
+
+            return new Borrowed { Stage = stage, Real = real, Pick = pick };
         }
     }
 }
