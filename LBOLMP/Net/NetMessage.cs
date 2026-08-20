@@ -24,6 +24,12 @@ namespace LBOLMP.Net
         /// Most gameplay messages want this; handshake traffic does not.
         /// </summary>
         public bool RelayedByHost { get; set; } = true;
+
+        /// <summary>
+        /// If true, this message is allowed to be dropped rather than retransmitted.
+        /// Should be true for cosmetic or unimportant network messages (such as cosmetic messages, or self-correcting messages like enemy HP status)
+        /// </summary>
+        public bool Unreliable { get; set; }
     }
 
     public abstract class NetMessage
@@ -95,6 +101,25 @@ namespace LBOLMP.Net
         public static ushort GetId(NetMessage message) => GetInfo(message.GetType()).Id;
 
         public static bool IsRelayed(NetMessage message) => GetInfo(message.GetType()).RelayedByHost;
+
+        public static bool IsUnreliable(NetMessage message) => GetInfo(message.GetType()).Unreliable;
+
+        /// <summary>
+        /// The same answer for a frame the host is about to relay, which it only has as bytes.
+        /// The id is the first field of every frame, so this does not need to deserialize anything.
+        /// </summary>
+        public static bool IsUnreliable(byte[] payload)
+        {
+            if (payload == null || payload.Length < 2)
+            {
+                return false;
+            }
+
+            ushort id = (ushort)(payload[0] | (payload[1] << 8));
+            return IdToType.TryGetValue(id, out var type)
+                   && TypeToInfo.TryGetValue(type, out var info)
+                   && info.Unreliable;
+        }
 
         private static NetMessageAttribute GetInfo(Type type)
         {

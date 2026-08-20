@@ -33,7 +33,8 @@ namespace LBOLMP.Net
             new Thread(WriteLoop) { IsBackground = true, Name = "LBOLMP-Write" }.Start();
         }
 
-        protected override void SendCore(byte[] payload)
+        // Our TCP client has no concept of reliable or unreliable messages, they're all reliable. Parameter is ignored here
+        protected override void SendCore(byte[] payload, bool reliable)
         {
             try
             {

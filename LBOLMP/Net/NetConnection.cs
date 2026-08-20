@@ -31,7 +31,12 @@ namespace LBOLMP.Net
         /// <summary>Who is on the other end, for the log. An address, or a Steam name.</summary>
         public string RemoteEndPoint { get; protected set; } = "unknown";
 
-        public void Send(byte[] payload)
+        /// <summary>
+        /// Send a network message.
+        /// </summary>
+        /// <param name="payload">The payload to send.</param>
+        /// <param name="reliable">If true, this message is treated as "important" (like card plays). Trivial data or status broadcasts can be recovered from later, in which case this should be false.</param>
+        public void Send(byte[] payload, bool reliable = true)
         {
             if (IsClosed || payload == null)
             {
@@ -40,7 +45,7 @@ namespace LBOLMP.Net
 
             try
             {
-                SendCore(payload);
+                SendCore(payload, reliable);
             }
             catch (Exception e)
             {
@@ -67,7 +72,7 @@ namespace LBOLMP.Net
             }
         }
 
-        protected abstract void SendCore(byte[] payload);
+        protected abstract void SendCore(byte[] payload, bool reliable);
 
         protected abstract void CloseCore(string reason);
 

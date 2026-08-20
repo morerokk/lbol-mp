@@ -6,7 +6,7 @@
     <AssemblyName>LBOLMP</AssemblyName>
     <RootNamespace>LBOLMP</RootNamespace>
     <!-- Keep in step with MpInfo.Version, modinfo.json and manifest.json. -->
-    <Version>0.9.4</Version>
+    <Version>0.9.6</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <DebugType>none</DebugType>

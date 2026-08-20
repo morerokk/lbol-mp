@@ -259,17 +259,19 @@ namespace LBOLMP.Net
 
             message.SenderId = LocalPlayerId;
 
+            bool reliable = !MessageRegistry.IsUnreliable(message);
+
             if (IsHost)
             {
                 Dispatch(message);
                 if (MessageRegistry.IsRelayed(message))
                 {
-                    BroadcastRaw(MessageRegistry.Serialize(message), null);
+                    BroadcastRaw(MessageRegistry.Serialize(message), null, reliable);
                 }
             }
             else
             {
-                _serverLink?.Send(MessageRegistry.Serialize(message));
+                _serverLink?.Send(MessageRegistry.Serialize(message), reliable);
             }
         }
 
@@ -277,14 +279,14 @@ namespace LBOLMP.Net
         public static void SendToConnection(NetConnection connection, NetMessage message)
         {
             message.SenderId = LocalPlayerId;
-            connection?.Send(MessageRegistry.Serialize(message));
+            connection?.Send(MessageRegistry.Serialize(message), !MessageRegistry.IsUnreliable(message));
         }
 
         /// <summary>Client-only: send straight to the host without waiting for an echo.</summary>
         public static void SendToHostDirect(NetMessage message)
         {
             message.SenderId = LocalPlayerId;
-            _serverLink?.Send(MessageRegistry.Serialize(message));
+            _serverLink?.Send(MessageRegistry.Serialize(message), !MessageRegistry.IsUnreliable(message));
         }
 
         /// <summary>
@@ -316,7 +318,7 @@ namespace LBOLMP.Net
             return true;
         }
 
-        private static void BroadcastRaw(byte[] payload, NetConnection except)
+        private static void BroadcastRaw(byte[] payload, NetConnection except, bool reliable = true)
         {
             for (int i = 0; i < _clients.Count; i++)
             {
@@ -325,7 +327,7 @@ namespace LBOLMP.Net
                 {
                     continue;
                 }
-                client.Send(payload);
+                client.Send(payload, reliable);
             }
         }
 
@@ -422,7 +424,7 @@ namespace LBOLMP.Net
             if (MessageRegistry.IsRelayed(message) && connection.HandshakeComplete)
             {
                 // If the message came from a client, echo it back to everyone including the sender, so all clients see the messages arrive in the same order.
-                BroadcastRaw(MessageRegistry.Serialize(message), null);
+                BroadcastRaw(MessageRegistry.Serialize(message), null, !MessageRegistry.IsUnreliable(message));
             }
         }
 

@@ -50,7 +50,9 @@ namespace LBOLMP.Net
             RemoteEndPoint = string.IsNullOrEmpty(name) ? "Steam:" + remoteId.m_SteamID : name;
         }
 
-        protected override void SendCore(byte[] payload)
+        private const int UnreliableFlags = Constants.k_nSteamNetworkingSend_UnreliableNoNagle;
+
+        protected override void SendCore(byte[] payload, bool reliable)
         {
             if (payload.Length > MaxFrameBytes)
             {
@@ -65,14 +67,23 @@ namespace LBOLMP.Net
             {
                 Marshal.Copy(payload, 0, buffer, payload.Length);
 
-                var result = SteamNetworkingSockets.SendMessageToConnection(
-                    Handle, buffer, (uint)payload.Length,
-                    Constants.k_nSteamNetworkingSend_Reliable, out _);
+                int flags = reliable ? Constants.k_nSteamNetworkingSend_Reliable : UnreliableFlags;
 
-                if (result != EResult.k_EResultOK)
+                var result = SteamNetworkingSockets.SendMessageToConnection(
+                    Handle, buffer, (uint)payload.Length, flags, out _);
+
+                if (result == EResult.k_EResultOK)
                 {
-                    Close(L10n.Encode(MpText.ReasonSendFailed, result.ToString()));
+                    return;
                 }
+
+                // A frame that was allowed to go missing has gone missing, that's fine.
+                if (!reliable)
+                {
+                    return;
+                }
+
+                Close(L10n.Encode(MpText.ReasonSendFailed, result.ToString()));
             }
             finally
             {

@@ -37,10 +37,24 @@ namespace LBOLMP.Session.Messages
     [NetMessage(31)]
     public sealed class TurnCompleteMessage : NetMessage
     {
+        /// <summary>
+        /// The fight this round belongs to, from <c>MpBattleSync.BattleSeed</c>.
+        /// </summary>
+        public ulong BattleSeed;
+
         public int Round;
 
-        public override void Write(NetWriter w) => w.Int(Round);
-        public override void Read(NetReader r) => Round = r.Int();
+        public override void Write(NetWriter w)
+        {
+            w.ULong(BattleSeed);
+            w.Int(Round);
+        }
+
+        public override void Read(NetReader r)
+        {
+            BattleSeed = r.ULong();
+            Round = r.Int();
+        }
     }
 
     /// <summary>
@@ -118,7 +132,7 @@ namespace LBOLMP.Session.Messages
     /// Purely cosmetic. Tells the other clients which card a player just played, to show a card popup.
     /// Note: this currently does not show the card's "pure" status or other cost reductions.
     /// </summary>
-    [NetMessage(34)]
+    [NetMessage(34, Unreliable = true)]
     public sealed class RemoteCardPlayMessage : NetMessage
     {
         public string CardId;
@@ -143,9 +157,14 @@ namespace LBOLMP.Session.Messages
     /// <summary>
     /// A player reporting their current HP/block/barrier.
     /// </summary>
-    [NetMessage(35)]
+    [NetMessage(35, Unreliable = true)]
     public sealed class BattleStatusMessage : NetMessage
     {
+        /// <summary>
+        /// The fight <see cref="CompletedRound"/> and <see cref="Finished"/> describe, or zero for none.
+        /// </summary>
+        public ulong BattleSeed;
+
         public int Hp;
         public int MaxHp;
         public int Block;
@@ -156,13 +175,12 @@ namespace LBOLMP.Session.Messages
 
         /// <summary>
         /// Last round this player finished their player phase for, or -1.
-        /// Is resent in case of dropped connections or softlocks.
+        /// Resent on a timer.
         /// </summary>
         public int CompletedRound = -1;
 
         /// <summary>
         /// Whether this player's fight is over.
-        /// Is resent in case of dropped connections or softlocks.
         /// </summary>
         public bool Finished;
 
@@ -171,6 +189,7 @@ namespace LBOLMP.Session.Messages
 
         public override void Write(NetWriter w)
         {
+            w.ULong(BattleSeed);
             w.Int(Hp);
             w.Int(MaxHp);
             w.Int(Block);
@@ -185,6 +204,7 @@ namespace LBOLMP.Session.Messages
 
         public override void Read(NetReader r)
         {
+            BattleSeed = r.ULong();
             Hp = r.Int();
             MaxHp = r.Int();
             Block = r.Int();
@@ -202,10 +222,22 @@ namespace LBOLMP.Session.Messages
     [NetMessage(36)]
     public sealed class BattleFinishedMessage : NetMessage
     {
+        /// <summary>The fight that ended. See <see cref="TurnCompleteMessage.BattleSeed"/>.</summary>
+        public ulong BattleSeed;
+
         public bool Survived;
 
-        public override void Write(NetWriter w) => w.Bool(Survived);
-        public override void Read(NetReader r) => Survived = r.Bool();
+        public override void Write(NetWriter w)
+        {
+            w.ULong(BattleSeed);
+            w.Bool(Survived);
+        }
+
+        public override void Read(NetReader r)
+        {
+            BattleSeed = r.ULong();
+            Survived = r.Bool();
+        }
     }
 
     /// <summary>
@@ -225,14 +257,30 @@ namespace LBOLMP.Session.Messages
     /// The host's opinion of the enemy's current life/block/barrier. This is a quick and dirty fix for kedamas and other out-of-order effects,
     /// I don't foresee this being "fixed the proper way" without significant architectural changes (which would likely make the game feel laggier to play tbh).
     /// </summary>
-    [NetMessage(39)]
+    [NetMessage(39, Unreliable = true)]
     public sealed class EnemyVitalsMessage : NetMessage
     {
+        /// <summary>
+        /// Counts up once per broadcast. Unreliable frames can overtake each other, and this one
+        /// assigns HP outright rather than adjusting it, so an older HP snapshot arriving after a newer
+        /// one would adjust an enemy's health back up. The receiver keeps the highest it has seen.
+        /// </summary>
+        public int Sequence;
+
         /// <summary>Enemy index, current HP, block and shield, four ints per enemy.</summary>
         public List<int> Vitals = new List<int>();
 
-        public override void Write(NetWriter w) => w.IntList(Vitals);
-        public override void Read(NetReader r) => Vitals = new List<int>(r.IntArray());
+        public override void Write(NetWriter w)
+        {
+            w.Int(Sequence);
+            w.IntList(Vitals);
+        }
+
+        public override void Read(NetReader r)
+        {
+            Sequence = r.Int();
+            Vitals = new List<int>(r.IntArray());
+        }
     }
 
     /// <summary>
@@ -262,7 +310,7 @@ namespace LBOLMP.Session.Messages
     /// <summary>
     /// Purely cosmetic, the animation a player's own character just started.
     /// </summary>
-    [NetMessage(41)]
+    [NetMessage(41, Unreliable = true)]
     public sealed class RemoteAnimationMessage : NetMessage
     {
         public string AnimationName = string.Empty;
@@ -275,7 +323,7 @@ namespace LBOLMP.Session.Messages
     /// Purely cosmetic, a player has just been hit, and this is how it landed on them.
     /// Used to play the right animations for blocking/grazing.
     /// </summary>
-    [NetMessage(42)]
+    [NetMessage(42, Unreliable = true)]
     public sealed class RemoteHitMessage : NetMessage
     {
         public float Damage;
@@ -311,7 +359,7 @@ namespace LBOLMP.Session.Messages
     /// <summary>
     /// Emote, playing an animation and popping up a speech bubble
     /// </summary>
-    [NetMessage(43)]
+    [NetMessage(43, Unreliable = true)]
     public sealed class RemoteEmoteMessage : NetMessage
     {
         public int Emote;

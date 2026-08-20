@@ -38,6 +38,11 @@ namespace LBOLMP.Session.Battle
         public bool Alive = true;
 
         /// <summary>
+        /// Used for diagnostics only, ensures that extremely poor connections can't accidentally send messages for the previous battle
+        /// </summary>
+        public ulong ReportedSeed;
+
+        /// <summary>
         /// True if the player was defeated mid-combat and is currently spectating the rest of the fight.
         /// </summary>
         public bool Down;
@@ -197,6 +202,11 @@ namespace LBOLMP.Session.Battle
 
         public static ulong BattleSeed { get; private set; }
 
+        /// <summary>
+        /// The fight this client last announced the end of, or zero if it has not finished one.
+        /// </summary>
+        private static ulong _finishedSeed;
+
         public static int PlayerCountAtBattleStart { get; private set; } = 1;
 
         /// <summary>The round the local battle is on, or -1 when there is no battle.</summary>
@@ -255,6 +265,9 @@ namespace LBOLMP.Session.Battle
             _atEndOfBattleGate = false;
             _reportedFinished = false;
             BattleSeed = 0;
+            _finishedSeed = 0;
+            _vitalsSequence = 0;
+            _seenVitals.Clear();
             PlayerCountAtBattleStart = 1;
             MpDownedPlayers.Reset();
             MpEventBattle.Reset();
@@ -307,6 +320,9 @@ namespace LBOLMP.Session.Battle
             _atEndOfBattleGate = false;
             _reportedFinished = false;
             _pendingInjections = 0;
+
+            _finishedSeed = 0;
+            _seenVitals.Clear();
 
             _lastStatus = null;
 
@@ -376,7 +392,7 @@ namespace LBOLMP.Session.Battle
             }
 
             local.CompletedRound = round;
-            MpNet.Send(new TurnCompleteMessage { Round = round });
+            MpNet.Send(new TurnCompleteMessage { BattleSeed = BattleSeed, Round = round });
             MpPlugin.Log.LogInfo($"Player phase complete for round {round}; waiting at the enemy-turn gate");
         }
 
@@ -388,12 +404,23 @@ namespace LBOLMP.Session.Battle
                 return;
             }
 
+            if (!IsAboutThisFight(message.BattleSeed))
+            {
+                return;
+            }
+
             var seat = GetSeat(message.SenderId);
             if (seat != null && message.Round > seat.CompletedRound)
             {
                 seat.CompletedRound = message.Round;
             }
         }
+
+        /// <summary>
+        /// Whether a message about a fight is about the fight we are actually in.
+        /// This could be false for extraordinarily bad Steam connections.
+        /// </summary>
+        private static bool IsAboutThisFight(ulong seed) => seed != 0 && seed == BattleSeed;
 
         /// <summary>
         /// On Turn 1, I tried breaking Doremy's barrier, but I drew no attack cards.
@@ -484,14 +511,19 @@ namespace LBOLMP.Session.Battle
                 "localComplete=" + LocalTurnComplete,
                 "waitingInput=" + (battle?.IsWaitingPlayerInput.ToString() ?? "n/a"),
                 "round=" + round,
-                "allComplete=" + AllSeatsCompleted(round)
+                "allComplete=" + AllSeatsCompleted(round),
+                "fight=" + BattleSeed
             };
 
             foreach (var seat in Seats.Values.OrderBy(s => s.PlayerId))
             {
+                string fight = seat.PlayerId == MpNet.LocalPlayerId || seat.ReportedSeed == BattleSeed
+                    ? string.Empty
+                    : $" fight={seat.ReportedSeed}";
+
                 parts.Add($"#{seat.PlayerId}({seat.Name}) completed={seat.CompletedRound} " +
                           $"alive={seat.Alive} done={seat.Finished} down={seat.Down} " +
-                          $"silent={MpNet.SilenceFor(seat.PlayerId):F0}s");
+                          $"silent={MpNet.SilenceFor(seat.PlayerId):F0}s{fight}");
             }
 
             string links = MpSafe.Run("DescribeLinks", MpNet.DescribeLinks, string.Empty);
@@ -1080,6 +1112,11 @@ namespace LBOLMP.Session.Battle
 
         private static float _nextEnemyVitals;
 
+        /// <summary>Counts the host's vitals broadcasts, and the newest one seen from each sender.</summary>
+        private static int _vitalsSequence;
+
+        private static readonly Dictionary<int, int> _seenVitals = new Dictionary<int, int>();
+
         /// <summary>How often the host publishes where the enemies stand.</summary>
         private const float EnemyVitalsInterval = 1f;
 
@@ -1131,7 +1168,7 @@ namespace LBOLMP.Session.Battle
 
             if (vitals.Count > 0)
             {
-                MpNet.Send(new EnemyVitalsMessage { Vitals = vitals });
+                MpNet.Send(new EnemyVitalsMessage { Sequence = ++_vitalsSequence, Vitals = vitals });
             }
         }
 
@@ -1144,6 +1181,14 @@ namespace LBOLMP.Session.Battle
             {
                 return;
             }
+
+            // Since we said that enemy vitals are now "unreliable" messages, that means they can arrive out of order.
+            // Check that we're not re-applying an older enemy HP message and re-adjusting their HP back upwards.
+            if (_seenVitals.TryGetValue(message.SenderId, out int seen) && message.Sequence <= seen)
+            {
+                return;
+            }
+            _seenVitals[message.SenderId] = message.Sequence;
 
             var battle = GameMaster.Instance?.CurrentGameRun?.Battle;
 
@@ -1272,8 +1317,11 @@ namespace LBOLMP.Session.Battle
                 HandCount = battle?.HandZone.Count ?? 0,
                 DrawCount = battle?.DrawZone.Count ?? 0,
                 DiscardCount = battle?.DiscardZone.Count ?? 0,
+                BattleSeed = InBattle ? BattleSeed : _finishedSeed,
                 CompletedRound = InBattle ? GetSeat(MpNet.LocalPlayerId)?.CompletedRound ?? -1 : -1,
-                Finished = InBattle && (GetSeat(MpNet.LocalPlayerId)?.Finished ?? false),
+                Finished = InBattle
+                    ? GetSeat(MpNet.LocalPlayerId)?.Finished ?? false
+                    : _finishedSeed != 0,
                 StatusEffects = effects
             });
         }
@@ -1330,16 +1378,20 @@ namespace LBOLMP.Session.Battle
             seat.DrawCount = message.DrawCount;
             seat.DiscardCount = message.DiscardCount;
             seat.Alive = message.Hp > 0;
+            seat.ReportedSeed = message.BattleSeed;
 
-            // This should only ever increase
-            if (message.CompletedRound > seat.CompletedRound)
+            if (IsAboutThisFight(message.BattleSeed))
             {
-                seat.CompletedRound = message.CompletedRound;
-            }
+                // This should only ever increase
+                if (message.CompletedRound > seat.CompletedRound)
+                {
+                    seat.CompletedRound = message.CompletedRound;
+                }
 
-            if (message.Finished)
-            {
-                seat.Finished = true;
+                if (message.Finished)
+                {
+                    seat.Finished = true;
+                }
             }
 
             seat.StatusEffects = message.StatusEffects;
@@ -1358,6 +1410,7 @@ namespace LBOLMP.Session.Battle
             }
 
             _reportedFinished = true;
+            _finishedSeed = BattleSeed;
 
             var local = GetSeat(MpNet.LocalPlayerId);
             if (local != null)
@@ -1367,7 +1420,7 @@ namespace LBOLMP.Session.Battle
                 local.CompletedRound = int.MaxValue;
             }
 
-            MpNet.Send(new BattleFinishedMessage { Survived = survived });
+            MpNet.Send(new BattleFinishedMessage { BattleSeed = BattleSeed, Survived = survived });
         }
 
         /// <summary>Whether this battle's end has already been announced. Per battle.</summary>
@@ -1375,6 +1428,11 @@ namespace LBOLMP.Session.Battle
 
         private static void OnBattleFinished(BattleFinishedMessage message)
         {
+            if (!IsAboutThisFight(message.BattleSeed))
+            {
+                return;
+            }
+
             var seat = GetSeat(message.SenderId);
             if (seat == null)
             {

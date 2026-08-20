@@ -430,3 +430,4 @@ FodyWeavers.xsd
 
 # Mod output folder
 /output
+/local
