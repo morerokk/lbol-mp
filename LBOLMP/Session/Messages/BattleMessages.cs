@@ -132,7 +132,7 @@ namespace LBOLMP.Session.Messages
     /// Purely cosmetic. Tells the other clients which card a player just played, to show a card popup.
     /// Note: this currently does not show the card's "pure" status or other cost reductions.
     /// </summary>
-    [NetMessage(34, Unreliable = true)]
+    [NetMessage(34)]
     public sealed class RemoteCardPlayMessage : NetMessage
     {
         public string CardId;
@@ -329,7 +329,7 @@ namespace LBOLMP.Session.Messages
     /// <summary>
     /// Purely cosmetic, the animation a player's own character just started.
     /// </summary>
-    [NetMessage(41, Unreliable = true)]
+    [NetMessage(41)]
     public sealed class RemoteAnimationMessage : NetMessage
     {
         public string AnimationName = string.Empty;
@@ -342,7 +342,7 @@ namespace LBOLMP.Session.Messages
     /// Purely cosmetic, a player has just been hit, and this is how it landed on them.
     /// Used to play the right animations for blocking/grazing.
     /// </summary>
-    [NetMessage(42, Unreliable = true)]
+    [NetMessage(42)]
     public sealed class RemoteHitMessage : NetMessage
     {
         public float Damage;
@@ -378,7 +378,7 @@ namespace LBOLMP.Session.Messages
     /// <summary>
     /// Emote, playing an animation and popping up a speech bubble
     /// </summary>
-    [NetMessage(43, Unreliable = true)]
+    [NetMessage(43)]
     public sealed class RemoteEmoteMessage : NetMessage
     {
         public int Emote;

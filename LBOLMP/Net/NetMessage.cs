@@ -27,8 +27,11 @@ namespace LBOLMP.Net
 
         /// <summary>
         /// If true, this message is allowed to be dropped rather than retransmitted.
-        /// Should be true for cosmetic or unimportant network messages (such as cosmetic messages, or self-correcting messages like enemy HP status)
         /// </summary>
+        /// <remarks>
+        /// Note: this should not be true just for being "cosmetic", it should only be true if "will this be resent shortly? and if it is resent, is it idempotent?".
+        /// Things like snapshots of an enemy's current HP. If message 1 never arrives, everything is okay once message 2 arrives.
+        /// </remarks>
         public bool Unreliable { get; set; }
     }
 
