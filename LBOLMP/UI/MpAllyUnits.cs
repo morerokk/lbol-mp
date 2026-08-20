@@ -51,6 +51,11 @@ namespace LBOLMP.UI
         private const float AllyVolume = 0.5f;
 
         /// <summary>
+        /// How big everybody else is drawn. You are always full size, in either layout.
+        /// </summary>
+        private const float AllyScale = 0.92f;
+
+        /// <summary>
         /// Where each extra player stands, relative to the local player's root.
         /// </summary>
         private static readonly Vector2[] Offsets =
@@ -63,6 +68,116 @@ namespace LBOLMP.UI
             // Player 6 would cover up the UI, so she's placed above and slightly behind the local player instead
             new Vector2(-0.6f, 2f)
         };
+
+        /// <summary>The local player's view, or null.</summary>
+        private static UnitView _displaced;
+
+        /// <summary>Where the game had the local player's view before we moved it.</summary>
+        private static Vector3 _displacedHome;
+
+        private static bool SeatedLayout =>
+            MpPlugin.SharedPartyPositions != null && MpPlugin.SharedPartyPositions.Value;
+
+        /// <summary>
+        /// Where a player is (literally). <c>Vector2.zero</c> is the front, where a single player game would put you.
+        ///
+        /// By default everybody is the main character of their own screen, so you are on the front
+        /// position and the rest of the party queues up behind you. If SharedPartyPositions is enabled, you are in the position you are "actually" in in the party.
+        /// </summary>
+        private static Vector2 StandingSpot(int playerId)
+        {
+            int slot;
+            if (SeatedLayout)
+            {
+                // Seats are places in the roster rather than player ids, so this survives somebody
+                // leaving and rejoining under a different number.
+                int seat = MpSession.SeatIndexOf(playerId);
+                slot = seat < 0 ? Offsets.Length - 1 : seat - 1;
+            }
+            else
+            {
+                slot = QueueIndexOf(playerId);
+            }
+
+            return slot < 0 ? Vector2.zero : Offsets[Mathf.Clamp(slot, 0, Offsets.Length - 1)];
+        }
+
+        /// <summary>
+        /// This player's place in the queue behind the local player, or -1 for the local player.
+        /// </summary>
+        private static int QueueIndexOf(int playerId)
+        {
+            int slot = 0;
+            foreach (var player in MpSession.ConnectedPlayers)
+            {
+                if (player.IsLocal)
+                {
+                    continue;
+                }
+
+                if (player.Id == playerId)
+                {
+                    return slot;
+                }
+
+                slot++;
+            }
+
+            return -1;
+        }
+
+        /// <summary>
+        /// Puts everybody in the right position. Unfortunately, this has to run every frame rather than once at spawn,
+        /// because seats shift when somebody leaves.
+        /// </summary>
+        private static void PlaceEveryone(GameDirector director)
+        {
+            foreach (var ally in Allies.Values)
+            {
+                if (ally.Root == null)
+                {
+                    continue;
+                }
+
+                var spot = StandingSpot(ally.PlayerId);
+                ally.Root.transform.localPosition = new Vector3(spot.x, spot.y, 0f);
+            }
+
+            PlaceLocalPlayer(director.PlayerUnitView);
+        }
+
+        /// <summary>
+        /// Moves the local player off the front position into their seat, or puts them back.
+        /// </summary>
+        private static void PlaceLocalPlayer(UnitView view)
+        {
+            if (!SeatedLayout || view == null)
+            {
+                ReturnLocalPlayer();
+                return;
+            }
+
+            // Remember the original origin
+            if (!ReferenceEquals(view, _displaced))
+            {
+                _displaced = view;
+                _displacedHome = view.transform.localPosition;
+            }
+
+            var spot = StandingSpot(MpNet.LocalPlayerId);
+            view.transform.localPosition = _displacedHome + new Vector3(spot.x, spot.y, 0f);
+        }
+
+        /// <summary>Puts the local player back on their usual spot, if we moved them off it.</summary>
+        private static void ReturnLocalPlayer()
+        {
+            if (_displaced != null)
+            {
+                _displaced.transform.localPosition = _displacedHome;
+            }
+
+            _displaced = null;
+        }
 
         /// <summary>The mirror unit for a player, usable as the source of a replicated action.</summary>
         public static PlayerUnit GetUnit(int playerId) =>
@@ -143,6 +258,7 @@ namespace LBOLMP.UI
                 {
                     DespawnAll();
                 }
+                ReturnLocalPlayer();
                 return;
             }
 
@@ -153,6 +269,7 @@ namespace LBOLMP.UI
                 {
                     DespawnAll();
                 }
+                ReturnLocalPlayer();
                 return;
             }
 
@@ -165,7 +282,6 @@ namespace LBOLMP.UI
                 }
             }
 
-            int slot = 0;
             foreach (var player in MpSession.ConnectedPlayers)
             {
                 if (player.IsLocal)
@@ -175,13 +291,14 @@ namespace LBOLMP.UI
 
                 if (!Allies.ContainsKey(player.Id) && !string.IsNullOrEmpty(player.CharacterId))
                 {
-                    Spawn(player, slot);
+                    Spawn(player);
                 }
-                slot++;
             }
+
+            PlaceEveryone(director);
         }
 
-        private static void Spawn(MpPlayer player, int slot)
+        private static void Spawn(MpPlayer player)
         {
             PlayerUnit unit = MpSafe.Run("MpAllyUnits.Create",
                 () => Library.TryCreatePlayerUnit(player.CharacterId), null);
@@ -208,10 +325,10 @@ namespace LBOLMP.UI
             };
             Allies[player.Id] = ally;
 
-            LoadAllyAsync(ally, player, slot).Forget();
+            LoadAllyAsync(ally, player).Forget();
         }
 
-        private static async UniTask LoadAllyAsync(Ally ally, MpPlayer player, int slot)
+        private static async UniTask LoadAllyAsync(Ally ally, MpPlayer player)
         {
             try
             {
@@ -221,9 +338,9 @@ namespace LBOLMP.UI
                 // repositions the player for a scene.
                 var root = new GameObject($"MpAlly_{player.Id}_{ally.CharacterId}");
                 root.transform.SetParent(director.playerRoot, false);
-                var offset = Offsets[Mathf.Clamp(slot, 0, Offsets.Length - 1)];
-                root.transform.localPosition = new Vector3(offset.x, offset.y, 0f);
-                root.transform.localScale = Vector3.one * 0.92f;
+                var spot = StandingSpot(player.Id);
+                root.transform.localPosition = new Vector3(spot.x, spot.y, 0f);
+                root.transform.localScale = Vector3.one * AllyScale;
                 ally.Root = root;
 
                 var instance = UnityEngine.Object.Instantiate(director.unitPrefab, root.transform);

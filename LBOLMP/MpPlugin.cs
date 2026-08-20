@@ -27,6 +27,7 @@ namespace LBOLMP
         public static ConfigEntry<string> PlayerName;
         public static ConfigEntry<KeyCode> LobbyHotkey;
         public static ConfigEntry<KeyCode> DiagnosticsHotkey;
+        public static ConfigEntry<bool> SharedPartyPositions;
 
         /// <summary>Toggled at runtime. Shows the combat sync state on screen.</summary>
         public static bool ShowDiagnostics { get; private set; }
@@ -93,6 +94,8 @@ namespace LBOLMP
                 "Key that toggles the multiplayer lobby overlay.");
             DiagnosticsHotkey = Config.Bind("Interface", nameof(DiagnosticsHotkey), KeyCode.F3,
                 "Key that toggles the combat sync diagnostics overlay.");
+            SharedPartyPositions = Config.Bind("Interface", nameof(SharedPartyPositions), false,
+                "Show every player (including you) in their 'real' positions. Only affects your own screen.");
             EnemyHpScalePerExtraPlayer = Config.Bind("Balance", nameof(EnemyHpScalePerExtraPlayer), 1f,
                 "Extra enemy max HP per additional player, as a fraction. 1 means a 100 HP enemy has 200 HP with two players. The host's setting is used.");
 
