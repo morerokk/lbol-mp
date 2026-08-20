@@ -64,6 +64,7 @@ namespace LBOLMP
             try
             {
                 LBoLEntitySideloader.EntityManager.RegisterSelf();
+                new Session.MpRunSaveData().RegisterSelf(MpInfo.Guid);
 
                 MessageRegistry.RegisterAll(Assembly.GetExecutingAssembly());
                 HarmonyInstance.PatchAll(Assembly.GetExecutingAssembly());

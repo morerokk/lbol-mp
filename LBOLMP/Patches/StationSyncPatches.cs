@@ -424,6 +424,21 @@ namespace LBOLMP.Patches
             PartyBoss.Clear();
         }
 
+        /// <summary>
+        /// When loading a run, re-apply the client's local boss choice
+        /// </summary>
+        internal static void RestoreLocalPick(string pick, int stageIndex)
+        {
+            if (string.IsNullOrEmpty(pick) || stageIndex < 0)
+            {
+                return;
+            }
+
+            LocalPick = pick;
+            LocalPickStage = stageIndex;
+            MpPlugin.Log.LogInfo($"This player's boss pick came back from the save: {pick}");
+        }
+
         [HarmonyPrefix]
         private static bool Prefix(Stage __instance, ref string enemyGroupName)
         {
@@ -519,12 +534,59 @@ namespace LBOLMP.Patches
         /// </summary>
         public static void Tick()
         {
-            if (!MpSession.IsActive || !MpSession.IsInRun || PartyBoss.Count == 0)
+            if (!MpSession.IsActive || !MpSession.IsInRun)
             {
                 return;
             }
 
-            MpSafe.Run("SetBossSyncPatch.Tick", ApplyKnownBosses);
+            MpSafe.Run("SetBossSyncPatch.Tick", () =>
+            {
+                ShareOwnBossIfHost();
+
+                if (PartyBoss.Count > 0)
+                {
+                    ApplyKnownBosses();
+                }
+            });
+        }
+
+        /// <summary>
+        /// Re-announce who the Act 1 boss is going to be after a save load.
+        /// </summary>
+        private static void ShareOwnBossIfHost()
+        {
+            if (!MpNet.IsHost)
+            {
+                return;
+            }
+
+            var stages = GameMaster.Instance?.CurrentGameRun?.Stages;
+            if (stages == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < stages.Count; i++)
+            {
+                var stage = stages[i];
+                if (stage == null || !stage.IsSelectingBoss || stage.Boss == null)
+                {
+                    continue;
+                }
+
+                if (PartyBoss.TryGetValue(stage.Index, out string known) && known == stage.Boss.Id)
+                {
+                    continue;
+                }
+
+                PartyBoss[stage.Index] = stage.Boss.Id;
+                MpNet.Send(new Session.Messages.BossChosenMessage
+                {
+                    StageIndex = stage.Index,
+                    BossId = stage.Boss.Id
+                });
+                MpPlugin.Log.LogInfo($"Telling the party this run's act boss: {stage.Boss.Id}");
+            }
         }
 
         private static void ApplyKnownBosses()
