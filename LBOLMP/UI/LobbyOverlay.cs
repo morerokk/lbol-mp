@@ -12,7 +12,8 @@ namespace LBOLMP.UI
     /// </summary>
     public sealed class LobbyOverlay : MonoBehaviour
     {
-        private const int WindowId = 0x1B01;
+        // Unique window ID to avoid clashing with other mods, do not reuse this specific ID
+        private const int WindowId = 0x4D41;
 
         private static readonly Color HostColour = new Color(1f, 0.85f, 0.4f);
         private static readonly Color LocalColour = new Color(0.6f, 1f, 0.7f);

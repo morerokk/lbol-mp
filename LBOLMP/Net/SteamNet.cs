@@ -1,5 +1,6 @@
 using System;
 using Steamworks;
+using UnityEngine;
 
 namespace LBOLMP.Net
 {
@@ -16,6 +17,12 @@ namespace LBOLMP.Net
     {
         private static bool _available;
         private static bool _callbacksReady;
+
+        /// <summary>When a "Steam is not there" answer may be re-checked again, by unscaled time.</summary>
+        private static float _nextAvailabilityCheck;
+
+        /// <summary>How long that answer is trusted for.</summary>
+        private const float UnavailableRecheckSeconds = 2f;
 
         private static CSteamID _lobby = CSteamID.Nil;
 
@@ -35,8 +42,8 @@ namespace LBOLMP.Net
         /// Rechecked until it succeeds rather than cached.
         /// The mod loads before the game initialises the Steam API, so the first answer would otherwise be a permanent no. Once
         /// true it cannot become false, so this is fine.
-        /// This is probably slightly laggy on pirated copies or when playing offline, but only if the F2 window is up.
         /// (And besides, would you really feel comfortable pirating this game?)
+        /// This is only checked every so often, because otherwise it can lag the F2 window while it's up.
         /// </summary>
         public static bool IsAvailable
         {
@@ -46,6 +53,13 @@ namespace LBOLMP.Net
                 {
                     return true;
                 }
+
+                if (Time.unscaledTime < _nextAvailabilityCheck)
+                {
+                    return false;
+                }
+
+                _nextAvailabilityCheck = Time.unscaledTime + UnavailableRecheckSeconds;
 
                 try
                 {
