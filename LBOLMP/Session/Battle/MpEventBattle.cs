@@ -40,7 +40,11 @@ namespace LBOLMP.Session.Battle
         /// <summary>True when the local player is spectating this fight.</summary>
         public static bool LocalSpectating { get; private set; }
 
-        public static void RegisterHandlers() => MpNet.On<EventBattleChoiceMessage>(OnChoice);
+        public static void RegisterHandlers()
+        {
+            MpNet.On<EventBattleChoiceMessage>(OnChoice);
+            MpNet.On<EventBattleChoiceQueryMessage>(OnQuery);
+        }
 
         public static void Reset()
         {
@@ -106,11 +110,23 @@ namespace LBOLMP.Session.Battle
                 return;
             }
 
-            Choices[message.SenderId] = new Choice
+            var choice = new Choice
             {
                 Fighting = message.Fighting,
                 EnemyGroupId = message.EnemyGroupId
             };
+
+            // Choices are re-sent on request, so most of these are ones we already have.
+            bool known = Choices.TryGetValue(message.SenderId, out var had)
+                         && had.Fighting == choice.Fighting
+                         && had.EnemyGroupId == choice.EnemyGroupId;
+
+            Choices[message.SenderId] = choice;
+
+            if (known)
+            {
+                return;
+            }
 
             string who = MpSession.Players.FirstOrDefault(p => p.Id == message.SenderId)?.Name
                          ?? message.SenderId.ToString();
@@ -119,6 +135,31 @@ namespace LBOLMP.Session.Battle
                 ? $"{who} is taking the event's fight"
                 : $"{who} is sitting the event's fight out");
         }
+
+        /// <summary>
+        /// Somebody is still waiting on us. Say our choice again if we have one.
+        /// </summary>
+        private static void OnQuery(EventBattleChoiceQueryMessage message)
+        {
+            if (message.SenderId == MpNet.LocalPlayerId || !_answered)
+            {
+                return;
+            }
+
+            if (!Choices.TryGetValue(MpNet.LocalPlayerId, out var mine))
+            {
+                return;
+            }
+
+            MpNet.Send(new EventBattleChoiceMessage
+            {
+                Fighting = mine.Fighting,
+                EnemyGroupId = mine.EnemyGroupId
+            });
+        }
+
+        /// <summary>How often someone still waiting asks the party to repeat itself.</summary>
+        private const float QueryInterval = 1.5f;
 
         /// <summary>
         /// Wait here until everyone has chosen.
@@ -133,9 +174,17 @@ namespace LBOLMP.Session.Battle
             float waited = 0f;
             float reportInterval = 5f;
             float nextReport = reportInterval;
+            float nextQuery = QueryInterval;
 
             while (!MpSafe.Run("EventBattleGate", () => AllAnswered || !MpSession.IsActive, true))
             {
+                if (waited >= nextQuery)
+                {
+                    nextQuery = waited + QueryInterval;
+                    MpSafe.Run("EventBattleQuery",
+                        () => MpNet.Send(new EventBattleChoiceQueryMessage()));
+                }
+
                 if (waited > nextReport)
                 {
                     reportInterval = Mathf.Min(reportInterval * 2f, 30f);

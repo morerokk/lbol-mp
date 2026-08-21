@@ -327,6 +327,17 @@ namespace LBOLMP.Session.Messages
     }
 
     /// <summary>
+    /// Fallback message: ask other players what they actually picked for the event (combat or not?).
+    /// This fixes late or dropped messages being lost forever, like if the host loads in later than everyone else during a restart.
+    /// </summary>
+    [NetMessage(52)]
+    public sealed class EventBattleChoiceQueryMessage : NetMessage
+    {
+        public override void Write(NetWriter w) { }
+        public override void Read(NetReader r) { }
+    }
+
+    /// <summary>
     /// Purely cosmetic, the animation a player's own character just started.
     /// </summary>
     [NetMessage(41)]
