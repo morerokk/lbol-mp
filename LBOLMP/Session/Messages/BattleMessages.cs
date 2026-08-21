@@ -273,7 +273,7 @@ namespace LBOLMP.Session.Messages
     }
 
     /// <summary>
-    /// The host's opinion of the enemy's current life/block/barrier. This is a quick and dirty fix for kedamas and other out-of-order effects,
+    /// The host's opinion of the enemy's current life/block/barrier/damage cap. This is a quick and dirty fix for kedamas and other out-of-order effects,
     /// I don't foresee this being "fixed the proper way" without significant architectural changes (which would likely make the game feel laggier to play tbh).
     /// </summary>
     [NetMessage(39, Unreliable = true)]
@@ -286,7 +286,10 @@ namespace LBOLMP.Session.Messages
         /// </summary>
         public int Sequence;
 
-        /// <summary>Enemy index, current HP, block and shield, four ints per enemy.</summary>
+        /// <summary>
+        /// Enemy index, current HP, block, shield and damage cap, five ints per enemy. The cap is
+        /// -1 for an enemy that has none, which is everyone except Seija.
+        /// </summary>
         public List<int> Vitals = new List<int>();
 
         public override void Write(NetWriter w)

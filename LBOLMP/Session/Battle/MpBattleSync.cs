@@ -1167,6 +1167,7 @@ namespace LBOLMP.Session.Battle
                 vitals.Add(enemy.IsAlive ? enemy.Hp : 0);
                 vitals.Add(enemy.Block);
                 vitals.Add(enemy.Shield);
+                vitals.Add(DamageCapOf(enemy));
             }
 
             if (vitals.Count > 0)
@@ -1200,7 +1201,7 @@ namespace LBOLMP.Session.Battle
                 return;
             }
 
-            for (int i = 0; i + 3 < message.Vitals.Count; i += 4)
+            for (int i = 0; i + 4 < message.Vitals.Count; i += 5)
             {
                 var enemy = FindEnemy(battle, message.Vitals[i]);
                 if (enemy == null || !enemy.IsAlive)
@@ -1216,7 +1217,46 @@ namespace LBOLMP.Session.Battle
                 }
 
                 CorrectEnemy(battle, enemy, message.Vitals[i + 1], message.Vitals[i + 2], message.Vitals[i + 3]);
+                CorrectDamageCap(enemy, message.Vitals[i + 4]);
             }
+        }
+
+        /// <summary>
+        /// What is left of an enemy's damage cap this turn, or -1 for an enemy that has none.
+        ///
+        /// Seija's <c>LimitedDamage</c> is the one enemy status the party has to agree on, and the
+        /// one the ordinary status replication cannot carry: it is a budget rather than a stack. It
+        /// drains as she is hit and refills only at the start of her own turn, so the same hit can
+        /// count against a different turn's budget on two clients that are milliseconds apart, and
+        /// from then on she takes a different amount of damage on each of them. It rides along with
+        /// her health for the same reason her health needs correcting at all.
+        /// </summary>
+        private static int DamageCapOf(EnemyUnit enemy)
+        {
+            var cap = enemy.StatusEffects.FirstOrDefault(e => e is LimitedDamage);
+            return cap != null && cap.HasCount ? cap.Count : -1;
+        }
+
+        /// <summary>Put an enemy's damage cap back to the host's. See <see cref="DamageCapOf"/>.</summary>
+        private static void CorrectDamageCap(EnemyUnit enemy, int cap)
+        {
+            if (cap < 0)
+            {
+                return;
+            }
+
+            var effect = enemy.StatusEffects.FirstOrDefault(e => e is LimitedDamage) as LimitedDamage;
+            if (effect == null || !effect.HasCount || effect.Count == cap)
+            {
+                return;
+            }
+
+            MpPlugin.Log.LogInfo(
+                $"Correcting {enemy.Id}'s damage cap to the host: {effect.Count}->{cap}");
+
+            // The property is what the icon shows; the field is what actually gates the damage.
+            effect._internalCount = cap;
+            effect.Count = cap;
         }
 
         private static void CorrectEnemy(BattleController battle, EnemyUnit enemy, int hp, int block, int shield)
