@@ -1225,11 +1225,11 @@ namespace LBOLMP.Session.Battle
 
             if (wantedHp <= 0)
             {
-                // Dead on the host and alive here, so just kill the enemy manually by forcing its life to zero through regular damage,
-                // which also correctly triggers on-death effects.
+                // If an enemy is dead on the host, force-kill them on the client too.
+                // This fixes a problem where Seija's damage cap would ignore host HP syncing since she would just reduce the damage correction to 0.
                 MpPlugin.Log.LogInfo($"{enemy.Id} is already down on the host; finishing it here");
                 battle.RequestDebugAction(
-                    Inject(new DamageAction(null, enemy, DamageInfo.HpLose(enemy.Hp))),
+                    Inject(new ForceKillAction(null, enemy)),
                     "MP enemy correction");
                 return;
             }
