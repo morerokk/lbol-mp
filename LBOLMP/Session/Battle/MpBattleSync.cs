@@ -1259,17 +1259,30 @@ namespace LBOLMP.Session.Battle
             effect.Count = cap;
         }
 
+        /// <summary>
+        /// True when nothing but summons are still alive.
+        /// </summary>
+        private static bool OnlyServantsLeft(BattleController battle) =>
+            battle.EnemyGroup.All(e => e.IsServant || e.IsEscaped || !e.IsAlive);
+
         private static void CorrectEnemy(BattleController battle, EnemyUnit enemy, int hp, int block, int shield)
         {
             int wantedHp = Mathf.Clamp(hp, 0, enemy.MaxHp);
 
             if (wantedHp <= 0)
             {
+                // This fixes Rin throwing a nuclear bomb in the clients' faces when she dies on the host side.
+                if (enemy.IsServant && OnlyServantsLeft(battle))
+                {
+                    return;
+                }
+
                 // If an enemy is dead on the host, force-kill them on the client too.
                 // This fixes a problem where Seija's damage cap would ignore host HP syncing since she would just reduce the damage correction to 0.
+                // The player is marked as getting "credit" for the kill, to avoid Rin spirits detonating with double damage and other shenanigans.
                 MpPlugin.Log.LogInfo($"{enemy.Id} is already down on the host; finishing it here");
                 battle.RequestDebugAction(
-                    Inject(new ForceKillAction(null, enemy)),
+                    Inject(new ForceKillAction(battle.Player, enemy)),
                     "MP enemy correction");
                 return;
             }
