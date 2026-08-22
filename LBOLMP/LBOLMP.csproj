@@ -49,6 +49,8 @@
   <ItemGroup>
     <!-- LBOLMP.Entities.MpResilient -->
     <DoNotPublicize Include="LBoL.Core:LBoL.Core.StatusEffects.StatusEffect.OnAdded" />
+    <!-- LBOLMP.Entities.Cards.*. Left protected so our cards read like anybody else's. -->
+    <DoNotPublicize Include="LBoL.Core:LBoL.Core.Cards.Card.Actions" />
   </ItemGroup>
 
   <ItemGroup>

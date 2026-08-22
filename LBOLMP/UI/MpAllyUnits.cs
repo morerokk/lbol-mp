@@ -232,6 +232,31 @@ namespace LBOLMP.UI
             return Net.MpConstants.InvalidPlayerId;
         }
 
+        /// <summary>
+        /// Which player a mirror unit belongs to, or <c>InvalidPlayerId</c> for anything that is
+        /// not an ally.
+        /// </summary>
+        public static int PlayerFor(Unit unit)
+        {
+            if (unit == null)
+            {
+                return Net.MpConstants.InvalidPlayerId;
+            }
+
+            foreach (var ally in Allies.Values)
+            {
+                if (ReferenceEquals(ally.Unit, unit))
+                {
+                    return ally.PlayerId;
+                }
+            }
+            return Net.MpConstants.InvalidPlayerId;
+        }
+
+        /// <summary>Every loaded ally view, for the targeting arrow.</summary>
+        public static IEnumerable<UnitView> LoadedViews =>
+            Allies.Values.Where(a => !a.Loading && a.View != null && !a.Hidden).Select(a => a.View);
+
         /// <summary>The on-screen view for an ally unit, so the director can find it.</summary>
         public static UnitView GetView(Unit unit)
         {

@@ -68,6 +68,7 @@ namespace LBOLMP
                 new Session.MpRunSaveData().RegisterSelf(MpInfo.Guid);
 
                 MessageRegistry.RegisterAll(Assembly.GetExecutingAssembly());
+                MpEffects.RegisterAll(Assembly.GetExecutingAssembly());
                 HarmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
                 Log.LogInfo("Harmony patches and sideloader status effects applied");
             }

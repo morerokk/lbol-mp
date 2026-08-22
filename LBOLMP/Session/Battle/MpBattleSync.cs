@@ -181,6 +181,35 @@ namespace LBOLMP.Session.Battle
         }
 
         /// <summary>
+        /// Same, for a whole effect's worth of actions. The remote flag is held for the queueing
+        /// only: these actions belong to us once they resolve, so anything they do to a shared
+        /// enemy should still be published like our own play.
+        /// </summary>
+        internal static void QueueReplicated(BattleController battle, IEnumerable<BattleAction> actions, string reason)
+        {
+            if (battle == null || actions == null)
+            {
+                return;
+            }
+
+            ApplyingRemoteEffect = true;
+            try
+            {
+                foreach (var action in actions)
+                {
+                    if (action != null)
+                    {
+                        battle.RequestDebugAction(Inject(action), reason);
+                    }
+                }
+            }
+            finally
+            {
+                ApplyingRemoteEffect = false;
+            }
+        }
+
+        /// <summary>
         /// Returns true if this action was one of ours, and forgets it. Used in patches to avoid double-plays.
         /// </summary>
         public static bool ConsumeInjected(BattleAction action) => Injected.Remove(action);
@@ -252,12 +281,15 @@ namespace LBOLMP.Session.Battle
             MpDownedPlayers.RegisterHandlers();
             MpEventBattle.RegisterHandlers();
             MpJunko.RegisterHandlers();
+            MpEffects.RegisterHandlers();
         }
 
         public static void Reset()
         {
             Seats.Clear();
             Injected.Clear();
+            MpEffects.Reset();
+            MpPartyTargeting.Clear();
             _seenAboveZero.Clear();
             _playerAppliedToEnemies.Clear();
             _reportedSilent.Clear();

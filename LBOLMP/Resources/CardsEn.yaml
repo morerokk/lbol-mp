@@ -1,0 +1,8 @@
+MpDonateBlock:
+  Name: Block Donation
+  Description: Give a Partner {Block} |Block|.
+  FlavorText: Hold still. This is going to help, probably.
+MpOffering:
+  Name: Offering to the Ownerless
+  Description: The next Ability card you play is also played for all your Partners.
+  FlavorText: What is given away freely is never truly lost.

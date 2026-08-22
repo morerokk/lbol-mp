@@ -4,3 +4,7 @@ MpResilient:
     At the end of its turn, loses {Level} more |Weak|, |Vulnerable|, and |Lock On|.
     Gains {Level} less |Firepower Down|, to a minimum of 1.
   Brief: Loses |Weak|, |Vulnerable| and |Lock On| faster, and takes less |Firepower Down|.
+MpOfferingSe:
+  Name: Offering to the Ownerless
+  Description: The next Ability card you play is also played for all your Partners.
+  Brief: Your next Ability card is also played for your Partners.
