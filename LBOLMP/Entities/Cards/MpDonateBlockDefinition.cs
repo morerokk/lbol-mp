@@ -56,10 +56,6 @@ namespace LBOLMP.Entities.Cards
             var config = DefaultConfig();
             config.Type = CardType.Defense;
             config.Rarity = Rarity.Common;
-
-            // Not in the reward pool. These are useless outside a lobby, so they need an
-            // MP-only gate before they can be handed out normally.
-            config.IsPooled = false;
             config.Colors = new List<ManaColor> { ManaColor.White };
             config.Cost = new ManaGroup { White = 1 };
             config.Block = 10;

@@ -18,7 +18,7 @@ namespace LBOLMP.Entities.Cards
     /// Plain CardTemplate rather than MpCardTemplate: the card sends nothing itself, it only hands
     /// the player a status that will.
     /// </summary>
-    public sealed class MpOfferingDefinition : CardTemplate
+    public sealed class MpOfferingDefinition : CardTemplate, IMpOnlyCard
     {
         private static DirectorySource _source;
 
@@ -47,10 +47,6 @@ namespace LBOLMP.Entities.Cards
             var config = DefaultConfig();
             config.Type = CardType.Skill;
             config.Rarity = Rarity.Rare;
-
-            // Not in the reward pool. These are useless outside a lobby, so they need an
-            // MP-only gate before they can be handed out normally.
-            config.IsPooled = false;
             config.Colors = new List<ManaColor> { ManaColor.Black };
             config.Cost = new ManaGroup { Black = 1 };
             config.TargetType = TargetType.Nobody;
