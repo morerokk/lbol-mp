@@ -1,5 +1,4 @@
 using HarmonyLib;
-using LBOLMP.Entities;
 using LBOLMP.Session;
 using LBOLMP.Session.Battle;
 using LBoL.Core;
@@ -7,6 +6,7 @@ using LBoL.Core.Battle.BattleActions;
 using LBoL.Core.StatusEffects;
 using LBoL.Core.Units;
 using UnityEngine;
+using LBOLMP.Entities.StatusEffects;
 
 namespace LBOLMP.Patches
 {

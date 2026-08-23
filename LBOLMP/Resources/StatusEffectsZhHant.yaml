@@ -6,5 +6,9 @@ MpResilient:
   Brief: 更快的失去|虛弱|、|易傷|和|鎖定|，且獲得的|失去火力|減少。
 MpOfferingSe:
   Name: 無主的供奉
-  Description: 你打出的下一張能力牌同時為你的所有隊友打出。
-  Brief: 你的下一張能力牌同時為隊友打出。
+  Description: 你接下來打出的 {Level} 張能力牌同時為你的所有|隊友|打出。
+  Brief: 你接下來的 {Level} 張能力牌同時為|隊友|打出。
+MpPartner:
+  Name: 隊友
+  Description: 其他玩家。
+  Brief: 其他玩家。

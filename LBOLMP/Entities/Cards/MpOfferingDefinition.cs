@@ -9,15 +9,15 @@ using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
 using LBoLEntitySideloader.Resource;
+using LBOLMP.Entities.StatusEffects;
 
 namespace LBOLMP.Entities.Cards
 {
     /// <summary>
-    /// Offering to the Ownerless. Sets up <see cref="MpOfferingSe"/>, which does the actual work.
-    ///
-    /// Plain CardTemplate rather than MpCardTemplate: the card sends nothing itself, it only hands
-    /// the player a status that will.
+    /// Offering to the Ownerless. Adds <see cref="MpOfferingSe"/>, which does the actual work.
     /// </summary>
+    /// Note: this is not extended from MpCardTemplate because it does not actually immediately send a network message when played.
+    /// It just adds a status effect, and that status effect will actually do something over the network.
     public sealed class MpOfferingDefinition : CardTemplate, IMpOnlyCard
     {
         private static DirectorySource _source;
@@ -30,30 +30,34 @@ namespace LBOLMP.Entities.Cards
         {
             var files = new LocalizationFiles(Source, Locale.En);
             files.AddLocaleFile(Locale.En, "Resources/CardsEn.yaml");
-            files.AddLocaleFile(Locale.ZhHans, "Resources/CardsZhHans.yaml");
-            files.AddLocaleFile(Locale.ZhHant, "Resources/CardsZhHant.yaml");
-            files.AddLocaleFile(Locale.Ja, "Resources/CardsJa.yaml");
+            // TODO: Find a translator to translate these
+            //files.AddLocaleFile(Locale.ZhHans, "Resources/CardsZhHans.yaml");
+            //files.AddLocaleFile(Locale.ZhHant, "Resources/CardsZhHant.yaml");
+            //files.AddLocaleFile(Locale.Ja, "Resources/CardsJa.yaml");
             return files;
         }
 
-        // No art yet. Swap for the usual AutoLoad once Resources/MpOffering.png exists:
-        //     var images = new CardImages(Source);
-        //     images.AutoLoad(this, extension: ".png");
-        //     return images;
-        public override CardImages LoadCardImages() => null;
+        public override CardImages LoadCardImages()
+        {
+            var images = new CardImages(Source);
+            images.AutoLoad(this, extension: ".png", relativePath: "Resources/Cards/");
+            return images;
+        }
 
         public override CardConfig MakeConfig()
         {
             var config = DefaultConfig();
             config.Type = CardType.Skill;
             config.Rarity = Rarity.Rare;
-            config.Colors = new List<ManaColor> { ManaColor.Black };
-            config.Cost = new ManaGroup { Black = 1 };
-            config.TargetType = TargetType.Nobody;
+            config.Colors = new List<ManaColor> { ManaColor.Black, ManaColor.Blue, ManaColor.White };
+            config.Cost = new ManaGroup { Any = 1, Blue = 1, White = 1, Black = 1 };
+            config.UpgradedCost = new ManaGroup { Any = 1, Black = 1 } + ManaGroup.Hybrids(1, ManaColor.Blue, ManaColor.White);
+            config.TargetType = TargetType.Self;
             config.Keywords = Keyword.Exile | Keyword.Retain;
             config.UpgradedKeywords = Keyword.Exile | Keyword.Retain;
-            config.RelativeEffects = new List<string> { nameof(MpOfferingSe) };
-            config.UpgradedRelativeEffects = new List<string> { nameof(MpOfferingSe) };
+            config.RelativeEffects = new List<string> { nameof(MpOfferingSe), nameof(MpPartner) };
+            config.UpgradedRelativeEffects = new List<string> { nameof(MpOfferingSe), nameof(MpPartner) };
+            config.Illustrator = "syaraku";
             return config;
         }
     }

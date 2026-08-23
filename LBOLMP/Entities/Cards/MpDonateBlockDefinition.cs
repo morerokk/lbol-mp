@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using LBOLMP.Net;
+using LBOLMP.Entities.StatusEffects;
 using LBOLMP.Session.Battle;
 using LBoL.Base;
 using LBoL.ConfigData;
@@ -21,11 +22,7 @@ namespace LBOLMP.Entities.Cards
     }
 
     /// <summary>
-    /// Give one partner Block.
-    ///
-    /// This is worth playing after somebody has already ended their turn: the enemy cannot move
-    /// until the whole party has finished its player phase, and the enemy-turn gate keeps draining
-    /// replicated work while it waits, so the Block always lands before anything swings at them.
+    /// Give one partner Block immediately. Scaled by the Spirit of the player playing it.
     /// </summary>
     public sealed class MpDonateBlockDefinition : MpCardTemplate<MpDonateBlockPayload>
     {
@@ -39,17 +36,18 @@ namespace LBOLMP.Entities.Cards
         {
             var files = new LocalizationFiles(Source, Locale.En);
             files.AddLocaleFile(Locale.En, "Resources/CardsEn.yaml");
-            files.AddLocaleFile(Locale.ZhHans, "Resources/CardsZhHans.yaml");
-            files.AddLocaleFile(Locale.ZhHant, "Resources/CardsZhHant.yaml");
-            files.AddLocaleFile(Locale.Ja, "Resources/CardsJa.yaml");
+            //files.AddLocaleFile(Locale.ZhHans, "Resources/CardsZhHans.yaml");
+            //files.AddLocaleFile(Locale.ZhHant, "Resources/CardsZhHant.yaml");
+            //files.AddLocaleFile(Locale.Ja, "Resources/CardsJa.yaml");
             return files;
         }
 
-        // No art yet. Swap for the usual AutoLoad once Resources/MpDonateBlock.png exists:
-        //     var images = new CardImages(Source);
-        //     images.AutoLoad(this, extension: ".png");
-        //     return images;
-        public override CardImages LoadCardImages() => null;
+        public override CardImages LoadCardImages()
+        {
+            var images = new CardImages(Source);
+            images.AutoLoad(this, extension: ".png", relativePath: "Resources/Cards/");
+            return images;
+        }
 
         public override CardConfig MakeConfig()
         {
@@ -58,21 +56,24 @@ namespace LBOLMP.Entities.Cards
             config.Rarity = Rarity.Common;
             config.Colors = new List<ManaColor> { ManaColor.White };
             config.Cost = new ManaGroup { White = 1 };
-            config.Block = 10;
-            config.UpgradedBlock = 14;
+            config.UpgradedCost = new ManaGroup { Any = 1 };
+            config.Block = 8;
+            config.UpgradedBlock = 12;
+            config.Illustrator = "Tuck坦";
 
-            // Borrowed for the pick-a-target arrow, which no other target type gives us.
-            // PartyTargetPatches points it at the party instead of the enemies.
+            // Set to TargetType.SingleEnemy just so we can borrow the selector logic.
+            // PartyTargetPatches points it at a partner instead of enemies.
             config.TargetType = TargetType.SingleEnemy;
+
+            config.RelativeEffects = new List<string> { nameof(MpPartner) };
+            config.UpgradedRelativeEffects = new List<string> { nameof(MpPartner) };
             return config;
         }
 
         public override IEnumerable<BattleAction> Receive(
             MpDonateBlockPayload payload, BattleController battle, int senderId)
         {
-            // Left without a cause on purpose, like every other replicated action. Spirit only
-            // reacts to Card, Us and OnlyCalculate, so the number the sender already worked out
-            // does not get boosted a second time by the receiver's own buffs.
+            // Intentionally doesn't have a cause, because only the caster's Spirit/Divine Favor is taken into account for this
             yield return new CastBlockShieldAction(battle.Player, payload.Block, 0);
         }
     }
@@ -80,15 +81,14 @@ namespace LBOLMP.Entities.Cards
     [EntityLogic(typeof(MpDonateBlockDefinition))]
     public sealed class MpDonateBlock : Card, IMpPartnerTargeted
     {
-        /// <summary>Unplayable with nobody to give it to, rather than fizzling and wasting the mana.</summary>
+        // Can't be played if there are no valid partners to use it on
         public override bool CanUse => MpPartyTargeting.AnyValidPartner;
 
         protected override IEnumerable<BattleAction> Actions(
             UnitSelector selector, ManaGroup consumingMana, Interaction precondition)
         {
-            // What we would have gained ourselves, so our Spirit, Grace and Fragil all count.
-            // Card.Block is only the printed number; the modifiers live on the gaining unit's
-            // BlockShieldGaining event, and we never gain anything here to trigger them.
+            // Calculate the block *we* would have gotten from this, but then send it over the network instead.
+            // This makes Spirit etc, work.
             int block = Battle.CalculateBlockShield(this, Block.Block, 0f).Item1;
 
             MpEffects.Send(Id, new MpDonateBlockPayload { Block = block }, MpEffectTarget.Partner,

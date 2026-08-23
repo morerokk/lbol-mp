@@ -6,5 +6,9 @@ MpResilient:
   Brief: "|脱力|、|弱体|、|ロックオン|がより早く減少し、|火力低下|を受けにくくなる。"
 MpOfferingSe:
   Name: 無主への供物
-  Description: 次に使用する能力カードは、仲間全員の場でも使用される。
-  Brief: 次の能力カードは仲間の場でも使用される。
+  Description: 次に使用する能力カード{Level}枚は、|仲間|全員の場でも使用される。
+  Brief: 次の能力カード{Level}枚は|仲間|の場でも使用される。
+MpPartner:
+  Name: 仲間
+  Description: 他のプレイヤー。
+  Brief: 他のプレイヤー。

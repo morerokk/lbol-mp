@@ -12,7 +12,7 @@ using LBoLEntitySideloader.Entities;
 using LBoLEntitySideloader.Resource;
 using UnityEngine;
 
-namespace LBOLMP.Entities
+namespace LBOLMP.Entities.StatusEffects
 {
     /// <summary>
     /// The Resilient status makes enemies lose 1 more stack of Weak, Vulnerable, and Lock On at the end of their turn.
@@ -40,7 +40,7 @@ namespace LBOLMP.Entities
             return files;
         }
 
-        public override Sprite LoadSprite() => ResourceLoader.LoadSprite("Resources/MpResilient.png", Source);
+        public override Sprite LoadSprite() => ResourceLoader.LoadSprite("Resources/StatusEffects/MpResilient.png", Source);
 
         public override StatusEffectConfig MakeConfig()
         {

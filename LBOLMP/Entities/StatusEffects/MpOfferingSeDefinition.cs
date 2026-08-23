@@ -13,9 +13,11 @@ using LBoLEntitySideloader.Entities;
 using LBoLEntitySideloader.Resource;
 using UnityEngine;
 
-namespace LBOLMP.Entities
+namespace LBOLMP.Entities.StatusEffects
 {
-    /// <summary>Which card the partners are being asked to play.</summary>
+    /// <summary>
+    /// Payload used to play cards on behalf of another player.
+    /// </summary>
     public sealed class MpProxyCardPayload : MpEffectPayload
     {
         public string CardId;
@@ -43,19 +45,13 @@ namespace LBOLMP.Entities
             return files;
         }
 
-        /// <summary>
-        /// Falls back to the Resilient icon until Resources/MpOfferingSe.png exists, so the status
-        /// HUD always has something to draw. Drop the fallback once the real art lands.
-        /// </summary>
-        public override Sprite LoadSprite() =>
-            ResourceLoader.LoadSprite("Resources/MpOfferingSe.png", Source)
-            ?? ResourceLoader.LoadSprite("Resources/MpResilient.png", Source);
+        public override Sprite LoadSprite() => ResourceLoader.LoadSprite("Resources/StatusEffects/MpOfferingSe.png", Source);
 
         public override StatusEffectConfig MakeConfig()
         {
             var config = DefaultConfig();
             config.Type = StatusEffectType.Positive;
-            config.HasLevel = false;
+            config.HasLevel = true;
             config.HasDuration = false;
             return config;
         }
@@ -70,9 +66,8 @@ namespace LBOLMP.Entities
                 yield break;
             }
 
-            // Vanilla's marker for a card that was conjured for one play and should not stick
-            // around afterwards. FollowAttackAction does exactly this with its random filler cards.
-            // Without it the copy would land in our discard pile and stay in the deck for the fight.
+            // This is set as a PlayTwiceToken, so that it can't be double-played itself,
+            // and so that if we ever apply this to non-Ability cards, it won't litter the card into the receiver's discard/exile pile.
             copy.IsPlayTwiceToken = true;
 
             yield return new PlayCardAction(copy);
@@ -87,16 +82,15 @@ namespace LBOLMP.Entities
     {
         protected override void OnAdded(Unit unit)
         {
-            // CardUsed, never CardPlayed. CardUsed only fires when a player actually plays a card
-            // from their hand; CardPlayed also fires for free plays and for the copies we ask
-            // partners to play. Listening on CardPlayed would let two of these bounce off each
-            // other forever.
+            // Should ONLY be on CardUsed, to avoid potential infinite back-and-forth loops!
+            // CardPlayed also fires for free plays and the copies that a Partner is asking the local player to play.
             ReactOwnerEvent(Battle.CardUsed, new EventSequencedReactor<CardUsingEventArgs>(OnCardUsed));
         }
 
         private IEnumerable<BattleAction> OnCardUsed(CardUsingEventArgs args)
         {
-            if (args.Card == null || args.Card.CardType != CardType.Ability || Battle.BattleShouldEnd)
+            if (args.Card == null || args.Card.CardType != CardType.Ability
+                || Battle.BattleShouldEnd || Level <= 0)
             {
                 yield break;
             }
@@ -108,7 +102,11 @@ namespace LBOLMP.Entities
                 new MpProxyCardPayload { CardId = args.Card.Id, Upgraded = args.Card.IsUpgraded },
                 MpEffectTarget.AllPartners);
 
-            yield return new RemoveStatusEffectAction(this);
+            Level -= 1;
+            if (Level <= 0)
+            {
+                yield return new RemoveStatusEffectAction(this, true, 0.1f);
+            }
         }
     }
 }
