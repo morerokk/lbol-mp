@@ -227,6 +227,11 @@ namespace LBOLMP.Session.Battle
         /// </summary>
         public static bool SpectatingOnly => MpDownedPlayers.LocalDown || MpEventBattle.LocalSpectating;
 
+        /// <summary>
+        /// True while this client is resolving the enemies' moves.
+        /// </summary>
+        public static bool EnemyTurnRunning { get; internal set; }
+
         public static bool InBattle { get; private set; }
 
         public static ulong BattleSeed { get; private set; }
@@ -272,6 +277,7 @@ namespace LBOLMP.Session.Battle
             MpNet.On<CuriosityFirepowerMessage>(OnRemoteCuriosity);
             MpNet.On<RemoteCardPlayMessage>(OnRemoteCardPlay);
             MpNet.On<RemoteAnimationMessage>(OnRemoteAnimation);
+            MpNet.On<RemoteEffectMessage>(OnRemoteEffect);
             MpNet.On<RemoteHitMessage>(OnRemoteHit);
             MpNet.On<RemoteEmoteMessage>(OnRemoteEmote);
             MpNet.On<BattleStatusMessage>(OnBattleStatus);
@@ -296,6 +302,7 @@ namespace LBOLMP.Session.Battle
             _lastStatus = null;
             _lastProgress = null;
             InBattle = false;
+            EnemyTurnRunning = false;
             _atEndOfBattleGate = false;
             _reportedFinished = false;
             BattleSeed = 0;
@@ -401,6 +408,7 @@ namespace LBOLMP.Session.Battle
             SetWaitingHook(GameMaster.Instance?.CurrentGameRun?.Battle, false);
 
             InBattle = false;
+            EnemyTurnRunning = false;
             _atEndOfBattleGate = false;
             _reportedFinished = false;
             Seats.Clear();
@@ -968,6 +976,29 @@ namespace LBOLMP.Session.Battle
         }
 
         /// <summary>
+        /// Publish a one-shot effect the game just played on our own character.
+        /// </summary>
+        public static void ReportPerformEffect(string effectName, float delay)
+        {
+            if (!InBattle || !MpSession.IsActive || string.IsNullOrEmpty(effectName))
+            {
+                return;
+            }
+
+            MpNet.Send(new RemoteEffectMessage { EffectName = effectName, Delay = delay });
+        }
+
+        private static void OnRemoteEffect(RemoteEffectMessage message)
+        {
+            if (message.SenderId == MpNet.LocalPlayerId)
+            {
+                return;
+            }
+
+            UI.MpAllyUnits.PlayEffect(message.SenderId, message.EffectName, message.Delay);
+        }
+
+        /// <summary>
         /// Send how a hit landed on us, so the party sees us react to it.
         /// </summary>
         public static void ReportHit(DamageInfo info)
@@ -1160,7 +1191,7 @@ namespace LBOLMP.Session.Battle
         /// </summary>
         private static bool BattleIsSettled(BattleController battle)
         {
-            if (battle == null || battle._debugActionQueue.Count > 0)
+            if (battle == null || battle._debugActionQueue.Count > 0 || EnemyTurnRunning)
             {
                 return false;
             }
@@ -1254,14 +1285,7 @@ namespace LBOLMP.Session.Battle
         }
 
         /// <summary>
-        /// What is left of an enemy's damage cap this turn, or -1 for an enemy that has none.
-        ///
-        /// Seija's <c>LimitedDamage</c> is the one enemy status the party has to agree on, and the
-        /// one the ordinary status replication cannot carry: it is a budget rather than a stack. It
-        /// drains as she is hit and refills only at the start of her own turn, so the same hit can
-        /// count against a different turn's budget on two clients that are milliseconds apart, and
-        /// from then on she takes a different amount of damage on each of them. It rides along with
-        /// her health for the same reason her health needs correcting at all.
+        /// Helper to sync Seija's damage cap correctly
         /// </summary>
         private static int DamageCapOf(EnemyUnit enemy)
         {

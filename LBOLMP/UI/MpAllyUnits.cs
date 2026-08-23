@@ -544,13 +544,71 @@ namespace LBOLMP.UI
                 if (newHp <= 0 && unit.Status == UnitStatus.Alive)
                 {
                     unit.Status = UnitStatus.Dead;
-                    view?.DeathAnimation();
+                    PlayDeath(ally);
                 }
                 else if (newHp > 0 && unit.Status != UnitStatus.Alive)
                 {
                     Revive(ally);
                 }
             });
+        }
+
+        /// <summary>
+        /// Plays the death animation on other players.
+        /// </summary>
+        private static void PlayDeath(Ally ally)
+        {
+            if (ally.View == null || ally.Loading)
+            {
+                return;
+            }
+
+            MpSafe.Run("MpAllyUnits.PlayDeath",
+                () => MpPlugin.Instance.StartCoroutine(DeathRoutine(ally.View)));
+        }
+
+        /// <summary>
+        /// Mirrors the game's own death sequence but at 50% volume.
+        /// </summary>
+        private static IEnumerator DeathRoutine(UnitView view)
+        {
+            view.SetStatusVisible(false);
+            view.DeathAnimation();
+
+            string effect = "UnitDeath";
+            string sfx = "UnitDeathExplode";
+            float delay = 1f;
+
+            if (view._dieLevel == 0)
+            {
+                effect = "UnitDeathSmall";
+                sfx = "UnitDeathExplodeSmall";
+                delay = 0.5f;
+            }
+            else if (view._dieLevel == 2)
+            {
+                effect = "UnitDeathLarge";
+                sfx = "UnitDeathExplodeLarge";
+                delay = 1.8f;
+            }
+
+            EffectManager.CreateEffect(effect, view.transform, 0f, null, false, true);
+            yield return new WaitForSeconds(delay);
+
+            AudioManager.PlaySfx(sfx, AllyVolume);
+            view.Die();
+        }
+
+        /// <summary>
+        /// Restore a revived player's unit view.
+        /// </summary>
+        internal static void Undie(UnitView view)
+        {
+            view._invincible = false;
+            view.Show(true);
+            view.effectRootIgnoreHiding.gameObject.SetActive(true);
+            view.selectorCollider.gameObject.SetActive(true);
+            view.SpineIdle(false);
         }
 
         public static void Revive(int playerId)
@@ -574,8 +632,7 @@ namespace LBOLMP.UI
                 return;
             }
 
-            view._invincible = false;
-            view.SpineIdle(false);
+            Undie(view);
         }
 
         /// <summary>
@@ -830,6 +887,26 @@ namespace LBOLMP.UI
                     }
                 });
             }
+        }
+
+        /// <summary>
+        /// Replay a one-shot effect the game played on an ally's own character.
+        /// </summary>
+        public static void PlayEffect(int playerId, string effectName, float delay)
+        {
+            if (string.IsNullOrEmpty(effectName))
+            {
+                return;
+            }
+
+            if (!Allies.TryGetValue(playerId, out var ally) || ally.View == null || ally.Loading
+                || ally.Hidden)
+            {
+                return;
+            }
+
+            MpSafe.Run("MpAllyUnits.PlayEffect",
+                () => ally.View.PlayEffectOneShot(effectName, delay));
         }
 
         /// <summary>

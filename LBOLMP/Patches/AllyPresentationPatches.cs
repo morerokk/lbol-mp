@@ -91,6 +91,28 @@ namespace LBOLMP.Patches
     }
 
     /// <summary>
+    /// Replicate one-shot effects the game pops up on your own character, so other players see them too.
+    /// TODO: this may be a little disruptive but testing will tell
+    /// </summary>
+    [HarmonyPatch(typeof(UnitView), nameof(UnitView.PlayEffectOneShot))]
+    public static class AllyEffectPatch
+    {
+        [HarmonyPostfix]
+        private static void Postfix(UnitView __instance, string effectName, float delay)
+        {
+            MpSafe.Run("AllyEffectPatch", () =>
+            {
+                if (string.IsNullOrEmpty(effectName) || !LocalPlayerView.Is(__instance))
+                {
+                    return;
+                }
+
+                MpBattleSync.ReportPerformEffect(effectName, delay);
+            });
+        }
+    }
+
+    /// <summary>
     /// Plays the block animation on you for other clients, since the card play itself doesn't necessarily handle this.
     /// </summary>
     [HarmonyPatch(typeof(UnitView), "DefendAnimation")]
