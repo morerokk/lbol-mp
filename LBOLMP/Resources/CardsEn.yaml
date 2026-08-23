@@ -6,6 +6,12 @@ MpDonateBlock:
     Choose a |Partner|.
     They gain {Block} |Block|.
 
+MpBladeSymphony:
+  Name: Blade Symphony
+  Description: |-
+    Exile up to {Value1} |Throwing Knives| from the hand.
+    Add that many |Throwing Knives| to each |Partner|'s hand.
+
 MpOffering:
   Name: Offering to the Ownerless
   Description: |-
