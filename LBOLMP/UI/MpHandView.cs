@@ -32,6 +32,9 @@ namespace LBOLMP.UI
 
         private static readonly List<Slot> Slots = new List<Slot>();
 
+        /// <summary>Our own cards, hidden for as long as somebody else's hand is being previewed.</summary>
+        private static readonly List<HandCard> OwnHiddenCards = new List<HandCard>();
+
         /// <summary>The card under the mouse, to show the hover effect on.</summary>
         private static HandCard _hovered;
 
@@ -99,7 +102,7 @@ namespace LBOLMP.UI
 
             Clear();
             RestoreMana();
-            ShowOwnHand(cardUi);
+            ShowOwnHand();
             RestoreCounts(cardUi);
 
             if (_handlerPushed)
@@ -346,32 +349,49 @@ namespace LBOLMP.UI
             angle = -cardUi.deltaRotate * (i - middle);
         }
 
+        /// <summary>
+        /// Hide our own hand by visually hiding it instead of turning off the object
+        /// </summary>
         private static void HideOwnHand(CardUi cardUi)
         {
             foreach (var hand in cardUi._handWidgets)
             {
-                if (hand != null && hand.gameObject.activeSelf)
+                var group = GroupOf(hand);
+                if (group == null)
                 {
-                    hand.gameObject.SetActive(false);
+                    continue;
                 }
+
+                if (!OwnHiddenCards.Contains(hand))
+                {
+                    OwnHiddenCards.Add(hand);
+                }
+
+                // Re-applied every tick, because the game writes these back.
+                group.alpha = 0f;
+                group.blocksRaycasts = false;
             }
         }
 
-        private static void ShowOwnHand(CardUi cardUi)
+        private static void ShowOwnHand()
         {
-            if (cardUi == null)
+            foreach (var hand in OwnHiddenCards)
             {
-                return;
+                var group = GroupOf(hand);
+                if (group == null)
+                {
+                    continue;
+                }
+
+                group.alpha = 1f;
+                group.blocksRaycasts = !hand.IsActiveHand;
             }
 
-            foreach (var hand in cardUi._handWidgets)
-            {
-                if (hand != null && !hand.gameObject.activeSelf)
-                {
-                    hand.gameObject.SetActive(true);
-                }
-            }
+            OwnHiddenCards.Clear();
         }
+
+        private static CanvasGroup GroupOf(HandCard hand) =>
+            hand == null || hand.CardWidget == null ? null : hand.CardWidget.CanvasGroup;
 
         private static void ShowCounts(CardUi cardUi)
         {
