@@ -1222,14 +1222,7 @@ namespace LBOLMP.Session.Battle
         }
 
         /// <summary>
-        /// What is left of an enemy's damage cap this turn, or -1 for an enemy that has none.
-        ///
-        /// Seija's <c>LimitedDamage</c> is the one enemy status the party has to agree on, and the
-        /// one the ordinary status replication cannot carry: it is a budget rather than a stack. It
-        /// drains as she is hit and refills only at the start of her own turn, so the same hit can
-        /// count against a different turn's budget on two clients that are milliseconds apart, and
-        /// from then on she takes a different amount of damage on each of them. It rides along with
-        /// her health for the same reason her health needs correcting at all.
+        /// Helper to sync Seija's damage cap correctly
         /// </summary>
         private static int DamageCapOf(EnemyUnit enemy)
         {

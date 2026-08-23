@@ -10,6 +10,7 @@ using LBoL.Core.Battle.BattleActions;
 using LBoL.Core.StatusEffects;
 using LBoL.Core.Units;
 using LBoL.EntityLib.EnemyUnits.Character;
+using LBoL.EntityLib.EnemyUnits.Normal;
 using LBoL.EntityLib.StatusEffects.Enemy;
 using LBoL.Presentation;
 using UnityEngine;
@@ -52,10 +53,16 @@ namespace LBOLMP.Patches
         }
 
         /// <summary>
+        /// The pure moon rabbit duo is permanently Flawless and should skip the per-act "Escalation" HP modifier.
+        /// </summary>
+        internal static bool SkipsEscalation(Unit unit) => unit is HardworkRabbit || unit is LazyRabbit;
+
+        /// <summary>
         /// Everything the party adds to an enemy beyond its single-player self, as a fraction.
         /// This is both the flat HP bonus per player, as well as additional escalating bonuses per act.
         /// With the shipped defaults, a 4-player party in Act 3 adds up to +390% enemy HP: 3x100% flat,
         /// plus 15% + 30% + 45% escalating.
+        /// Moon Rabbits are exempt from the escalation.
         /// </summary>
         internal static float BonusFor(Unit unit)
         {
@@ -65,10 +72,15 @@ namespace LBOLMP.Patches
                 return 0f;
             }
 
+            float flat = MpSession.EnemyHpScalePerExtraPlayer * extra;
+            if (SkipsEscalation(unit))
+            {
+                return flat;
+            }
+
             int amountOfExtraEscalationToStack = extra * (extra + 1) / 2;
 
-            return MpSession.EnemyHpScalePerExtraPlayer * extra
-                 + MpSession.EnemyHpEscalationForAct(ActOf(unit)) * amountOfExtraEscalationToStack;
+            return flat + MpSession.EnemyHpEscalationForAct(ActOf(unit)) * amountOfExtraEscalationToStack;
         }
 
         /// <summary>The host's HP scale applied to the current party. 1.0 when nothing scales.</summary>
