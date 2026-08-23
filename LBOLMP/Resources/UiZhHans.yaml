@@ -1,0 +1,153 @@
+# LBOL MP interface text, ZhHans.
+#
+# One entry per key. Keys must match the MpText enum in Localization/MpText.cs and are
+# never translated; only the text to the right of the colon is.
+#
+# {0}, {1} and so on are placeholders the mod fills in at runtime. Keep them, and keep
+# their numbers, but they may be reordered to suit the language.
+#
+# A missing or blank entry falls back to English rather than breaking, so a partial
+# translation is fine to ship.
+
+# ---- lobby window
+LobbyWindowTitle: "LBOL MP  v{0}"
+LobbyNotConnected: "未连接"
+LobbyYourName: "你的名字"
+LobbyDirectConnection: "直接连接"
+LobbyPort: "端口"
+LobbyHostSession: "创建房间"
+LobbyHostAddress: "房主 IP 地址"
+LobbyJoinSession: "加入房间"
+LobbyPortNotANumber: "端口必须是数字"
+LobbyOfflineHelp: "由房主建立房间，其他人加入，然后所有人在正常的开始游戏画面选择角色。所有人确认后开始游戏。"
+LobbySteam: "Steam"
+LobbySteamUnavailable: "当前无法使用 Steam，只能使用直接 IP 连接。"
+LobbyHostOverSteam: "通过 Steam 创建房间"
+LobbySteamHelp: "创建房间后，可从 Steam 介面邀请好友。请接受对方的邀请以加入房间，或通过 Steam 加入房间。"
+LobbyHosting: "主持中"
+LobbyConnected: "已连接"
+LobbyHostingDirectIp: "正在通过直接 IP 主持房间，端口 {0}"
+LobbyHostingSteam: "正在通过 Steam 主持房间"
+LobbyConnectedDirectIp: "已通过直接 IP 连接到 {0}：{1}"
+LobbyConnectedSteam: "已通过 Steam 连接到房主 {0}"
+LobbyInviteFriends: "邀请好友⋯⋯"
+LobbyTagHost: " [房主]"
+LobbyTagYou: " [你]"
+LobbyChoosing: "选择中⋯⋯"
+LobbyPlayerRow: "#{0}  {1}{2}   {3}   {4}"
+LobbyLockedIn: "已锁定。等待其他人确认角色。"
+LobbySeed: "种子 {0}"
+LobbyMapVoteHint: "点击地图节点以投票。所有人投给同一个节点后，队伍才会前进。"
+LobbyLeaveSession: "离开房间"
+LobbyBalanceSettings: "平衡性设定⋯⋯"
+
+# ---- balance settings window
+SettingsWindowTitle: "平衡性设定"
+SettingsIntro: "人数越多，游戏难度提升多少。"
+SettingsHostNote: "以下所有设定均由房主决定。加入别人的房间时仅使用房主的设定。"
+SettingsNextRunNote: "修改会立即保存，并从下一局开始生效。"
+SettingsLockedForThisRun: "当前有正在进行的游戏。本局沿用开始时的数值，此处的修改将在下一局生效。"
+SettingsDefault: "预设"
+SettingsResetAll: "全部恢复预设"
+SettingsClose: "关闭"
+SettingsNothingToShow: "未找到平衡性设定。"
+SettingEnemyHpScaleName: "每位额外玩家的敌人生命值"
+SettingEnemyHpScaleHelp: "除第一位玩家外，每多一位玩家，敌人最大生命值增加的比例。"
+SettingEscalationName: "第 {0} 章额外加成"
+SettingEscalationHelp: "本章中在上一项设定之外额外增加的敌人最大生命值，并且会叠加：每多一位玩家，加成都比前一位多一份。设为 0.1 时，第 2 位玩家增加 +10%，第 3 位再增加 +20%，第 4 位再增加 +30%。与上一项相加，而非相乘。设为 0 则本章不启用。"
+SettingReviveHpName: "复活时的生命值"
+SettingReviveHpHelp: "队伍获胜时，被击倒的玩家按最大生命值的多少比例复活。取值 0 到 1，且至少为 1 点生命。"
+SettingResilienceName: "敌人拥有「坚韧」"
+SettingResilienceHelp: "让每个敌人获得「坚韧」状态。除第一位玩家外，每多一位玩家，敌人在回合结束时额外失去 1 层虚弱、易伤和锁定，并且获得的失去火力减少 1 点，但不低于 1 点。关闭后，减益效果与单人游戏时完全相同。"
+
+# ---- corner HUD
+HudParty: "队伍 ({0})"
+HudPlayerRow: "{0}  {1}/{2}{3}"
+HudVoteNode: "  -> ({0},{1})"
+HudVoteStillChoosing: "  -> 仍在选择"
+
+# ---- player state
+StateInLobby: "在房间中"
+StateReady: "已准备"
+StateResuming: "已准备继续"
+StateHp: "{0}/{1} 生命"
+StateDisconnected: "已失去连接"
+
+# ---- battle board
+BoardDefeated: "你已被击败。等待队友结束这场战斗。"
+BoardSittingOut: "你正在观战这场战斗。"
+BoardWaitingForOne: "等待 {0} 结束回合"
+BoardWaitingForOneToFinish: "等待 {0} 结束战斗"
+BoardWaitingForMany: "等待 {0}"
+BoardLostContact: "连接已断开：{0}。 暂时先不等他们了。"
+BoardBlock: "格挡 {0}"
+BoardShield: "护盾 {0}"
+ActivitySpectating: "观战中"
+ActivityDownSpectating: "已倒下，观战中"
+ActivityDone: "已结束战斗"
+ActivityDown: "已倒下"
+ActivityTurnOver: "回合已结束"
+ActivityHand: "手牌 {0}"
+
+# ---- emotes
+EmoteNice: "漂亮！"
+EmoteNegative: "……"
+EmoteHurryUp: "快点吧……"
+
+# ---- map voting
+MapWaitingForOne: "等待 {0} 选择节点"
+MapWaitingForMany: "等待 {0}"
+MapMovingToNode: "正在前往投票选中的节点"
+MapPartySplit: "队伍意见不一：{0}"
+MapPick: "{0} -> ({1},{2})"
+MapHeadingTo: "正在前往 ({0}, {1})"
+RestartPartyMoving: "队伍正在前往下一个节点，此时无法重来。抵达之后再试一次。"
+
+# ---- inspecting a hand
+InspectBanner: "查看 {0} 的手牌中。按右键或 Esc 键以退回。"
+InspectZoneTitle: "{0} - {1}"
+
+# ---- session status
+StatusHostFailed: "无法创建房间：{0}"
+StatusHostingOnPort: "正在端口 {0} 上主持房间"
+StatusHostSteamFailed: "无法通过 Steam 创建房间：{0}"
+StatusOpeningSteamLobby: "正在创建 Steam 房间⋯⋯"
+StatusHostingOverSteam: "正在通过 Steam 主持房间。可从 Steam 介面邀请好友。"
+StatusConnecting: "正在连接⋯⋯"
+StatusConnectFailed: "无法连接：{0}"
+StatusAlreadyInSession: "加入其他房间前，请先离开当前房间"
+StatusConnectingSteam: "正在通过 Steam 连接⋯⋯"
+StatusConnectSteamFailed: "无法通过 Steam 连接：{0}"
+StatusConnectedAsPlayer: "已作为玩家 {0} 连接"
+StatusRejected: "已被拒绝：{0}"
+StatusWaitingForPlayers: "等待其他玩家⋯⋯"
+StatusWaitingForNames: "等待 {0}⋯⋯"
+StatusWaitingToResume: "已准备继续。等待其他玩家⋯⋯"
+StatusRunStarted: "游戏已开始（种子 {0}）"
+StatusRunResumed: "游戏已继续（种子 {0}）"
+StatusBackInLobby: "已回到房间。可以开始新游戏，或一起继续这局。"
+NoticeResumeStaggered: "并非所有人都在同一处保存。落后的玩家会赶上大家。"
+StatusPlayerLeft: "{0} 已离开：{1}"
+StatusDisconnected: "连接已断开：{0}"
+StatusSteamLobbyFailed: "Steam 未能创建房间，无法邀请好友"
+StatusSteamJoinFailed: "无法加入该 Steam 房间"
+
+# ---- error/networking messages that are human-readable
+ReasonProtocolMismatch: "版本不一致：房主使用协议 {0}，你使用协议 {1}"
+ReasonRunInProgress: "游戏已经开始了"
+ReasonStartSplit: "有人开始了新游戏，有人却在继续存档。所有人必须做同样的选择。"
+ReasonResumeDifferentRuns: "这些存档不是同一局游戏。所有人都要继续你们一起玩的那一局。"
+ReasonSessionFull: "房间已满"
+ReasonYouLeft: "你离开了房间"
+ReasonRemoteClosed: "对方关闭了连接"
+ReasonConnectionFailed: "连接失败"
+ReasonSteamClosed: "Steam 连接已关闭"
+ReasonReadFailed: "读取失败：{0}"
+ReasonWriteFailed: "写入失败：{0}"
+ReasonSendFailed: "发送失败：{0}"
+ReasonTimedOut: "连接 {0}：{1} 超时"
+
+# ---- transports
+ErrorSteamUnavailable: "Steam 不可用"
+ErrorSteamListenFailed: "Steam 拒绝开启监听端口"
+ErrorSteamConnectFailed: "Steam 拒绝建立连接"

@@ -1,0 +1,153 @@
+# LBOL MP interface text, Ja.
+#
+# One entry per key. Keys must match the MpText enum in Localization/MpText.cs and are
+# never translated; only the text to the right of the colon is.
+#
+# {0}, {1} and so on are placeholders the mod fills in at runtime. Keep them, and keep
+# their numbers, but they may be reordered to suit the language.
+#
+# A missing or blank entry falls back to English rather than breaking, so a partial
+# translation is fine to ship.
+
+# ---- lobby window
+LobbyWindowTitle: "LBOL MP  v{0}"
+LobbyNotConnected: "未接続"
+LobbyYourName: "プレイヤー名"
+LobbyDirectConnection: "直接接続"
+LobbyPort: "ポート"
+LobbyHostSession: "セッションをホスト"
+LobbyHostAddress: "ホストアドレス"
+LobbyJoinSession: "セッションに参加"
+LobbyPortNotANumber: "ポート番号は数字でなければなりません"
+LobbyOfflineHelp: "ホストがセッションを作成し、全員が参加してください。キャラクターを選択して全員が準備完了すると、ゲームが開始されます。"
+LobbySteam: "Steam"
+LobbySteamUnavailable: "現在Steamを利用できないため、直接IP接続のみ使用できます。"
+LobbyHostOverSteam: "Steamでホスト"
+LobbySteamHelp: "セッションをホストしたら、Steamオーバーレイからフレンドを招待してください。参加する場合は招待を受けるかSteamから参加してください。"
+LobbyHosting: "ホスト中"
+LobbyConnected: "接続済み"
+LobbyHostingDirectIp: "直接IPでホスト中（ポート {0}"
+LobbyHostingSteam: "Steamでホスト中"
+LobbyConnectedDirectIp: "{0}:{1}に直接IPで接続済み"
+LobbyConnectedSteam: "Steam経由で{0}に接続"
+LobbyInviteFriends: "フレンドを招待・・・"
+LobbyTagHost: " [ホスト]"
+LobbyTagYou: " [自分]"
+LobbyChoosing: "選択中・・・"
+LobbyPlayerRow: "#{0}  {1}{2}   {3}   {4}"
+LobbyLockedIn: "確定しました。他のプレイヤーがキャラクターを確定するのを待っています。"
+LobbySeed: "SEED {0}"
+LobbyMapVoteHint: "マップのノードをクリックして投票してください。全員が同じノードに投票すると、パーティーが移動します。"
+LobbyLeaveSession: "セッションから退出"
+LobbyBalanceSettings: "バランス設定・・・"
+
+# ---- balance settings window
+SettingsWindowTitle: "バランス設定"
+SettingsIntro: "プレイヤーが増えることで、ゲームの難易度がどの程度上昇するかを設定します。"
+SettingsHostNote: "これらの設定はすべてホストが決定します。他のプレイヤーのセッションに参加した場合は、ホストの設定が使用され、自分の設定は無視されます。"
+SettingsNextRunNote: "変更はすぐに保存され、次のランから適用されます。"
+SettingsLockedForThisRun: "現在ゲームが進行中です。このランでは開始時の設定が使用され、変更は次のランから適用されます。"
+SettingsDefault: "デフォルト"
+SettingsResetAll: "すべてデフォルトに戻す"
+SettingsClose: "閉じる"
+SettingsNothingToShow: "バランス設定が見つかりません。"
+SettingEnemyHpScaleName: "追加プレイヤー1人あたりの敵のHP"
+SettingEnemyHpScaleHelp: "1人目を超えるプレイヤー1人につき、すべての敵に追加される最大HPの割合です。"
+SettingEscalationName: "第 {0} 章の追加補正"
+SettingEscalationHelp: "この章では、上記の設定に加えて敵の最大HPがさらに増加します。追加プレイヤーが1人増えるごとにこの補正が追加で適用され、プレイヤーが多いほど増加量も大きくなります。0にすると、この章では無効になります。"
+SettingReviveHpName: "復活時のHP"
+SettingReviveHpHelp: "パーティーが戦闘に勝利した際、倒されたプレイヤーが最大HPの何％で復活するかを設定します。"
+SettingResilienceName: "敵が「耐性」を持つ"
+SettingResilienceHelp: "すべての敵に「耐性」状態を付与します。プレイヤーが増えるほど、敵のデバフが早く解除されます。無効にすると、デバフの減少速度はシングルプレイ時と同じになります。"
+
+# ---- corner HUD
+HudParty: "パーティー（{0}）"
+HudPlayerRow: "{0}  {1}/{2}{3}"
+HudVoteNode: "  -> ({0},{1})"
+HudVoteStillChoosing: "  -> 選択中"
+
+# ---- player state
+StateInLobby: "ロビーにいます"
+StateReady: "準備完了"
+StateResuming: ""
+StateHp: "{0}/{1} HP"
+StateDisconnected: "切断されました"
+
+# ---- battle board
+BoardDefeated: "倒されました。仲間が戦闘を終えるまで待ってください。"
+BoardSittingOut: "この戦闘を観戦しています。"
+BoardWaitingForOne: "{0}のターン終了を待っています"
+BoardWaitingForOneToFinish: "{0}が戦闘を終えるのを待っています"
+BoardWaitingForMany: "{0}を待っています"
+BoardLostContact: "{0}との接続が切れました。ひとまず、そのプレイヤーなしで続行します。"
+BoardBlock: "ブロック {0}"
+BoardShield: "シールド {0}"
+ActivitySpectating: "観戦中"
+ActivityDownSpectating: "戦闘不能・観戦中"
+ActivityDone: "戦闘終了"
+ActivityDown: "戦闘不能"
+ActivityTurnOver: "ターン終了"
+ActivityHand: "手札 {0}"
+
+# ---- emotes
+EmoteNice: "ナイス！"
+EmoteNegative: "・・・"
+EmoteHurryUp: "そろそろお願いします・・・"
+
+# ---- map voting
+MapWaitingForOne: "{0}がノードを選択するのを待っています"
+MapWaitingForMany: "{0} を待っています"
+MapMovingToNode: "投票されたノードへ移動中"
+MapPartySplit: "パーティーの意見が分かれています：{0}"
+MapPick: "{0} -> ({1},{2})"
+MapHeadingTo: "移動中 ({0}, {1})"
+RestartPartyMoving: "パーティーが次のノードへ移動中は、やり直すことができません。到着してからもう一度試してください。"
+
+# ---- inspecting a hand
+InspectBanner: "{0}の手札を表示中。右クリックまたはEscで戻ります。"
+InspectZoneTitle: "{0} - {1}"
+
+# ---- session status
+StatusHostFailed: "ホストできませんでした：{0}"
+StatusHostingOnPort: "ポート {0}でホスト中"
+StatusHostSteamFailed: "Steamでホストできませんでした：{0}"
+StatusOpeningSteamLobby: "Steamロビーを開いています・・・"
+StatusHostingOverSteam: "Steamでホスト中。オーバーレイからフレンドを招待してください。"
+StatusConnecting: "接続中・・・"
+StatusConnectFailed: "接続できませんでした：{0}"
+StatusAlreadyInSession: "別のセッションに参加する前に、現在のセッションから退出してください。"
+StatusConnectingSteam: "Steam経由で接続中・・・"
+StatusConnectSteamFailed: "Steam経由で接続できませんでした：{0}"
+StatusConnectedAsPlayer: "プレイヤー {0}として接続しました"
+StatusRejected: "拒否されました：{0}"
+StatusWaitingForPlayers: "他のプレイヤーを待っています・・・"
+StatusWaitingForNames: "{0}を待っています・・・"
+StatusWaitingToResume: "続行準備完了。他のメンバーを待っています・・・"
+StatusRunStarted: "ラン開始（SEED {0}）"
+StatusRunResumed: "ランを再開しました（SEED {0}"
+StatusBackInLobby: "ロビーに戻りました。新しいランを開始するか、このランをみんなで続けてください。"
+NoticeResumeStaggered: "全員が同じ地点でセーブしているわけではありません。遅れているプレイヤーはパーティーに合流します。"
+StatusPlayerLeft: "{0} が退出しました：{1}"
+StatusDisconnected: "切断されました：{0}"
+StatusSteamLobbyFailed: "Steamロビーを開けません。"
+StatusSteamJoinFailed: "Steamロビーに参加できませんでした。"
+
+# ---- error/networking messages that are human-readable
+ReasonProtocolMismatch: "バージョンが一致しません：ホストのプロトコルは{0}、あなたのプロトコルは{1}です。MODが最新バージョンになっていることを確認してください。"
+ReasonRunInProgress: "ランはすでに開始されているため、参加できません。"
+ReasonStartSplit: "パーティーの一部が新しいランを開始し、他のメンバーがセーブデータを続行しました。全員が同じ選択をする必要があります。"
+ReasonResumeDifferentRuns: "これらのセーブデータは同じランのものではありません。 全員で一緒にプレイしていたランを続行する必要があります。"
+ReasonSessionFull: "セッションが満員のため、参加できません。"
+ReasonYouLeft: "セッションから退出しました。"
+ReasonRemoteClosed: "相手が接続を切断しました。"
+ReasonConnectionFailed: "接続に失敗しました。"
+ReasonSteamClosed: "Steamとの接続が切断されました。"
+ReasonReadFailed: "読み込みに失敗しました：{0}"
+ReasonWriteFailed: "書き込みに失敗しました：{0}"
+ReasonSendFailed: "送信に失敗しました：{0}"
+ReasonTimedOut: "{0}:{1}への接続がタイムアウトしました。"
+
+# ---- transports
+ErrorSteamUnavailable: "Steamを利用できません。"
+ErrorSteamListenFailed: "Steamがリッスンソケットの開放を拒否しました。"
+ErrorSteamConnectFailed: "Steamが接続の確立を拒否しました。"

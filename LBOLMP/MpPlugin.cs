@@ -60,6 +60,7 @@ namespace LBOLMP
             SetupConfig();
 
             Log.LogInfo($"LBOL MP v{MpInfo.Version} starting up");
+            MpStrings.Load();
             L10n.Verify();
 
             try

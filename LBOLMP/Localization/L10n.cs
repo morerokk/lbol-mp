@@ -135,34 +135,39 @@ namespace LBOLMP
 
         private static string Lookup(MpText key, Locale locale)
         {
-            // At worst, return a placeholder
-            if (!MpStrings.Table.TryGetValue(key, out var phrase))
-            {
-                return key.ToString();
-            }
-
             // If Japanese text exists, return it
-            if (locale == Locale.Ja && !string.IsNullOrWhiteSpace(phrase.Ja))
+            if (locale == Locale.Ja)
             {
-                return phrase.Ja;
+                var ja = MpStrings.Get(key, Locale.Ja);
+                if (ja != null)
+                {
+                    return ja;
+                }
             }
 
             // An edge case that should probably never happen, but I put it in anyway:
             // Traditional Chinese is preferred if that is the user's current language, but if that string is missing,
             // then Simplified Chinese is an acceptable fallback (surely)
-            if (locale == Locale.ZhHant && !string.IsNullOrWhiteSpace(phrase.ZhHant))
+            if (locale == Locale.ZhHant)
             {
-                return phrase.ZhHant;
+                var zhHant = MpStrings.Get(key, Locale.ZhHant);
+                if (zhHant != null)
+                {
+                    return zhHant;
+                }
             }
 
-            if ((locale == Locale.ZhHans || locale == Locale.ZhHant)
-                && !string.IsNullOrWhiteSpace(phrase.ZhHans))
+            if (locale == Locale.ZhHans || locale == Locale.ZhHant)
             {
-                return phrase.ZhHans;
+                var zhHans = MpStrings.Get(key, Locale.ZhHans);
+                if (zhHans != null)
+                {
+                    return zhHans;
+                }
             }
 
-            // Fall back to English in every other case
-            return string.IsNullOrEmpty(phrase.En) ? key.ToString() : phrase.En;
+            // Fall back to English in every other case, and to the key itself at worst
+            return MpStrings.Get(key, Locale.En) ?? key.ToString();
         }
 
         private static string Format(string pattern, object[] args)
@@ -235,28 +240,29 @@ namespace LBOLMP
             int untranslatedJa = 0;
             foreach (MpText key in Enum.GetValues(typeof(MpText)))
             {
-                if (!MpStrings.Table.TryGetValue(key, out var phrase))
+                if (MpStrings.Get(key, Locale.En) == null)
                 {
                     missing.Add(key.ToString());
                 }
-                else if (string.IsNullOrWhiteSpace(phrase.Ja))
+
+                if (MpStrings.Get(key, Locale.Ja) == null)
                 {
                     untranslatedJa++;
                 }
             }
 
             // TODO: Japanese text is currently still being worked on!
-            if (untranslatedJa > 0 && untranslatedJa < MpStrings.Table.Count)
+            if (untranslatedJa > 0 && untranslatedJa < MpStrings.Count)
             {
                 MpPlugin.Log.LogInfo(
-                    $"{untranslatedJa} of {MpStrings.Table.Count} phrases still have no Japanese; "
+                    $"{untranslatedJa} of {MpStrings.Count} phrases still have no Japanese; "
                     + "those will fall back to English");
             }
 
             if (missing.Count > 0)
             {
                 MpPlugin.Log.LogWarning(
-                    $"{missing.Count} text key(s) have no entry in MpStrings: {string.Join(", ", missing)}");
+                    $"{missing.Count} text key(s) have no entry in UiEn.yaml: {string.Join(", ", missing)}");
             }
         }
     }

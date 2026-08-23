@@ -1,0 +1,153 @@
+# LBOL MP interface text, En.
+#
+# One entry per key. Keys must match the MpText enum in Localization/MpText.cs and are
+# never translated; only the text to the right of the colon is.
+#
+# {0}, {1} and so on are placeholders the mod fills in at runtime. Keep them, and keep
+# their numbers, but they may be reordered to suit the language.
+#
+# A missing or blank entry falls back to English rather than breaking, so a partial
+# translation is fine to ship.
+
+# ---- lobby window
+LobbyWindowTitle: "LBOL MP  v{0}"
+LobbyNotConnected: "Not connected"
+LobbyYourName: "Your name"
+LobbyDirectConnection: "Direct connection"
+LobbyPort: "Port"
+LobbyHostSession: "Host session"
+LobbyHostAddress: "Host address"
+LobbyJoinSession: "Join session"
+LobbyPortNotANumber: "Port is not a number"
+LobbyOfflineHelp: "Host should host a session, have everyone else join, then all of you pick a character on the Start Game screen. The run begins once everybody has confirmed."
+LobbySteam: "Steam"
+LobbySteamUnavailable: "Steam is currently not available, only direct IP connections can be used."
+LobbyHostOverSteam: "Host over Steam"
+LobbySteamHelp: "Once the session is hosted, invite friends from the Steam overlay. To join someone else, accept their invite or join via Steam."
+LobbyHosting: "Hosting"
+LobbyConnected: "Connected"
+LobbyHostingDirectIp: "Hosting over direct IP, port {0}"
+LobbyHostingSteam: "Hosting over Steam"
+LobbyConnectedDirectIp: "Connected over direct IP to {0}:{1}"
+LobbyConnectedSteam: "Connected over Steam to {0}"
+LobbyInviteFriends: "Invite friends..."
+LobbyTagHost: " [host]"
+LobbyTagYou: " [you]"
+LobbyChoosing: "choosing..."
+LobbyPlayerRow: "#{0}  {1}{2}   {3}   {4}"
+LobbyLockedIn: "Locked in. Waiting for everyone else to confirm their character."
+LobbySeed: "Seed {0}"
+LobbyMapVoteHint: "Click a map node to vote for it. The party moves once everyone has voted for the same node."
+LobbyLeaveSession: "Leave session"
+LobbyBalanceSettings: "Balance settings..."
+
+# ---- balance settings window
+SettingsWindowTitle: "Balance settings"
+SettingsIntro: "How much harder the game gets with more players."
+SettingsHostNote: "All of these are decided by the host. If you join someone else's session, theirs are used and yours are ignored."
+SettingsNextRunNote: "Changes are saved straight away and apply from the next run onwards."
+SettingsLockedForThisRun: "A run is in progress, changes won't apply until the next run."
+SettingsDefault: "Default"
+SettingsResetAll: "Reset all to defaults"
+SettingsClose: "Close"
+SettingsNothingToShow: "No balance settings were found."
+SettingEnemyHpScaleName: "Enemy health per extra player"
+SettingEnemyHpScaleHelp: "Extra max HP every enemy gets for each player beyond the first."
+SettingEscalationName: "Act {0} escalation"
+SettingEscalationHelp: "Extra enemy max HP in this act, on top of the setting above. This stacks an additional time for each extra player, adding progressively more HP with more players. 0 turns it off for this act."
+SettingReviveHpName: "Revive health"
+SettingReviveHpHelp: "How much of their max health a defeated player comes back with when the party wins the fight. Between 0 and 1 (0%-100%). Players always revive with at least 1 HP."
+SettingResilienceName: "Enemies are Resilient"
+SettingResilienceHelp: "Give every enemy the Resilient status effect. For each extra player, enemies lose debuffs faster. Disable this to make debuffs decay as fast as in single player."
+
+# ---- corner HUD
+HudParty: "Party ({0})"
+HudPlayerRow: "{0}  {1}/{2}{3}"
+HudVoteNode: "  -> ({0},{1})"
+HudVoteStillChoosing: "  -> still choosing"
+
+# ---- player state
+StateInLobby: "in lobby"
+StateReady: "ready"
+StateResuming: "ready to continue"
+StateHp: "{0}/{1} HP"
+StateDisconnected: "disconnected"
+
+# ---- battle board
+BoardDefeated: "You've been defeated. Wait for your partners to finish the combat."
+BoardSittingOut: "You're spectating this fight."
+BoardWaitingForOne: "Waiting for {0} to finish their turn"
+BoardWaitingForOneToFinish: "Waiting for {0} to finish the fight"
+BoardWaitingForMany: "Waiting for {0}"
+BoardLostContact: "Connection with {0} lost. Continuing without them for now."
+BoardBlock: "BLK {0}"
+BoardShield: "SHD {0}"
+ActivitySpectating: "spectating"
+ActivityDownSpectating: "down, spectating"
+ActivityDone: "done"
+ActivityDown: "down"
+ActivityTurnOver: "turn over"
+ActivityHand: "hand {0}"
+
+# ---- emotes
+EmoteNice: "Nice!"
+EmoteNegative: "..."
+EmoteHurryUp: "Any day now..."
+
+# ---- map voting
+MapWaitingForOne: "Waiting for {0} to pick a node"
+MapWaitingForMany: "Waiting for {0}"
+MapMovingToNode: "Moving to voted node"
+MapPartySplit: "Party is split: {0}"
+MapPick: "{0} -> ({1},{2})"
+MapHeadingTo: "Heading to ({0}, {1})"
+RestartPartyMoving: "Can't restart while the party is moving to the next node. Try again once you arrive."
+
+# ---- inspecting a hand
+InspectBanner: "Viewing {0}'s hand. Right-click or Esc to go back"
+InspectZoneTitle: "{0} - {1}"
+
+# ---- session status
+StatusHostFailed: "Could not host: {0}"
+StatusHostingOnPort: "Hosting on port {0}"
+StatusHostSteamFailed: "Could not host over Steam: {0}"
+StatusOpeningSteamLobby: "Opening a Steam lobby..."
+StatusHostingOverSteam: "Hosting over Steam. Invite friends from the overlay."
+StatusConnecting: "Connecting..."
+StatusConnectFailed: "Could not connect: {0}"
+StatusAlreadyInSession: "Leave your current session before joining another"
+StatusConnectingSteam: "Connecting over Steam..."
+StatusConnectSteamFailed: "Could not connect over Steam: {0}"
+StatusConnectedAsPlayer: "Connected as player {0}"
+StatusRejected: "Rejected: {0}"
+StatusWaitingForPlayers: "Waiting for the other players..."
+StatusWaitingForNames: "Waiting for {0}..."
+StatusWaitingToResume: "Ready to continue. Waiting for the rest of the party..."
+StatusRunStarted: "Run started (seed {0})"
+StatusRunResumed: "Run continued (seed {0})"
+StatusBackInLobby: "Back in the lobby. Start a new run, or continue this one together."
+NoticeResumeStaggered: "Not everyone saved at the same point. Whoever is behind will catch the party up."
+StatusPlayerLeft: "{0} left: {1}"
+StatusDisconnected: "Disconnected: {0}"
+StatusSteamLobbyFailed: "Cannot open a Steam lobby"
+StatusSteamJoinFailed: "Could not join that Steam lobby"
+
+# ---- error/networking messages that are human-readable
+ReasonProtocolMismatch: "Version mismatch: host runs protocol {0}, you run {1}, please ensure the mod is up to date"
+ReasonRunInProgress: "The run has already started, cannot join"
+ReasonStartSplit: "Some of the party started a new run and others continued a saved one. Everyone has to do the same thing."
+ReasonResumeDifferentRuns: "These saves are not the same run. Everyone has to continue the run you were playing together."
+ReasonSessionFull: "Session is full, cannot join"
+ReasonYouLeft: "You left the session"
+ReasonRemoteClosed: "Remote closed the connection"
+ReasonConnectionFailed: "Connection failed"
+ReasonSteamClosed: "Steam connection closed"
+ReasonReadFailed: "Read failed: {0}"
+ReasonWriteFailed: "Write failed: {0}"
+ReasonSendFailed: "Send failed: {0}"
+ReasonTimedOut: "Timed out connecting to {0}:{1}"
+
+# ---- transports
+ErrorSteamUnavailable: "Steam is not available"
+ErrorSteamListenFailed: "Steam refused to open a listen socket"
+ErrorSteamConnectFailed: "Steam refused to open a connection"
