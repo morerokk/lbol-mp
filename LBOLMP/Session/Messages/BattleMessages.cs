@@ -353,6 +353,28 @@ namespace LBOLMP.Session.Messages
     }
 
     /// <summary>
+    /// Purely cosmetic. A one-shot effect the game played on a player's own character, such as teammate bubble popups.
+    /// </summary>
+    [NetMessage(53)]
+    public sealed class RemoteEffectMessage : NetMessage
+    {
+        public string EffectName = string.Empty;
+        public float Delay;
+
+        public override void Write(NetWriter w)
+        {
+            w.String(EffectName);
+            w.Float(Delay);
+        }
+
+        public override void Read(NetReader r)
+        {
+            EffectName = r.String();
+            Delay = r.Float();
+        }
+    }
+
+    /// <summary>
     /// Purely cosmetic, a player has just been hit, and this is how it landed on them.
     /// Used to play the right animations for blocking/grazing.
     /// </summary>

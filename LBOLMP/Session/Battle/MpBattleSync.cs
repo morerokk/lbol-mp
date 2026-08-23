@@ -248,6 +248,7 @@ namespace LBOLMP.Session.Battle
             MpNet.On<CuriosityFirepowerMessage>(OnRemoteCuriosity);
             MpNet.On<RemoteCardPlayMessage>(OnRemoteCardPlay);
             MpNet.On<RemoteAnimationMessage>(OnRemoteAnimation);
+            MpNet.On<RemoteEffectMessage>(OnRemoteEffect);
             MpNet.On<RemoteHitMessage>(OnRemoteHit);
             MpNet.On<RemoteEmoteMessage>(OnRemoteEmote);
             MpNet.On<BattleStatusMessage>(OnBattleStatus);
@@ -940,6 +941,29 @@ namespace LBOLMP.Session.Battle
             }
 
             UI.MpAllyUnits.PlayAnimation(message.SenderId, message.AnimationName);
+        }
+
+        /// <summary>
+        /// Publish a one-shot effect the game just played on our own character.
+        /// </summary>
+        public static void ReportPerformEffect(string effectName, float delay)
+        {
+            if (!InBattle || !MpSession.IsActive || string.IsNullOrEmpty(effectName))
+            {
+                return;
+            }
+
+            MpNet.Send(new RemoteEffectMessage { EffectName = effectName, Delay = delay });
+        }
+
+        private static void OnRemoteEffect(RemoteEffectMessage message)
+        {
+            if (message.SenderId == MpNet.LocalPlayerId)
+            {
+                return;
+            }
+
+            UI.MpAllyUnits.PlayEffect(message.SenderId, message.EffectName, message.Delay);
         }
 
         /// <summary>

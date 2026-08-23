@@ -865,6 +865,26 @@ namespace LBOLMP.UI
         }
 
         /// <summary>
+        /// Replay a one-shot effect the game played on an ally's own character.
+        /// </summary>
+        public static void PlayEffect(int playerId, string effectName, float delay)
+        {
+            if (string.IsNullOrEmpty(effectName))
+            {
+                return;
+            }
+
+            if (!Allies.TryGetValue(playerId, out var ally) || ally.View == null || ally.Loading
+                || ally.Hidden)
+            {
+                return;
+            }
+
+            MpSafe.Run("MpAllyUnits.PlayEffect",
+                () => ally.View.PlayEffectOneShot(effectName, delay));
+        }
+
+        /// <summary>
         /// Replay the animation an ally's character plays as they use a card.
         /// Attacks already animate separately through their guns.
         /// </summary>
