@@ -1,15 +1,19 @@
+# Note: "Partner" is as in "Partner" from Imperishable Night.
+# This refers to other players in multiplayer.
 MpResilient:
   Name: Resilient
   Description: |-
     At the end of its turn, loses {Level} more |Weak|, |Vulnerable|, and |Lock On|.
     Gains {Level} less |Firepower Down|, to a minimum of 1.
   Brief: Loses |Weak|, |Vulnerable| and |Lock On| faster, and takes less |Firepower Down|.
+
 MpOfferingSe:
   Name: Offering to the Ownerless
   Description: |-
     The next {Level:plural one='Ability card' other='% Ability cards'} you play will also be played for all your |Partners|.
   Brief: |-
     Your next {Level:plural one='Ability card' other='% Ability cards'} will also be played for your |Partners|.
+
 MpPartner:
   Name: Partner
   Description: Other players.
