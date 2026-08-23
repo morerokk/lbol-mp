@@ -243,7 +243,16 @@ namespace LBOLMP.Patches
         private static IEnumerator<object> Gated(BattleController battle, IEnumerator<object> enemyTurn)
         {
             yield return MpBattleSync.WaitForEnemyTurn(battle);
-            yield return enemyTurn;
+
+            MpBattleSync.EnemyTurnRunning = true;
+            try
+            {
+                yield return enemyTurn;
+            }
+            finally
+            {
+                MpBattleSync.EnemyTurnRunning = false;
+            }
         }
     }
 
@@ -276,11 +285,10 @@ namespace LBOLMP.Patches
     }
 
     /// <summary>
-    /// A player who has been defeated takes no further turns.
-    /// (Note: this currently also prevents players from seeing the enemies do anything at all)
+    /// While downed players still kind-of take turns, spectating players do not take turns at all.
     /// </summary>
     [HarmonyPatch(typeof(BattleController), "PlayerTurnFlow")]
-    public static class DownedPlayerTurnPatch
+    public static class SpectatorTurnPatch
     {
         [HarmonyPostfix]
         private static void Postfix(BattleController __instance, ref IEnumerator<object> __result)
@@ -296,7 +304,7 @@ namespace LBOLMP.Patches
 
         private static IEnumerator<object> Gated(BattleController battle, IEnumerator<object> playerTurn)
         {
-            yield return MpDownedPlayers.WaitWhileDown(battle);
+            yield return MpDownedPlayers.WaitWhileSpectating(battle);
             yield return playerTurn;
         }
     }

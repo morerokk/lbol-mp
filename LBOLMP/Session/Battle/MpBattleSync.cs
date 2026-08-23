@@ -198,6 +198,11 @@ namespace LBOLMP.Session.Battle
         /// </summary>
         public static bool SpectatingOnly => MpDownedPlayers.LocalDown || MpEventBattle.LocalSpectating;
 
+        /// <summary>
+        /// True while this client is resolving the enemies' moves.
+        /// </summary>
+        public static bool EnemyTurnRunning { get; internal set; }
+
         public static bool InBattle { get; private set; }
 
         public static ulong BattleSeed { get; private set; }
@@ -264,6 +269,7 @@ namespace LBOLMP.Session.Battle
             _lastStatus = null;
             _lastProgress = null;
             InBattle = false;
+            EnemyTurnRunning = false;
             _atEndOfBattleGate = false;
             _reportedFinished = false;
             BattleSeed = 0;
@@ -369,6 +375,7 @@ namespace LBOLMP.Session.Battle
             SetWaitingHook(GameMaster.Instance?.CurrentGameRun?.Battle, false);
 
             InBattle = false;
+            EnemyTurnRunning = false;
             _atEndOfBattleGate = false;
             _reportedFinished = false;
             Seats.Clear();
@@ -1128,7 +1135,7 @@ namespace LBOLMP.Session.Battle
         /// </summary>
         private static bool BattleIsSettled(BattleController battle)
         {
-            if (battle == null || battle._debugActionQueue.Count > 0)
+            if (battle == null || battle._debugActionQueue.Count > 0 || EnemyTurnRunning)
             {
                 return false;
             }

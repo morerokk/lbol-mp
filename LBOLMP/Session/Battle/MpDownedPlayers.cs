@@ -8,6 +8,7 @@ using LBoL.Core.Battle.BattleActions;
 using LBoL.Core.Units;
 using LBoL.EntityLib.Cards.Misfortune;
 using LBoL.Presentation;
+using LBoL.Presentation.Units;
 using UnityEngine;
 
 namespace LBOLMP.Session.Battle
@@ -44,6 +45,7 @@ namespace LBOLMP.Session.Battle
         public static void Reset()
         {
             Unhook();
+            MpSafe.Run("MpDownedPlayers.Reset", RestoreLocalView);
             LocalDown = false;
             _allowRealDeath = false;
             _effectsCleared = false;
@@ -60,6 +62,7 @@ namespace LBOLMP.Session.Battle
         public static void Hook(BattleController battle)
         {
             Unhook();
+            MpSafe.Run("MpDownedPlayers.Hook", RestoreLocalView);
 
             LocalDown = false;
             _allowRealDeath = false;
@@ -193,36 +196,37 @@ namespace LBOLMP.Session.Battle
             MpPlugin.Log.LogInfo($"{seat.Name} got back up on {message.Hp} HP");
         }
 
-        // ---------------------------------------------------------------- taking no more turns
+        //--
+        // taking no more turns
+        //--
 
         /// <summary>
-        /// Wait while a downed player is down instead of letting them have a turn
+        /// Spectate an event combat.
         /// </summary>
-        public static IEnumerator<object> WaitWhileDown(BattleController battle)
+        public static IEnumerator<object> WaitWhileSpectating(BattleController battle)
         {
-            if (!MpSession.IsActive || !MpBattleSync.InBattle || battle == null || !OutOfFight)
+            if (!MpSession.IsActive || !MpBattleSync.InBattle || battle == null
+                || !MpEventBattle.LocalSpectating)
             {
                 yield break;
             }
 
-            MpPlugin.Log.LogInfo(LocalDown
-                ? "Down, so taking no turn; watching the rest of the fight"
-                : "Not in this fight, so taking no turn; watching it instead");
+            MpPlugin.Log.LogInfo("Not in this fight, so taking no turn; watching it instead");
 
             float waited = 0f;
             float reportInterval = GateFirstReportSeconds;
             float nextReport = reportInterval;
 
-            while (!MpSafe.Run("DownedGate", () => ShouldStopWaiting(battle), true))
+            while (!MpSafe.Run("SpectatorGate", () => ShouldStopWaiting(battle), true))
             {
                 if (waited > nextReport)
                 {
                     reportInterval = Mathf.Min(reportInterval * 2f, GateMaxReportSeconds);
                     nextReport = waited + reportInterval;
-                    MpPlugin.Log.LogInfo("Still down, still watching. " + MpBattleSync.DescribeTurnState());
+                    MpPlugin.Log.LogInfo("Still watching. " + MpBattleSync.DescribeTurnState());
                 }
 
-                bool drain = MpSafe.Run("DownedGateDrain", () => battle._debugActionQueue.Count > 0, false);
+                bool drain = MpSafe.Run("SpectatorGateDrain", () => battle._debugActionQueue.Count > 0, false);
                 if (drain)
                 {
                     yield return battle.ResolveDebugActions();
@@ -237,7 +241,8 @@ namespace LBOLMP.Session.Battle
         private const float GateMaxReportSeconds = 30f;
 
         private static bool ShouldStopWaiting(BattleController battle) =>
-            battle.BattleShouldEnd || !OutOfFight || !MpBattleSync.InBattle || !MpSession.IsActive;
+            battle.BattleShouldEnd || !MpEventBattle.LocalSpectating
+            || !MpBattleSync.InBattle || !MpSession.IsActive;
 
         //--
         // per-frame
@@ -258,12 +263,15 @@ namespace LBOLMP.Session.Battle
                 if (LocalDown)
                 {
                     ClearStatusEffectsOnce();
+                    PlayLocalDeathOnce();
 
                     if (EndRunIfPartyWiped())
                     {
                         return;
                     }
                 }
+
+                EndTurnWhileOut();
 
                 if (EndFightIfEveryFighterIsDown())
                 {
@@ -272,6 +280,64 @@ namespace LBOLMP.Session.Battle
 
                 EndBattleIfEveryoneElseHasWon();
             });
+        }
+
+        /// <summary>
+        /// Helper to immediately end the player's turn when they are downed.
+        /// This keeps the battle running properly (particularly at Seija, but this is better for visuals everywhere else too).
+        /// </summary>
+        private static void EndTurnWhileOut()
+        {
+            var battle = GameMaster.Instance?.CurrentGameRun?.Battle;
+            if (battle == null || !MpBattleSync.InBattle || battle.BattleShouldEnd
+                || !battle.IsWaitingPlayerInput)
+            {
+                return;
+            }
+
+            battle.RequestEndPlayerTurn();
+        }
+
+        private static bool _deathPlayed;
+
+        /// <summary>
+        /// Since we cancel our own death, the game never plays the explosion for it.
+        /// We do it by hand here.
+        /// </summary>
+        private static void PlayLocalDeathOnce()
+        {
+            if (_deathPlayed)
+            {
+                return;
+            }
+
+            var view = GameDirector.Instance?.PlayerUnitView;
+            if (view == null)
+            {
+                return;
+            }
+
+            _deathPlayed = true;
+            MpPlugin.Instance.StartCoroutine(view.DieViewer());
+        }
+
+        /// <summary>
+        /// Bring the character back on screen.
+        /// </summary>
+        private static void RestoreLocalView()
+        {
+            if (!_deathPlayed)
+            {
+                return;
+            }
+
+            _deathPlayed = false;
+
+            var view = GameDirector.Instance?.PlayerUnitView;
+            if (view != null)
+            {
+                UI.MpAllyUnits.Undie(view);
+            }
         }
 
         private static bool _effectsCleared;
@@ -429,6 +495,7 @@ namespace LBOLMP.Session.Battle
             }
 
             LocalDown = false;
+            RestoreLocalView();
 
             var seat = MpBattleSync.GetSeat(MpNet.LocalPlayerId);
             if (seat != null)
