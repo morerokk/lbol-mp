@@ -1,8 +1,0 @@
-MpDonateBlock:
-  Name: ブロックの譲渡
-  Description: 仲間1人に|ブロック|を{Block}与える。
-  FlavorText: じっとしてて。たぶん助けになるから。
-MpOffering:
-  Name: 無主への供物
-  Description: 次に使用する能力カードは、仲間全員の場でも使用される。
-  FlavorText: 惜しみなく与えたものは、決して失われない。

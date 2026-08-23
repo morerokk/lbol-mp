@@ -1,8 +1,8 @@
 MpDonateBlock:
   Name: Block Donation
   Description: Give a Partner {Block} |Block|.
-  FlavorText: Hold still. This is going to help, probably.
+  InfoText: The block given by this card scales off the person playing it, for Spirit and Divine Favor purposes.
 MpOffering:
   Name: Offering to the Ownerless
   Description: The next Ability card you play is also played for all your Partners.
-  FlavorText: What is given away freely is never truly lost.
+  FlavorText: What is given away freely is not, in fact, given at all. But losing gold would be sacrificing gameplay for lore.

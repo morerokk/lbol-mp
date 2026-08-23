@@ -1,8 +1,0 @@
-MpDonateBlock:
-  Name: 格擋贈予
-  Description: 使一名隊友獲得 {Block} 點|格擋|。
-  FlavorText: 別動，這大概是在幫你。
-MpOffering:
-  Name: 無主的供奉
-  Description: 你打出的下一張能力牌同時為你的所有隊友打出。
-  FlavorText: 慷慨給出之物，從未真正失去。
