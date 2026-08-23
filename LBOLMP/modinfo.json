@@ -3,6 +3,7 @@
   "Description": "Coop mod for LBoL. Press F2 in the main menu to open the network menu. Host a session over Steam or over a direct IP connection, have other players join, then everyone start a new run, pick a character and click Confirm. The host sets the difficulty for everyone.",
   "Brief": "Cooperative multiplayer",
   "Changelog": [
+    "0.10.3: \nReduced Moon Rabbit Duo HP scaling in multiplayer.",
     "0.10.2: \nFixed Rin's vengeful spirits dealing damage to clients when Rin was already defeated.",
     "0.10.1: \nFixed Seija not dying properly in multiplayer if 1 player was downed.\nFixed Seija's damage cap not being synced properly.",
     "0.10.0: \nPartner status effects FX (like Graze, Mental States or Burst) are now visible on partners (at 50% volume).",
@@ -38,7 +39,7 @@
     "0.2.0: \nFixed map voting getting stuck in many cases. Tweaked extra turn and end-of-turn behaviors.",
     "0.1.0: \nInitial development build."
   ],
-  "Version": "0.10.2",
+  "Version": "0.10.3",
   "Author": "Rokk",
   "Tags": [
     "Mod",
