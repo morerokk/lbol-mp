@@ -41,7 +41,7 @@ MpBladeSymphony:
 MpOffering:
   Name: Offering to the Ownerless
   Description: |-
-    The next Ability card you play is also played for all your |Partners|.
+    The next {Value1:plural one='Ability card' other='% Ability cards'} you play will also be played for all your |Partners|.
   FlavorText: |-
     What is given away freely is not, in fact, given at all. But losing gold would be sacrificing gameplay for lore.
 

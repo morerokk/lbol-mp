@@ -51,10 +51,11 @@ namespace LBOLMP.Entities.Cards
             config.Rarity = Rarity.Rare;
             config.Colors = new List<ManaColor> { ManaColor.Black, ManaColor.Blue, ManaColor.White };
             config.Cost = new ManaGroup { Any = 1, Blue = 1, White = 1, Black = 1 };
-            config.UpgradedCost = new ManaGroup { Any = 1, Black = 1 } + ManaGroup.Hybrids(1, ManaColor.Blue, ManaColor.White);
             config.TargetType = TargetType.Self;
-            config.Keywords = Keyword.Exile | Keyword.Retain;
+            config.Keywords = Keyword.Exile;
             config.UpgradedKeywords = Keyword.Exile | Keyword.Retain;
+            config.Value1 = 1;
+            config.UpgradedValue1 = 2;
             config.RelativeEffects = new List<string> { nameof(MpPartner) };
             config.UpgradedRelativeEffects = new List<string> { nameof(MpPartner) };
             config.Illustrator = "syaraku";
@@ -68,7 +69,7 @@ namespace LBOLMP.Entities.Cards
         protected override IEnumerable<BattleAction> Actions(
             UnitSelector selector, ManaGroup consumingMana, Interaction precondition)
         {
-            yield return new ApplyStatusEffectAction(typeof(MpOfferingSe), Battle.Player, 1);
+            yield return new ApplyStatusEffectAction(typeof(MpOfferingSe), Battle.Player, Value1);
         }
     }
 }
