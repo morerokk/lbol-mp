@@ -61,7 +61,8 @@ namespace LBOLMP.Patches
             }
 
             // Can't play something if you're watching someone else's hand (Marisa get your grubby hands off my Unmoving Great Library)
-            if (UI.MpHandView.Active)
+            // However, end turn requests should always be allowed.
+            if (UI.MpHandView.Active && !(request is PlayBoard.EndTurnRequestEntry))
             {
                 return Decision.Reject;
             }

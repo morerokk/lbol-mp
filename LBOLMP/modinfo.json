@@ -3,6 +3,7 @@
   "Description": "Coop mod for LBoL. Press F2 in the main menu to open the network menu. Host a session over Steam or over a direct IP connection, have other players join, then everyone start a new run, pick a character and click Confirm. The host sets the difficulty for everyone.",
   "Brief": "Cooperative multiplayer",
   "Changelog": [
+    "0.10.6: \nFixed a softlock when trying to end your turn while previewing another player's hand.",
     "0.10.5: \nMost visual card effects are now also visible to other players.\nFixed numerous softlock issues caused by previewing another player.",
     "0.10.4: \nDefeated players can now see the enemy taking turns.\n(This also fixes a potential desync at Seija)\nDefeated players now play their death animations properly.",
     "0.10.3: \nReduced Moon Rabbit Duo HP scaling in multiplayer.",
