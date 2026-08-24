@@ -44,6 +44,12 @@ namespace LBOLMP
         public static ConfigEntry<bool> EnableEnemyResilience;
 
         public static ConfigEntry<float> ReviveHpFraction;
+
+        /// <summary>
+        /// Whether multiplayer cards can be found in a run.
+        /// </summary>
+        public static ConfigEntry<bool> MultiplayerCardsEnabled;
+
         public static ConfigEntry<bool> VerboseLogging;
         public static ConfigEntry<bool> ForceCombatEvents;
         public static ConfigEntry<bool> ForceDoremyEvent;
@@ -118,6 +124,8 @@ namespace LBOLMP
                 "Give every enemy the Resilient status effect in multiplayer. For each player past the first, an enemy loses 1 more Weak, Vulnerable and Lock On at the end of its turn, and gains 1 less Firepower Down (never less than 1). Turn this off to leave debuffs exactly as strong as they are in single player. The host's setting is used.");
             ReviveHpFraction = Config.Bind("Balance", nameof(ReviveHpFraction), 0.2f,
                 "How much of their max health should a defeated player be revived with. Number between 0-1. You always revive with at least 1 HP. The host's setting is used.");
+            MultiplayerCardsEnabled = Config.Bind("Balance", nameof(MultiplayerCardsEnabled), true,
+                "If enabled, multiplayer cards can be found during runs. The host's setting is used.");
             ForceCombatEvents = Config.Bind("Debug", nameof(ForceCombatEvents), false,
                 "DEBUG: Force Yachie or Miyoi events at event nodes.");
             ForceDoremyEvent = Config.Bind("Debug", nameof(ForceDoremyEvent), false,

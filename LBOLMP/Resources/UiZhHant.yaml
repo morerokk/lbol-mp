@@ -59,6 +59,7 @@ SettingReviveHpName: "復活時的生命值"
 SettingReviveHpHelp: "隊伍獲勝時，被擊倒的玩家按最大生命值的多少比例復活。取值 0 到 1，且至少為 1 點生命。"
 SettingResilienceName: "敵人擁有「堅韌」"
 SettingResilienceHelp: "讓每個敵人獲得「堅韌」狀態。除第一位玩家外，每多一位玩家，敵人在回合結束時額外失去 1 層虛弱、易傷和鎖定，並且獲得的失去火力減少 1 點，但不低於 1 點。關閉後，減益效果與單人遊戲時完全相同。"
+SettingMultiplayerCardsName: "啟用多人卡牌"
 
 # ---- corner HUD
 HudParty: "隊伍 ({0})"

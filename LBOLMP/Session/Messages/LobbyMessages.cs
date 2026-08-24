@@ -144,6 +144,7 @@ namespace LBOLMP.Session.Messages
         public float[] EnemyHpEscalationByAct = new float[MpConstants.ActCount];
         public float ReviveHpFraction = 0.2f;
         public bool EnemyResilience = true;
+        public bool MultiplayerCards = true;
 
         public override void Write(NetWriter w)
         {
@@ -156,6 +157,7 @@ namespace LBOLMP.Session.Messages
             }
             w.Float(ReviveHpFraction);
             w.Bool(EnemyResilience);
+            w.Bool(MultiplayerCards);
         }
 
         public override void Read(NetReader r)
@@ -170,6 +172,7 @@ namespace LBOLMP.Session.Messages
             }
             ReviveHpFraction = r.Float();
             EnemyResilience = r.Bool();
+            MultiplayerCards = r.Bool();
         }
     }
 
@@ -230,6 +233,7 @@ namespace LBOLMP.Session.Messages
         public float[] EnemyHpEscalationByAct = new float[MpConstants.ActCount];
         public float ReviveHpFraction = 0.2f;
         public bool EnemyResilience = true;
+        public bool MultiplayerCards = true;
 
         // Message that says "hey someone's a bit further behind"
         public string Note;
@@ -245,6 +249,7 @@ namespace LBOLMP.Session.Messages
             }
             w.Float(ReviveHpFraction);
             w.Bool(EnemyResilience);
+            w.Bool(MultiplayerCards);
             w.String(Note);
         }
 
@@ -260,6 +265,7 @@ namespace LBOLMP.Session.Messages
             }
             ReviveHpFraction = r.Float();
             EnemyResilience = r.Bool();
+            MultiplayerCards = r.Bool();
             Note = r.String();
         }
     }

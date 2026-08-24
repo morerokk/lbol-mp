@@ -59,6 +59,7 @@ SettingReviveHpName: "Revive health"
 SettingReviveHpHelp: "How much of their max health a defeated player comes back with when the party wins the fight. Between 0 and 1 (0%-100%). Players always revive with at least 1 HP."
 SettingResilienceName: "Enemies are Resilient"
 SettingResilienceHelp: "Give every enemy the Resilient status effect. For each extra player, enemies lose debuffs faster. Disable this to make debuffs decay as fast as in single player."
+SettingMultiplayerCardsName: "Enable multiplayer cards"
 
 # ---- corner HUD
 HudParty: "Party ({0})"

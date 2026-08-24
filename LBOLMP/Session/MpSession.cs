@@ -83,6 +83,15 @@ namespace LBOLMP.Session
         public static bool EnemyResilience =>
             _runEnemyResilience ?? MpPlugin.EnableEnemyResilience.Value;
 
+        /// <summary>The host's multiplayer card toggle, as sent with the seed. Null until a run starts.</summary>
+        private static bool? _runMultiplayerCards;
+
+        /// <summary>
+        /// Whether this mod's multiplayer cards can be found in the run in progress.
+        /// </summary>
+        public static bool MultiplayerCards =>
+            _runMultiplayerCards ?? MpPlugin.MultiplayerCardsEnabled.Value;
+
         /// <summary>
         /// The host's difficulty as it stands in the lobby, as a <c>GameDifficulty</c> ordinal.
         /// </summary>
@@ -730,7 +739,8 @@ namespace LBOLMP.Session
                 EnemyHpScalePerExtraPlayer = MpPlugin.EnemyHpScalePerExtraPlayer.Value,
                 EnemyHpEscalationByAct = LocalEscalationSettings(),
                 ReviveHpFraction = MpPlugin.ReviveHpFraction.Value,
-                EnemyResilience = MpPlugin.EnableEnemyResilience.Value
+                EnemyResilience = MpPlugin.EnableEnemyResilience.Value,
+                MultiplayerCards = MpPlugin.MultiplayerCardsEnabled.Value
             });
         }
 
@@ -773,6 +783,7 @@ namespace LBOLMP.Session
                 EnemyHpEscalationByAct = LocalEscalationSettings(),
                 ReviveHpFraction = MpPlugin.ReviveHpFraction.Value,
                 EnemyResilience = MpPlugin.EnableEnemyResilience.Value,
+                MultiplayerCards = MpPlugin.MultiplayerCardsEnabled.Value,
                 Note = staggered ? L10n.Encode(MpText.NoticeResumeStaggered) : string.Empty
             });
         }
@@ -851,7 +862,8 @@ namespace LBOLMP.Session
             StatusLine = L10n.Get(MpText.StatusRunStarted, message.Seed);
 
             AdoptRunRules(message.Difficulty, message.EnemyHpScalePerExtraPlayer,
-                message.EnemyHpEscalationByAct, message.ReviveHpFraction, message.EnemyResilience);
+                message.EnemyHpEscalationByAct, message.ReviveHpFraction, message.EnemyResilience,
+                message.MultiplayerCards);
 
             foreach (var player in PlayersById.Values)
             {
@@ -881,7 +893,8 @@ namespace LBOLMP.Session
             StatusLine = L10n.Get(MpText.StatusRunResumed, message.Seed);
 
             AdoptRunRules(message.Difficulty, message.EnemyHpScalePerExtraPlayer,
-                message.EnemyHpEscalationByAct, message.ReviveHpFraction, message.EnemyResilience);
+                message.EnemyHpEscalationByAct, message.ReviveHpFraction, message.EnemyResilience,
+                message.MultiplayerCards);
 
             foreach (var player in PlayersById.Values)
             {
@@ -912,7 +925,7 @@ namespace LBOLMP.Session
         }
 
         private static void AdoptRunRules(int difficulty, float enemyHpScale, float[] escalation,
-            float reviveHpFraction, bool enemyResilience)
+            float reviveHpFraction, bool enemyResilience, bool multiplayerCards)
         {
             _runDifficulty = ClampDifficulty(difficulty);
             _runEnemyHpScale = enemyHpScale;
@@ -944,6 +957,14 @@ namespace LBOLMP.Session
                 MpPlugin.Log.LogInfo(
                     $"Using the host's Resilient setting ({(enemyResilience ? "on" : "off")}) " +
                     $"instead of this machine's ({(MpPlugin.EnableEnemyResilience.Value ? "on" : "off")})");
+            }
+
+            _runMultiplayerCards = multiplayerCards;
+            if (!MpNet.IsHost && multiplayerCards != MpPlugin.MultiplayerCardsEnabled.Value)
+            {
+                MpPlugin.Log.LogInfo(
+                    $"Using the host's multiplayer card setting ({(multiplayerCards ? "on" : "off")}) " +
+                    $"instead of this machine's ({(MpPlugin.MultiplayerCardsEnabled.Value ? "on" : "off")})");
             }
 
             if (!MpNet.IsHost)
@@ -984,6 +1005,7 @@ namespace LBOLMP.Session
             _runEnemyHpEscalation = null;
             _runReviveHpFraction = null;
             _runEnemyResilience = null;
+            _runMultiplayerCards = null;
 
             Patches.StartGameInterceptPatch.Cancel();
             Patches.RestoreGameInterceptPatch.Cancel();

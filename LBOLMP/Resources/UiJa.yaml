@@ -59,6 +59,7 @@ SettingReviveHpName: "復活時のHP"
 SettingReviveHpHelp: "パーティーが戦闘に勝利した際、倒されたプレイヤーが最大HPの何％で復活するかを設定します。"
 SettingResilienceName: "敵が「耐性」を持つ"
 SettingResilienceHelp: "すべての敵に「耐性」状態を付与します。プレイヤーが増えるほど、敵のデバフが早く解除されます。無効にすると、デバフの減少速度はシングルプレイ時と同じになります。"
+SettingMultiplayerCardsName: "マルチプレイカードを有効にする"
 
 # ---- corner HUD
 HudParty: "パーティー（{0}）"

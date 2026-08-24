@@ -131,7 +131,9 @@ namespace LBOLMP.UI
 
             return config
                 .Where(pair => pair.Key.Section == Section)
-                .OrderBy(pair => pair.Key.Key, StringComparer.Ordinal)
+                // Everything else here is difficulty scaling, so the card toggle goes last.
+                .OrderBy(pair => ReferenceEquals(pair.Value, MpPlugin.MultiplayerCardsEnabled) ? 1 : 0)
+                .ThenBy(pair => pair.Key.Key, StringComparer.Ordinal)
                 .Select(pair => pair.Value)
                 .ToList();
         }
@@ -182,6 +184,13 @@ namespace LBOLMP.UI
             {
                 name = L10n.Get(MpText.SettingResilienceName);
                 help = L10n.Get(MpText.SettingResilienceHelp);
+                return;
+            }
+
+            if (ReferenceEquals(entry, MpPlugin.MultiplayerCardsEnabled))
+            {
+                name = L10n.Get(MpText.SettingMultiplayerCardsName);
+                help = string.Empty;
                 return;
             }
 

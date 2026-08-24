@@ -75,7 +75,10 @@ namespace LBOLMP.Session
             }
         }
 
-        internal static void OnRunSetup() => Apply(MpSession.IsActive);
+        /// <summary>
+        /// Multiplayer cards are only in play when the host has them enabled.
+        /// </summary>
+        internal static void OnRunSetup() => Apply(MpSession.IsActive && MpSession.MultiplayerCards);
         internal static void OnLeftRun() => Restore();
 
         private static void Apply(bool multiplayer)
@@ -93,7 +96,7 @@ namespace LBOLMP.Session
 
             MpPlugin.Log.LogInfo(multiplayer
                 ? "Multiplayer cards available; the cards they replace are hidden"
-                : "Multiplayer cards hidden for this single player run");
+                : "Multiplayer cards hidden; this is either a single player run or the host turned them off");
         }
 
         private static void Restore()

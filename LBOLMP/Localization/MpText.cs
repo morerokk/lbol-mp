@@ -60,6 +60,7 @@ namespace LBOLMP
         SettingReviveHpHelp,
         SettingResilienceName,
         SettingResilienceHelp,
+        SettingMultiplayerCardsName,
 
         // ------------------------------------------------------------------ corner HUD
         HudParty,
