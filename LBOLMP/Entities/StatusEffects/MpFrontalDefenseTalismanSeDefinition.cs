@@ -41,8 +41,7 @@ namespace LBOLMP.Entities.StatusEffects
             return files;
         }
 
-        /// <summary>Borrowed from Resilient until this gets an icon of its own.</summary>
-        public override Sprite LoadSprite() => ResourceLoader.LoadSprite("Resources/StatusEffects/MpResilient.png", Source);
+        public override Sprite LoadSprite() => ResourceLoader.LoadSprite("Resources/StatusEffects/MpFrontalDefenseTalismanSe.png", Source);
 
         public override StatusEffectConfig MakeConfig()
         {
