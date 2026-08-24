@@ -58,17 +58,11 @@ namespace LBOLMP.Entities.Cards
             // How many cards you get to choose between.
             config.Value1 = 3;
             config.UpgradedValue1 = 5;
-
-            // What the borrowed card temporarily costs, and what {Mana} renders as in the
-            // description. Empty rather than the literal "0" so it draws as a mana pip.
+            // The mana tooltip and cost for generated cards
             config.Mana = ManaGroup.Empty;
-
             config.Keywords = Keyword.Exile;
             config.UpgradedKeywords = Keyword.Exile;
 
-            // Explains what the borrowed card arrives with. Exile is already covered by Keywords.
-            // TempMorph is "Temporary Cost Change", and has to be spelled out because it is marked
-            // AutoAppend = false, so nothing infers it from the SetTurnCost call.
             config.RelativeKeyword = Keyword.Ethereal | Keyword.TempMorph;
             config.UpgradedRelativeKeyword = Keyword.Ethereal | Keyword.TempMorph;
 

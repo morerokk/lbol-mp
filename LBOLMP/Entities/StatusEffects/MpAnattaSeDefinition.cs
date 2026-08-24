@@ -43,20 +43,17 @@ namespace LBOLMP.Entities.StatusEffects
         }
 
         /// <summary>
-        /// Falls back to the Resilient icon until Resources/StatusEffects/MpAnattaSe.png exists,
-        /// so the status HUD always has something to draw. Drop the fallback once the art lands.
+        /// Borrows the vanilla Anatta icon rather than a copy of it.
         /// </summary>
         public override Sprite LoadSprite() =>
-            ResourceLoader.LoadSprite("Resources/StatusEffects/MpAnattaSe.png", Source)
-            ?? ResourceLoader.LoadSprite("Resources/StatusEffects/MpResilient.png", Source);
+            LBoL.Presentation.ResourcesHelper.TryGetSprite<StatusEffect>(nameof(UpgradePeace))
+            ?? ResourceLoader.LoadSprite("Resources/StatusEffects/MpAnattaSe.png", Source);
 
         public override StatusEffectConfig MakeConfig()
         {
             var config = DefaultConfig();
             config.Type = StatusEffectType.Positive;
-
-            // One rainbow per copy played. The vanilla card this replaces cannot stack at all,
-            // which is most of why nobody takes it. LevelStackType is StackType.Add by default.
+            // It stacks!
             config.HasLevel = true;
             config.HasDuration = false;
             return config;
