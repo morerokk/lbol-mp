@@ -8,26 +8,34 @@ using LBoLEntitySideloader.Entities;
 namespace LBOLMP.Session
 {
     /// <summary>
-    /// Keeps multiplayer-only cards out of single player runs.
-    ///
-    /// Card pools are fixed sets that cannot be extended without adding one per character, so
-    /// rather than inventing pools we leave each card in whichever pool it belongs to and hide it
-    /// from the roller instead. <c>GameRunController.RollCards</c> only considers a card when
-    /// <c>config.DebugLevel &lt;= gameRun.CardValidDebugLevel</c>, and that ceiling is 0 in a
-    /// normal run, so a debug level of 1 makes a card invisible to every roll without touching
-    /// its pool, colour, owner or rarity.
-    ///
-    /// The level goes back to 0 on the way out to the main menu, so the Museum still lists these
-    /// cards normally rather than tagging them as debug cards.
+    /// Decides whether singleplayer-only/multiplayer-only cards are available or not.
     /// </summary>
+    /// <remarks>
+    /// Some cards are multiplayer-exclusive, others have been replaced with better versions (or removed from multiplayer for other reasons).
+    /// This class automagically sets debug levels on cards, to hide them from the card pools when they aren't relevant.
+    /// In all cases, the debug level is set low enough in the main menu so that they're still visible in the Museum/Collection.
+    /// </remarks>
     public static class MpCardAvailability
     {
-        /// <summary>High enough that no normal run will roll it. The Museum still shows level 1.</summary>
+        /// <summary>High enough that it can't be found naturally ingame. The Museum still shows level 1 cards.</summary>
         private const int HiddenDebugLevel = 1;
 
-        private static readonly List<string> CardIds = new List<string>();
+        /// <summary>
+        /// Cards that only exist in a multiplayer run.
+        /// </summary>
+        private static readonly List<string> MultiplayerOnly = new List<string>();
 
-        private static bool _hidden;
+        /// <summary>
+        /// Cards that only exist in a singleplayer run.
+        /// </summary>
+        private static readonly List<string> SingleplayerOnly = new List<string>
+        {
+            // Koishi's Anatta, replaced by MpAnatta.
+            "Anatta"
+        };
+
+        private static bool _inMultiplayerRun;
+        private static bool _applied;
 
         /// <summary>
         /// Collect the multiplayer-only cards in an assembly. Other mods call this with their own
@@ -44,32 +52,66 @@ namespace LBOLMP.Session
                     continue;
                 }
 
-                // UniqueId, not GetId: Sideloader renames an entity if another mod already claimed
-                // the plain id, and the config table is keyed by the name it ended up with.
+                // We use UniqueId and not GetId here.
+                // Sideloader renames an entity if another mod already claimed the plain id.
                 var definition = (EntityDefinition)Activator.CreateInstance(type);
-                CardIds.Add(definition.UniqueId.ToString());
+                MultiplayerOnly.Add(definition.UniqueId.ToString());
             }
 
-            MpPlugin.Log.LogInfo($"{CardIds.Count} multiplayer-only card(s) registered");
+            MpPlugin.Log.LogInfo($"{MultiplayerOnly.Count} multiplayer-only card(s) registered");
         }
 
-        /// <summary>A run is starting or being restored. Offer these cards only if it is a lobby run.</summary>
-        internal static void OnRunSetup() => SetHidden(!MpSession.IsActive);
-
-        /// <summary>Back at the menu, where the Museum should show everything.</summary>
-        internal static void OnLeftRun() => SetHidden(false);
-
-        private static void SetHidden(bool hidden)
+        /// <summary>
+        /// Mark a *vanilla* card ID as unfindable in singleplayer.
+        /// </summary>
+        /// <remarks>
+        /// Not guaranteed to work for modded cards in case of ID collisions!
+        /// </remarks>
+        public static void SetVanillaCardSingleplayerOnly(string vanillaCardId)
         {
-            if (hidden == _hidden || CardIds.Count == 0)
+            if (!string.IsNullOrEmpty(vanillaCardId) && !SingleplayerOnly.Contains(vanillaCardId))
+            {
+                SingleplayerOnly.Add(vanillaCardId);
+            }
+        }
+
+        internal static void OnRunSetup() => Apply(MpSession.IsActive);
+        internal static void OnLeftRun() => Restore();
+
+        private static void Apply(bool multiplayer)
+        {
+            if (_applied && multiplayer == _inMultiplayerRun)
             {
                 return;
             }
 
-            _hidden = hidden;
-            int level = hidden ? HiddenDebugLevel : 0;
+            _applied = true;
+            _inMultiplayerRun = multiplayer;
 
-            foreach (var id in CardIds)
+            SetLevel(MultiplayerOnly, multiplayer ? 0 : HiddenDebugLevel);
+            SetLevel(SingleplayerOnly, multiplayer ? HiddenDebugLevel : 0);
+
+            MpPlugin.Log.LogInfo(multiplayer
+                ? "Multiplayer cards available; the cards they replace are hidden"
+                : "Multiplayer cards hidden for this single player run");
+        }
+
+        private static void Restore()
+        {
+            if (!_applied)
+            {
+                return;
+            }
+
+            _applied = false;
+            SetLevel(MultiplayerOnly, 0);
+            SetLevel(SingleplayerOnly, 0);
+            MpPlugin.Log.LogInfo("Every card is on display again");
+        }
+
+        private static void SetLevel(List<string> ids, int level)
+        {
+            foreach (var id in ids)
             {
                 var config = CardConfig.FromId(id);
                 if (config == null)
@@ -80,10 +122,6 @@ namespace LBOLMP.Session
 
                 config.DebugLevel = level;
             }
-
-            MpPlugin.Log.LogInfo(hidden
-                ? "Multiplayer-only cards hidden for this run"
-                : "Multiplayer-only cards available again");
         }
     }
 }

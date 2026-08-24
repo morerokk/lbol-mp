@@ -55,8 +55,8 @@ namespace LBOLMP.Entities.Cards
             config.TargetType = TargetType.Self;
             config.Keywords = Keyword.Exile | Keyword.Retain;
             config.UpgradedKeywords = Keyword.Exile | Keyword.Retain;
-            config.RelativeEffects = new List<string> { nameof(MpOfferingSe), nameof(MpPartner) };
-            config.UpgradedRelativeEffects = new List<string> { nameof(MpOfferingSe), nameof(MpPartner) };
+            config.RelativeEffects = new List<string> { nameof(MpPartner) };
+            config.UpgradedRelativeEffects = new List<string> { nameof(MpPartner) };
             config.Illustrator = "syaraku";
             return config;
         }

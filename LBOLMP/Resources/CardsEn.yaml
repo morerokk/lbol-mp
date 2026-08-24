@@ -1,10 +1,18 @@
 # Note: "Partner" is as in "Partner" from Imperishable Night.
 # This refers to other players in multiplayer.
+
 MpDonateBlock:
   Name: Block Donation
   Description: |-
     Choose a |Partner|.
     They gain {Block} |Block|.
+
+MpAnatta:
+  Name: Anatta
+  Description: |-
+    Whenever you exit |Serenity|,
+    all players gain {Mana}.
+    Enter |Serenity|.
 
 MpBladeSymphony:
   Name: Blade Symphony
