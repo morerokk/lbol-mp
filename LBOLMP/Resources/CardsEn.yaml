@@ -2,7 +2,7 @@
 # This refers to other players in multiplayer.
 
 MpDonateBlock:
-  Name: Block Donation
+  Name: Remote Boundary
   Description: |-
     Choose a |Partner|.
     They gain {Block} |Block|.
@@ -44,3 +44,10 @@ MpOffering:
     The next Ability card you play is also played for all your |Partners|.
   FlavorText: |-
     What is given away freely is not, in fact, given at all. But losing gold would be sacrificing gameplay for lore.
+
+MpEscapePlan:
+  Name: Escape Plan
+  Description: |-
+    Choose a |Partner|.
+    You both gain {Value1} |Graze|.
+
