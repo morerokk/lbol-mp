@@ -15,10 +15,11 @@ using LBoLEntitySideloader.Resource;
 
 namespace LBOLMP.Entities.Cards
 {
-    /// <summary>How much Block the partner is getting.</summary>
+    /// <summary>How much Block the partner is getting, and how many times.</summary>
     public sealed class MpDonateBlockPayload : MpEffectPayload
     {
         public int Block;
+        public int Times;
     }
 
     /// <summary>
@@ -58,7 +59,13 @@ namespace LBOLMP.Entities.Cards
             config.Cost = new ManaGroup { White = 1 };
             config.UpgradedCost = new ManaGroup { Any = 1 };
             config.Block = 8;
-            config.UpgradedBlock = 12;
+            config.UpgradedBlock = 6;
+
+            // How many separate instances of Block.
+            // An upgrade gives 6x2 instead of 8, which lets it benefit from Spirit more.
+            config.Value1 = 1;
+            config.UpgradedValue1 = 2;
+
             config.Illustrator = "Tuck坦";
 
             // Set to TargetType.SingleEnemy just so we can borrow the selector logic.
@@ -73,8 +80,12 @@ namespace LBOLMP.Entities.Cards
         public override IEnumerable<BattleAction> Receive(
             MpDonateBlockPayload payload, BattleController battle, int senderId)
         {
-            // Intentionally doesn't have a cause, because only the caster's Spirit/Divine Favor is taken into account for this
-            yield return new CastBlockShieldAction(battle.Player, payload.Block, 0);
+            // Intentionally doesn't have a cause, because only the caster's Spirit/Divine Favor is taken into account for this.
+            // This is applied N times to trigger "on block gained" effects
+            for (int i = 0; i < payload.Times; i++)
+            {
+                yield return new CastBlockShieldAction(battle.Player, payload.Block, 0);
+            }
         }
     }
 
@@ -91,8 +102,8 @@ namespace LBOLMP.Entities.Cards
             // This makes Spirit etc, work.
             int block = Battle.CalculateBlockShield(this, Block.Block, 0f).Item1;
 
-            MpEffects.Send(Id, new MpDonateBlockPayload { Block = block }, MpEffectTarget.Partner,
-                MpPartyTargeting.Consume());
+            MpEffects.Send(Id, new MpDonateBlockPayload { Block = block, Times = Value1 },
+                MpEffectTarget.Partner, MpPartyTargeting.Consume());
             yield break;
         }
     }

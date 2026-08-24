@@ -6,6 +6,9 @@ MpDonateBlock:
   Description: |-
     Choose a |Partner|.
     They gain {Block} |Block|.
+  UpgradedDescription: |-
+    Choose a |Partner|.
+    They gain {Block} |Block| {Value1} times.
 
 MpAnatta:
   Name: Anatta
@@ -13,6 +16,12 @@ MpAnatta:
     Whenever you exit |Serenity|,
     all players gain {Mana}.
     Enter |Serenity|.
+
+MpBorrowTechniques:
+  Name: Borrow Techniques
+  Description: |-
+    Choose a |Partner|.
+    Choose 1 of {Value1} random cards from their pool to add to the hand. It |temporarily costs| {Mana} and has |Exile| and |Ethereal|.
 
 MpBladeSymphony:
   Name: Blade Symphony

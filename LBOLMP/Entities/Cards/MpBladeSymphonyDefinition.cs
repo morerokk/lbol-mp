@@ -12,7 +12,6 @@ using LBoL.Core.Cards;
 using LBoL.EntityLib.Cards.Character.Sakuya;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
-using LBoLEntitySideloader.Entities;
 using LBoLEntitySideloader.Resource;
 
 namespace LBOLMP.Entities.Cards
