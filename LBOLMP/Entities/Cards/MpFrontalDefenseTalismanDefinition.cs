@@ -49,7 +49,7 @@ namespace LBOLMP.Entities.Cards
 
             config.RelativeEffects = new List<string> { nameof(MpPartner) };
             config.UpgradedRelativeEffects = new List<string> { nameof(MpPartner) };
-            config.Illustrator = "neet邢大耳";
+            config.Illustrator = "他们都叫我凉子";
             return config;
         }
     }
