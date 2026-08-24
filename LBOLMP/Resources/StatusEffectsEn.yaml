@@ -24,3 +24,11 @@ MpPartner:
   Name: Partner
   Description: Other players.
   Brief: Other players.
+
+MpFrontalDefenseTalismanSe:
+  Name: Frontal Defense Talisman
+  Description: |-
+    Whenever you gain |Barrier| from a card,
+    all |Partners| gain half that much |Block|.
+  Brief: |-
+    |Barrier| you gain from cards also gives |Partners| half that much |Block|.

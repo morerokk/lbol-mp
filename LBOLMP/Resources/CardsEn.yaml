@@ -51,3 +51,8 @@ MpEscapePlan:
     Choose a |Partner|.
     You both gain {Value1} |Graze|.
 
+MpFrontalDefenseTalisman:
+  Name: Frontal Defense Talisman
+  Description: |-
+    Whenever you gain |Barrier| from a card,
+    all |Partners| gain half that much |Block|.
