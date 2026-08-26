@@ -492,6 +492,106 @@ namespace LBOLMP.UI
             }
         }
 
+        /// <summary>
+        /// Take the fight off every mirror. Called once the battle is over.
+        /// </summary>
+        public static void ClearCombatState()
+        {
+            foreach (var ally in Allies.Values.ToList())
+            {
+                SyncOutOfBattle(MpSession.Get(ally.PlayerId));
+            }
+        }
+
+        /// <summary>
+        /// Put a player's out-of-combat status on their mirror unit.
+        /// </summary>
+        /// Between battles there are no seats, so <see cref="SyncVitals"/> has nothing to read and
+        /// the mirrors would otherwise keep whatever they were showing when the fight ended.     
+        public static void SyncOutOfBattle(MpPlayer player)
+        {
+            if (player == null || !Allies.TryGetValue(player.Id, out var ally) || ally.Unit == null)
+            {
+                return;
+            }
+
+            MpSafe.Run("MpAllyUnits.SyncOutOfBattle", () =>
+            {
+                var unit = ally.Unit;
+                var view = ally.View;
+
+                StripStatusEffects(ally);
+
+                if (unit.Block != 0 || unit.Shield != 0)
+                {
+                    unit.Block = 0;
+                    unit.Shield = 0;
+                    view?.UpdateShieldColliders();
+                    view?._statusWidget?.OnBlockShieldChanged();
+                }
+
+                ally.LastBlock = 0;
+                ally.LastShield = 0;
+
+                // Nobody has reported for them yet. Leave the health alone rather than zeroing it.
+                if (player.MaxHp <= 0)
+                {
+                    return;
+                }
+
+                if (unit.MaxHp != player.MaxHp)
+                {
+                    unit.SetMaxHp(Mathf.Clamp(player.Hp, 0, player.MaxHp), player.MaxHp);
+                    view?.SetPlayerHpBarLength(player.MaxHp);
+                    view?.OnMaxHpChanged();
+                }
+
+                int hp = Mathf.Clamp(player.Hp, 0, player.MaxHp);
+                int delta = ally.LastHp == int.MinValue ? 0 : hp - ally.LastHp;
+
+                unit.Hp = hp;
+                ally.LastHp = hp;
+
+                // Both of these only tween the bar towards what we just wrote. The damage numbers
+                // and the flinch come from elsewhere and stay out of it.
+                if (view != null && delta < 0)
+                {
+                    view.OnDamageReceived(DamageInfo.HpLose(-delta, true));
+                }
+                else if (view != null && delta > 0)
+                {
+                    view.OnHealingReceived(delta);
+                }
+
+                // Went down at the boss and was patched up on the way out.
+                if (hp > 0 && unit.Status != UnitStatus.Alive)
+                {
+                    Revive(ally);
+                }
+            });
+        }
+
+        /// <summary>
+        /// Take every mirrored buff and debuff off an ally, the same way SyncStatusEffects drops
+        /// the ones a seat has stopped reporting.
+        /// </summary>
+        private static void StripStatusEffects(Ally ally)
+        {
+            var unit = ally.Unit;
+            if (unit == null)
+            {
+                return;
+            }
+
+            foreach (var existing in unit.StatusEffects.ToList())
+            {
+                unit._statusEffects.Remove(existing);
+                existing.Owner = null;
+                ally.View?.OnRemoveStatusEffect(existing);
+                StopUnitEffects(ally, existing);
+            }
+        }
+
         /// <summary>Push a seat's networked vitals onto its on-screen unit (puts a player's HP onto their actual mirror unit).</summary>
         public static void SyncVitals(MpBattleSeat seat)
         {

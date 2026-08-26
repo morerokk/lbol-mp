@@ -1089,6 +1089,10 @@ namespace LBOLMP.Session
             player.MaxHp = message.MaxHp;
             player.Money = message.Money;
             player.Power = message.Power;
+            if (!Battle.MpBattleSync.InBattle)
+            {
+                UI.MpAllyUnits.SyncOutOfBattle(player);
+            }
         }
 
         private static void OnPeerDisconnected(int playerId, string reason)

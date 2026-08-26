@@ -205,6 +205,9 @@ namespace LBOLMP.Patches
                 CardPlayHook.Unhook();
                 MpPrivateEnemies.Reset();
 
+                // Reimu you can drop the barrier now, we're at a shop
+                UI.MpAllyUnits.ClearCombatState();
+
                 if (!MpBattleSync.InBattle)
                 {
                     MpDownedPlayers.Unhook();
