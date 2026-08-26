@@ -22,14 +22,24 @@ namespace LBOLMP.UI
         private const float Scale = 0.25f;
         private const float Alpha = 0.85f;
 
-        private static readonly Dictionary<int, GameObject> Active = new Dictionary<int, GameObject>();
+        /// <summary>How far apart concurrent popups sit, as a fraction of a card's own width.</summary>
+        private const float FanFraction = 0.3f;
+
+        /// <summary>
+        /// How many of one player's cards can be on screen together.
+        /// </summary>
+        private const int MaxStack = 4;
+
+        /// <summary>
+        /// Every popup currently on screen, oldest first, per player.
+        /// </summary>
+        private static readonly Dictionary<int, List<GameObject>> Active =
+            new Dictionary<int, List<GameObject>>();
 
         public static void Show(int playerId, string cardId, bool upgraded)
         {
             MpSafe.Run("AllyCardPopup", () =>
             {
-                Dismiss(playerId);
-
                 var playBoard = UiManager.GetPanel<PlayBoard>();
                 var prefab = playBoard?.CardUi?.cardPrefab;
                 if (prefab == null)
@@ -63,7 +73,16 @@ namespace LBOLMP.UI
                 rect.localScale = Vector3.one * Scale;
                 rect.SetAsLastSibling();
 
-                Active[playerId] = widget.gameObject;
+                var live = LiveFor(playerId);
+
+                // Somebody is chaining cards faster than these can fade. Drop the oldest rather
+                // than letting the fan grow across the screen.
+                while (live.Count >= MaxStack)
+                {
+                    Retire(playerId, live[0]);
+                }
+
+                live.Add(widget.gameObject);
                 MpPlugin.Instance.StartCoroutine(Run(playerId, widget, parent));
             });
         }
@@ -76,6 +95,8 @@ namespace LBOLMP.UI
             var group = widget.CanvasGroup;
             float elapsed = 0f;
 
+            float fan = FanOffset(playerId, own, widget);
+
             while (widget != null && elapsed < RiseSeconds + HoldSeconds + FadeSeconds)
             {
                 elapsed += Time.unscaledDeltaTime;
@@ -84,13 +105,16 @@ namespace LBOLMP.UI
                     ? RisePixels * (1f - Mathf.Pow(1f - elapsed / RiseSeconds, 3f))
                     : RisePixels;
 
+                fan = Mathf.Lerp(fan, FanOffset(playerId, own, widget),
+                    1f - Mathf.Exp(-14f * Time.unscaledDeltaTime));
+
                 if (MpAllyUnits.TryGetHeadScreenPoint(playerId, out var screenPoint))
                 {
                     var camera = ResolveCamera(parent);
                     if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
                             parent, screenPoint, camera, out var local))
                     {
-                        widget.RectTransform.anchoredPosition = local + new Vector2(0f, rise);
+                        widget.RectTransform.anchoredPosition = local + new Vector2(fan, rise);
                     }
                 }
 
@@ -105,31 +129,70 @@ namespace LBOLMP.UI
                 yield return null;
             }
 
-            DismissOwn(playerId, own);
+            Retire(playerId, own);
+        }
+
+        private static List<GameObject> LiveFor(int playerId)
+        {
+            if (!Active.TryGetValue(playerId, out var live))
+            {
+                live = new List<GameObject>();
+                Active[playerId] = live;
+            }
+
+            return live;
         }
 
         /// <summary>
-        /// Finish a popup, clearing the slot only if it is still the one we put there.
+        /// How far to one side this popup sits, so that a few of them stay readable.
         /// </summary>
-        /// <remarks>
-        /// A card played while the previous popup is still up replaces it, which destroys the first
-        /// object and leaves its coroutine to notice on the next frame and run its cleanup. The
-        /// plain Dismiss there took the replacement down with it, so the second card was created
-        /// and killed within a frame and never appeared at all.
-        /// </remarks>
-        private static void DismissOwn(int playerId, GameObject own)
+        private static float FanOffset(int playerId, GameObject own, CardWidget widget)
         {
-            // ReferenceEquals on purpose. Unity's == calls a destroyed object null, and by this
-            // point ours usually is one; identity is the whole question being asked.
-            if (Active.TryGetValue(playerId, out var existing) && ReferenceEquals(existing, own))
+            var live = LiveFor(playerId);
+            int index = IndexOfOwn(live, own);
+            if (index < 0 || live.Count < 2)
             {
-                Active.Remove(playerId);
+                return 0f;
+            }
+
+            float width = widget.RectTransform.rect.width;
+            float step = (width > 1f ? width : 300f) * Scale * FanFraction;
+
+            return (index - (live.Count - 1) * 0.5f) * step;
+        }
+
+        /// <summary>
+        /// Take one popup off screen. Only ever removes its own entry.
+        /// </summary>
+        private static void Retire(int playerId, GameObject own)
+        {
+            if (Active.TryGetValue(playerId, out var live))
+            {
+                int index = IndexOfOwn(live, own);
+                if (index >= 0)
+                {
+                    live.RemoveAt(index);
+                }
             }
 
             if (own != null)
             {
                 Object.Destroy(own);
             }
+        }
+
+        private static int IndexOfOwn(List<GameObject> live, GameObject own)
+        {
+            for (int i = 0; i < live.Count; i++)
+            {
+                // ReferenceEquals on purpose, because of Unity's weird null checks.
+                if (ReferenceEquals(live[i], own))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
         }
 
         private static RectTransform _layer;
@@ -174,16 +237,21 @@ namespace LBOLMP.UI
 
         public static void Dismiss(int playerId)
         {
-            if (!Active.TryGetValue(playerId, out var existing))
+            if (!Active.TryGetValue(playerId, out var live))
             {
                 return;
             }
 
-            Active.Remove(playerId);
-            if (existing != null)
+            // Emptied rather than deleted
+            foreach (var popup in live.ToArray())
             {
-                Object.Destroy(existing);
+                if (popup != null)
+                {
+                    Object.Destroy(popup);
+                }
             }
+
+            live.Clear();
         }
 
         public static void DismissAll()
