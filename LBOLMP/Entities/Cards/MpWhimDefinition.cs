@@ -80,9 +80,27 @@ namespace LBOLMP.Entities.Cards
                 yield break;
             }
 
-            // We have to immediately take both cards here, rather than "take and play the top card" twice.
-            // This is because Receive only *queues* the actions for in battle, and queueing it twice would just take the same card twice.
-            foreach (var card in battle.DrawZone.Take(payload.Cards).ToList())
+            // One deferred action per card, rather than a list of cards taken now. Reading the top
+            // of the pile here reads it before any of this runs, which both hands us the same card
+            // twice and risks playing one that has since been drawn into their hand.
+            for (int i = 0; i < payload.Cards; i++)
+            {
+                yield return new MpDeferredAction(PlayTopCard);
+            }
+        }
+
+        /// <summary>
+        /// Play whatever is on top of the draw pile at the moment this runs.
+        /// </summary>
+        private static IEnumerable<BattleAction> PlayTopCard(BattleController battle)
+        {
+            if (battle.BattleShouldEnd)
+            {
+                yield break;
+            }
+
+            var card = battle.DrawZone.FirstOrDefault();
+            if (card != null)
             {
                 // No IsPlayTwiceToken, since it's their own card.
                 yield return new PlayCardAction(card);

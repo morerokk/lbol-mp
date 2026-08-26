@@ -81,6 +81,7 @@ namespace LBOLMP.Session
         /// Multiplayer cards are only in play when the host has them enabled.
         /// </summary>
         internal static void OnRunSetup() => Apply(MpSession.IsActive && MpSession.MultiplayerCards);
+
         internal static void OnLeftRun() => Restore();
 
         private static void Apply(bool multiplayer)

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Steamworks;
 using UnityEngine;
 
@@ -25,6 +26,10 @@ namespace LBOLMP.Net
         private const float UnavailableRecheckSeconds = 2f;
 
         private static CSteamID _lobby = CSteamID.Nil;
+
+        /// <summary>What we last told Steam, so an unchanged group is not republished every second.</summary>
+        private static string _publishedGroup = string.Empty;
+        private static int _publishedGroupSize;
 
         private static Callback<GameLobbyJoinRequested_t> _joinRequested;
         private static CallResult<LobbyCreated_t> _lobbyCreated;
@@ -210,8 +215,83 @@ namespace LBOLMP.Net
             });
         }
 
+        /// <summary>
+        /// Tell Steam that the people here are playing together, so their friends lists draw them
+        /// as one group instead of as unrelated people who happen to own the same game.
+        /// </summary>
+        /// <remarks>
+        /// steam_player_group is a reserved rich presence key: friends reporting the same value are
+        /// listed nested under one another. The lobby id is already unique to this session and
+        /// everybody in it knows the same one, so it doubles as the group id without a thing having
+        /// to be agreed over the wire.
+        ///
+        /// steam_display is deliberately left alone. It takes a localization token out of the
+        /// game's own Steamworks configuration, which a mod has no way to add to, so setting it
+        /// would put a raw #token in front of everybody's friends.
+        /// </remarks>
+        public static void PublishPlayerGroup(int size)
+        {
+            if (!IsAvailable)
+            {
+                return;
+            }
+
+            if (!_lobby.IsValid())
+            {
+                ClearPlayerGroup();
+                return;
+            }
+
+            string group = _lobby.m_SteamID.ToString(CultureInfo.InvariantCulture);
+            if (group == _publishedGroup && size == _publishedGroupSize)
+            {
+                return;
+            }
+
+            MpSafe.Run("SteamNet.PublishPlayerGroup", () =>
+            {
+                SteamFriends.SetRichPresence("steam_player_group", group);
+                SteamFriends.SetRichPresence("steam_player_group_size",
+                    size.ToString(CultureInfo.InvariantCulture));
+
+                _publishedGroup = group;
+                _publishedGroupSize = size;
+                MpPlugin.Log.LogInfo($"Steam friends list group published ({size} player(s))");
+            });
+        }
+
+        /// <summary>
+        /// Stop advertising the group.
+        /// </summary>
+        /// <remarks>
+        /// Our own two keys are emptied one at a time rather than calling ClearRichPresence, which
+        /// drops every key this game has set for the account, the game's own included.
+        /// </remarks>
+        public static void ClearPlayerGroup()
+        {
+            bool hadGroup = !string.IsNullOrEmpty(_publishedGroup);
+
+            _publishedGroup = string.Empty;
+            _publishedGroupSize = 0;
+
+            if (!hadGroup || !IsAvailable)
+            {
+                return;
+            }
+
+            MpSafe.Run("SteamNet.ClearPlayerGroup", () =>
+            {
+                SteamFriends.SetRichPresence("steam_player_group", string.Empty);
+                SteamFriends.SetRichPresence("steam_player_group_size", string.Empty);
+            });
+        }
+
         public static void LeaveLobby()
         {
+            // Before the validity check below: the lobby may already be gone while the presence
+            // keys are still up.
+            ClearPlayerGroup();
+
             if (!_lobby.IsValid())
             {
                 return;

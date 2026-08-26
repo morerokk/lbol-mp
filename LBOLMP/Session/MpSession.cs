@@ -398,6 +398,10 @@ namespace LBOLMP.Session
                 _nextStatusBroadcast = Time.unscaledTime + 1f;
                 BroadcastLocalStatus();
 
+                // Cheap and self-cancelling: it only reaches Steam when the lobby or the number of
+                // people in it has actually changed.
+                SteamNet.PublishPlayerGroup(ConnectedPlayers.Count());
+
                 if (State == MpSessionState.WaitingForPlayers)
                 {
                     StatusLine = DescribeRunWait();

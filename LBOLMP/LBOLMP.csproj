@@ -6,7 +6,7 @@
     <AssemblyName>LBOLMP</AssemblyName>
     <RootNamespace>LBOLMP</RootNamespace>
     <!-- Keep in step with MpInfo.Version, modinfo.json and manifest.json. -->
-    <Version>0.11.0</Version>
+    <Version>0.11.1</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <DebugType>none</DebugType>
@@ -51,6 +51,8 @@
     <DoNotPublicize Include="LBoL.Core:LBoL.Core.StatusEffects.StatusEffect.OnAdded" />
     <!-- LBOLMP.Entities.Cards.*. Left protected so our cards read like anybody else's. -->
     <DoNotPublicize Include="LBoL.Core:LBoL.Core.Cards.Card.Actions" />
+    <!-- LBOLMP.Entities.MpDeferredAction -->
+    <DoNotPublicize Include="LBoL.Core:LBoL.Core.Battle.SimpleEventBattleAction`1.MainPhase" />
   </ItemGroup>
 
   <ItemGroup>
