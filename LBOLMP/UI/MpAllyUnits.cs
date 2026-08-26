@@ -253,6 +253,32 @@ namespace LBOLMP.UI
             return Net.MpConstants.InvalidPlayerId;
         }
 
+        /// <summary>
+        /// Which player a unit belongs to, the one this client is playing included.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="PlayerFor(Unit)"/> knows only the mirrors: our own unit is the game's own and
+        /// was never registered here, so it comes back unrecognised from that one.
+        /// </remarks>
+        public static int PlayerForIncludingLocal(Unit unit)
+        {
+            if (unit == null)
+            {
+                return MpConstants.InvalidPlayerId;
+            }
+
+            int playerId = PlayerFor(unit);
+            if (playerId != MpConstants.InvalidPlayerId)
+            {
+                return playerId;
+            }
+
+            var director = GameDirector.Instance;
+            return director != null && ReferenceEquals(unit, director.PlayerUnitView?.Unit)
+                ? MpNet.LocalPlayerId
+                : MpConstants.InvalidPlayerId;
+        }
+
         /// <summary>Every loaded ally view, for the targeting arrow.</summary>
         public static IEnumerable<UnitView> LoadedViews =>
             Allies.Values.Where(a => !a.Loading && a.View != null && !a.Hidden).Select(a => a.View);

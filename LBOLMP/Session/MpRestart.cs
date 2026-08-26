@@ -242,6 +242,7 @@ namespace LBOLMP.Session
             {
                 Patches.EnemyDamageHook.UnhookAll();
                 Patches.PlayerDamageHook.Unhook();
+                Patches.CardPlayHook.Unhook();
                 Battle.MpPrivateEnemies.Reset();
 
                 Battle.MpBattleSync.LeaveBattle();

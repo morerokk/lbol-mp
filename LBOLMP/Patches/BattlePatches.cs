@@ -189,6 +189,7 @@ namespace LBOLMP.Patches
                 MpBattleSync.BeginBattle(__instance, enemyGroup);
                 EnemyDamageHook.HookAll(__instance.Battle);
                 PlayerDamageHook.Hook(__instance.Battle);
+                CardPlayHook.Hook(__instance.Battle);
                 MpDownedPlayers.Hook(__instance.Battle);
             });
         }
@@ -201,6 +202,7 @@ namespace LBOLMP.Patches
             {
                 EnemyDamageHook.UnhookAll();
                 PlayerDamageHook.Unhook();
+                CardPlayHook.Unhook();
                 MpPrivateEnemies.Reset();
 
                 if (!MpBattleSync.InBattle)
@@ -312,31 +314,68 @@ namespace LBOLMP.Patches
     /// <summary>
     /// Broadcast the cards the local player plays, so the rest of the party can see them.
     /// </summary>
-    [HarmonyPatch(typeof(BattleController))]
-    public static class CardUsePatch
+    /// <remarks>
+    /// Hooked on the two events that open a card's resolution rather than on RequestUseCard, for
+    /// two reasons. It fires when the card actually starts instead of when it is asked for, and it
+    /// covers every way a card reaches the table: CardUsing is a play out of the hand, CardPlaying
+    /// is everything else — free plays, follow-attack fillers, a card played off the top of the
+    /// draw pile, and the proxies our own cards hand to each other. Those never touch
+    /// RequestUseCard and used to happen on everyone else's screen with nothing to explain them.
+    ///
+    /// The two are mutually exclusive for a single play: UseCardAction resolves a hand play itself
+    /// rather than delegating to PlayCardAction, so nothing is announced twice.
+    /// </remarks>
+    public static class CardPlayHook
     {
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(BattleController.RequestUseCard))]
-        private static void AfterUseCard(Card card, UnitSelector selector)
+        private static BattleController _battle;
+        private static GameEventHandler<CardUsingEventArgs> _handler;
+
+        public static void Hook(BattleController battle)
         {
-            MpSafe.Run("AfterUseCard", () =>
+            Unhook();
+
+            if (!MpSession.IsActive || battle == null)
             {
-                if (!MpSession.IsActive || !MpBattleSync.InBattle || card == null)
+                return;
+            }
+
+            _battle = battle;
+            _handler = args => MpSafe.Run("CardPlayHook", () =>
+            {
+                if (args?.Card == null || args.IsCanceled || !MpBattleSync.InBattle)
                 {
                     return;
                 }
 
-                // SelectedEnemy throws for anything but a single-enemy target, which would break AoE or non-target cards if we don't check first.
+                // SelectedEnemy throws for anything but a single-enemy target, which would break
+                // AoE or non-target cards if we don't check first.
                 int targetIndex = -1;
+                var selector = args.Selector;
                 if (selector != null && selector.Type == TargetType.SingleEnemy)
                 {
                     targetIndex = selector.SelectedEnemy?.Index ?? -1;
                 }
 
-                MpBattleSync.ReportCardPlayed(card.Id, card.IsUpgraded, targetIndex);
+                MpBattleSync.ReportCardPlayed(args.Card.Id, args.Card.IsUpgraded, targetIndex);
             });
+
+            // Lowest, so anything that means to cancel the play has already said so by the time we
+            // read IsCanceled above.
+            _battle.CardUsing.AddHandler(_handler, GameEventPriority.Lowest);
+            _battle.CardPlaying.AddHandler(_handler, GameEventPriority.Lowest);
         }
 
+        public static void Unhook()
+        {
+            if (_battle != null && _handler != null)
+            {
+                _battle.CardUsing.RemoveHandler(_handler, GameEventPriority.Lowest);
+                _battle.CardPlaying.RemoveHandler(_handler, GameEventPriority.Lowest);
+            }
+
+            _battle = null;
+            _handler = null;
+        }
     }
 
     /// <summary>

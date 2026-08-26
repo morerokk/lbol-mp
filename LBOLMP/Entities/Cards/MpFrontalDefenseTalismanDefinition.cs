@@ -44,6 +44,11 @@ namespace LBOLMP.Entities.Cards
             config.Cost = new ManaGroup { Any = 2, White = 1, Blue = 1 };
             config.UpgradedCost = new ManaGroup { Any = 1 } + ManaGroup.Hybrids(1, ManaColor.White, ManaColor.Blue);
 
+            // Buffs the player holding it and nobody else. DefaultConfig leaves this null, and
+            // EnableSelector reads Config.TargetType.Value, so leaving it out makes the card
+            // unpickable rather than untargeted.
+            config.TargetType = TargetType.Self;
+
             config.RelativeKeyword = Keyword.Shield | Keyword.Block;
             config.UpgradedRelativeKeyword = Keyword.Shield | Keyword.Block;
 

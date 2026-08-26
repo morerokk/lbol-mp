@@ -111,17 +111,7 @@ namespace LBOLMP.Patches
                     return int.MinValue;
                 }
 
-                var pointed = PartyTarget.Pointed(__instance);
-                int id = UI.MpAllyUnits.PlayerFor(pointed);
-
-                // MpAllyUnits only knows the mirrors, so our own unit comes back unrecognised.
-                if (id == MpConstants.InvalidPlayerId && pointed != null
-                    && ReferenceEquals(pointed, GameDirector.Player?.Unit))
-                {
-                    id = MpNet.LocalPlayerId;
-                }
-
-                return id;
+                return UI.MpAllyUnits.PlayerForIncludingLocal(PartyTarget.Pointed(__instance));
             }, int.MinValue);
 
             // Not one of ours, let the game do its thing.
