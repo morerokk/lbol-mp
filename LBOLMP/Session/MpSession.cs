@@ -106,6 +106,33 @@ namespace LBOLMP.Session
         /// </summary>
         public static int RunDifficulty => _runDifficulty ?? HostDifficulty;
 
+        /// <summary>
+        /// Our name in the party.
+        /// </summary>
+        /// <remarks>
+        /// When in a Steam lobby, if the player name is empty/whitespace or exactly "Player", their actual Steam name is sent instead.
+        /// </remarks>
+        /// This way, most users don't *have to* change the name away from the default.
+        public static string LocalName
+        {
+            get
+            {
+                string configured = MpPlugin.PlayerName?.Value ?? string.Empty;
+
+                string untouched = MpPlugin.PlayerName?.DefaultValue as string;
+                bool isDefault = string.IsNullOrWhiteSpace(configured)
+                    || (untouched != null && configured == untouched);
+
+                if (!isDefault || !MpNet.IsSteamSession)
+                {
+                    return configured;
+                }
+
+                string persona = SteamNet.LocalName();
+                return string.IsNullOrWhiteSpace(persona) ? configured : persona;
+            }
+        }
+
         public static string StatusLine { get; internal set; } = string.Empty;
 
         /// <summary>True when there is more than one participant, which means multiplayer rules apply.</summary>
@@ -215,7 +242,7 @@ namespace LBOLMP.Session
             PlayersById[MpConstants.HostPlayerId] = new MpPlayer
             {
                 Id = MpConstants.HostPlayerId,
-                Name = MpPlugin.PlayerName.Value,
+                Name = LocalName,
                 State = MpPlayerState.Lobby
             };
 
@@ -241,7 +268,7 @@ namespace LBOLMP.Session
             PlayersById[MpConstants.HostPlayerId] = new MpPlayer
             {
                 Id = MpConstants.HostPlayerId,
-                Name = MpPlugin.PlayerName.Value,
+                Name = LocalName,
                 State = MpPlayerState.Lobby
             };
 
@@ -311,7 +338,7 @@ namespace LBOLMP.Session
             MpNet.SendToHostDirect(new JoinRequestMessage
             {
                 ProtocolVersion = MpInfo.ProtocolVersion,
-                PlayerName = MpPlugin.PlayerName.Value
+                PlayerName = LocalName
             });
         }
 
