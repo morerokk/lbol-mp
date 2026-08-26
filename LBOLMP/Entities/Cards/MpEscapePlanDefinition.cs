@@ -86,7 +86,6 @@ namespace LBOLMP.Entities.Cards
     [EntityLogic(typeof(MpEscapePlanDefinition))]
     public sealed class MpEscapePlan : Card, IMpPartnerTargeted
     {
-        // Can't be played if there are no valid partners to escape with
         public override bool CanUse => MpPartyTargeting.AnyValidPartner;
 
         protected override IEnumerable<BattleAction> Actions(

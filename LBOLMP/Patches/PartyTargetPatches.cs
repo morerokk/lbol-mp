@@ -3,6 +3,7 @@ using LBOLMP.Net;
 using LBOLMP.Session.Battle;
 using LBoL.Core;
 using LBoL.Core.Units;
+using LBoL.Presentation.Units;
 using LBoL.Presentation.UI.ExtraWidgets;
 using LBoL.Presentation.UI.Widgets;
 using UnityEngine;
@@ -65,6 +66,14 @@ namespace LBOLMP.Patches
                         __instance._potentialTargets.Add(view);
                     }
                 }
+
+                // Our own unit is real rather than a mirror, so it is added by hand and never
+                // appears in MpAllyUnits. Only cards that asked to be aimed at their holder get it.
+                if (MpPartyTargeting.IncludesSelf(__instance._activeHand.Card)
+                    && GameDirector.Player != null)
+                {
+                    __instance._potentialTargets.Add(GameDirector.Player);
+                }
             });
         }
     }
@@ -102,7 +111,17 @@ namespace LBOLMP.Patches
                     return int.MinValue;
                 }
 
-                return UI.MpAllyUnits.PlayerFor(PartyTarget.Pointed(__instance));
+                var pointed = PartyTarget.Pointed(__instance);
+                int id = UI.MpAllyUnits.PlayerFor(pointed);
+
+                // MpAllyUnits only knows the mirrors, so our own unit comes back unrecognised.
+                if (id == MpConstants.InvalidPlayerId && pointed != null
+                    && ReferenceEquals(pointed, GameDirector.Player?.Unit))
+                {
+                    id = MpNet.LocalPlayerId;
+                }
+
+                return id;
             }, int.MinValue);
 
             // Not one of ours, let the game do its thing.
@@ -111,7 +130,7 @@ namespace LBOLMP.Patches
                 return true;
             }
 
-            if (!MpPartyTargeting.IsValidPartner(playerId))
+            if (!MpPartyTargeting.IsValidTarget(__instance._activeHand?.Card, playerId))
             {
                 // Nothing valid under the pointer. Null keeps us in selecting mode, the same as
                 // the game already does when you point an attack at empty space.

@@ -16,15 +16,6 @@ using UnityEngine;
 namespace LBOLMP.Entities.StatusEffects
 {
     /// <summary>
-    /// Payload used to play cards on behalf of another player.
-    /// </summary>
-    public sealed class MpProxyCardPayload : MpEffectPayload
-    {
-        public string CardId;
-        public bool Upgraded;
-    }
-
-    /// <summary>
     /// The next Ability card you play is also played for all your Partners.
     /// </summary>
     public sealed class MpOfferingSeDefinition : MpStatusEffectTemplate<MpProxyCardPayload>
@@ -58,20 +49,7 @@ namespace LBOLMP.Entities.StatusEffects
 
         public override IEnumerable<BattleAction> Receive(
             MpProxyCardPayload payload, BattleController battle, int senderId)
-        {
-            var copy = Library.TryCreateCard(payload.CardId, payload.Upgraded);
-            if (copy == null)
-            {
-                MpPlugin.Log.LogWarning($"Cannot play '{payload.CardId}' for player {senderId}; unknown card");
-                yield break;
-            }
-
-            // This is set as a PlayTwiceToken, so that it can't be double-played itself,
-            // and so that if we ever apply this to non-Ability cards, it won't litter the card into the receiver's discard/exile pile.
-            copy.IsPlayTwiceToken = true;
-
-            yield return new PlayCardAction(copy);
-        }
+            => payload.Play(senderId);
     }
 
     /// <summary>

@@ -41,8 +41,8 @@ namespace LBOLMP.Entities.Cards
             config.Rarity = Rarity.Rare;
             config.Owner = VanillaCharNames.Reimu;
             config.Colors = new List<ManaColor> { ManaColor.White, ManaColor.Blue };
-            config.Cost = new ManaGroup { Any = 2, White = 2, Blue = 1 };
-            config.UpgradedCost = new ManaGroup { Any = 1, White = 1 } + ManaGroup.Hybrids(1, ManaColor.White, ManaColor.Blue);
+            config.Cost = new ManaGroup { Any = 2, White = 1, Blue = 1 };
+            config.UpgradedCost = new ManaGroup { Any = 1 } + ManaGroup.Hybrids(1, ManaColor.White, ManaColor.Blue);
 
             config.RelativeKeyword = Keyword.Shield | Keyword.Block;
             config.UpgradedRelativeKeyword = Keyword.Shield | Keyword.Block;

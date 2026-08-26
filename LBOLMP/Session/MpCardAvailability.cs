@@ -31,7 +31,9 @@ namespace LBOLMP.Session
         private static readonly List<string> SingleplayerOnly = new List<string>
         {
             // Koishi's Anatta, replaced by MpAnatta.
-            "Anatta"
+            "Anatta",
+            // Cirno's Ice Block, replaced by MpIceBlock.
+            "IceBlock"
         };
 
         private static bool _inMultiplayerRun;

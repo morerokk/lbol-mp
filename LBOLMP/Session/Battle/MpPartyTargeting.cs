@@ -23,10 +23,21 @@ namespace LBOLMP.Session.Battle
         /// <summary>Whether anybody is in a state to be pointed at right now.</summary>
         public static bool AnyValidPartner => MpEffects.CanSend && MpEffects.ValidPartners.Any();
 
+        /// <summary>Whether a card is willing to be pointed back at the player holding it.</summary>
+        public static bool IncludesSelf(Card card) => card is IMpAnyPlayerTargeted;
+
         /// <summary>True if this player can be picked as a target at the moment.</summary>
         public static bool IsValidPartner(int playerId) =>
             playerId != MpConstants.InvalidPlayerId
             && MpEffects.ValidPartners.Any(s => s.PlayerId == playerId);
+
+        /// <summary>
+        /// True if this player can be picked as a target for this particular card. Ourselves is
+        /// only ever an option for a card that asked for it, and needs no liveness check: we are
+        /// plainly still here, or we would not be playing a card.
+        /// </summary>
+        public static bool IsValidTarget(Card card, int playerId) =>
+            playerId == MpNet.LocalPlayerId ? IncludesSelf(card) : IsValidPartner(playerId);
 
         internal static void Set(int playerId) => _pending = playerId;
 

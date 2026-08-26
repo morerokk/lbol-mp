@@ -56,3 +56,34 @@ MpFrontalDefenseTalisman:
   Description: |-
     Whenever you gain |Barrier| from a card,
     all |Partners| gain half that much |Block|.
+
+MpRewind:
+  Name: Rewind
+  Description: |-
+    Choose a |Partner|.
+    Swap their draw pile and discard pile.
+    They draw {Value1} cards.
+
+MpIntrusiveThought:
+  Name: Intrusive Thought
+  Description: |-
+    Choose a |Partner|.
+    Discard 1 card from your hand.
+    They play that card.
+  DetailText: |-
+    |Copies| and Tools cannot be targeted.
+    If the targeted card is an Ability or has |Exile|, it becomes a |Copy|.
+
+MpIceBlock:
+  Name: Ice Block
+  Description: |-
+    Choose any player. They can't lose life for one turn.
+    They lose all |Block|, |Barrier| and |Graze|.
+    They retain their hand this turn, and end their turn.
+
+MpEntrust:
+  Name: Entrust
+  Description: |-
+    Choose a |Partner|.
+    Lose all |Firepower| and |Temporary Firepower|.
+    They gain that much |Firepower| and |Temporary Firepower|.

@@ -18,6 +18,19 @@ namespace LBOLMP.Entities
     }
 
     /// <summary>
+    /// Like <see cref="IMpPartnerTargeted"/>, except the player holding the card is offered as a
+    /// target as well.
+    /// </summary>
+    /// <remarks>
+    /// <c>MpPartyTargeting.Consume()</c> can therefore hand back the local player's own id. Check
+    /// for that before sending anything: an effect aimed at ourselves has nowhere to travel to and
+    /// has to be resolved on the spot instead.
+    /// </remarks>
+    public interface IMpAnyPlayerTargeted : IMpPartnerTargeted
+    {
+    }
+
+    /// <summary>
     /// Put this on a card definition to make it only ever show up in a multiplayer run.
     /// </summary>
     /// <remarks>
