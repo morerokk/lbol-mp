@@ -70,6 +70,9 @@ namespace LBOLMP.UI
 
         private static IEnumerator Run(int playerId, CardWidget widget, RectTransform parent)
         {
+            // Kept separately from the widget to avoid certain card popups not showing up at all
+            var own = widget.gameObject;
+
             var group = widget.CanvasGroup;
             float elapsed = 0f;
 
@@ -102,7 +105,31 @@ namespace LBOLMP.UI
                 yield return null;
             }
 
-            Dismiss(playerId);
+            DismissOwn(playerId, own);
+        }
+
+        /// <summary>
+        /// Finish a popup, clearing the slot only if it is still the one we put there.
+        /// </summary>
+        /// <remarks>
+        /// A card played while the previous popup is still up replaces it, which destroys the first
+        /// object and leaves its coroutine to notice on the next frame and run its cleanup. The
+        /// plain Dismiss there took the replacement down with it, so the second card was created
+        /// and killed within a frame and never appeared at all.
+        /// </remarks>
+        private static void DismissOwn(int playerId, GameObject own)
+        {
+            // ReferenceEquals on purpose. Unity's == calls a destroyed object null, and by this
+            // point ours usually is one; identity is the whole question being asked.
+            if (Active.TryGetValue(playerId, out var existing) && ReferenceEquals(existing, own))
+            {
+                Active.Remove(playerId);
+            }
+
+            if (own != null)
+            {
+                Object.Destroy(own);
+            }
         }
 
         private static RectTransform _layer;
