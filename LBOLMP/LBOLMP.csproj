@@ -5,8 +5,9 @@
     <LangVersion>latest</LangVersion>
     <AssemblyName>LBOLMP</AssemblyName>
     <RootNamespace>LBOLMP</RootNamespace>
-    <!-- Keep in step with MpInfo.Version, modinfo.json and manifest.json. -->
-    <Version>0.11.4</Version>
+    <!-- The one real version. tools/Sync-Version.ps1 copies it into MpInfo.cs,
+         manifest.json and modinfo.json, and the build runs it. -->
+    <Version>0.11.5</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <DebugType>none</DebugType>
@@ -115,6 +116,20 @@
     <None Update="icon.png"><CopyToOutputDirectory>Always</CopyToOutputDirectory></None>
     <None Update="Resources\**"><CopyToOutputDirectory>Always</CopyToOutputDirectory></None>
   </ItemGroup>
+
+  <!--
+    Copy the version above into MpInfo.cs, manifest.json and modinfo.json before anything
+    is compiled, since MpInfo.cs is one of the files it writes.
+
+    Inputs/Outputs keep this off the critical path: it only runs when the project file is
+    newer than MpInfo.cs, which is to say when the version was just changed. Run
+    tools/Sync-Version.ps1 by hand if one of the other files is ever edited directly.
+  -->
+  <Target Name="SyncVersion" BeforeTargets="BeforeCompile"
+          Inputs="$(MSBuildProjectFullPath)"
+          Outputs="$(MSBuildThisFileDirectory)MpInfo.cs">
+    <Exec Command="powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)..\tools\Sync-Version.ps1&quot;" />
+  </Target>
 
   <Target Name="CleanupDeps" AfterTargets="PostBuildEvent">
     <Delete Files="$(OutputPath)$(AssemblyName).deps.json" ContinueOnError="true" />

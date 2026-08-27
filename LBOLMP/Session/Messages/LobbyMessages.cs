@@ -396,6 +396,18 @@ namespace LBOLMP.Session.Messages
         }
     }
 
+    /// <summary>
+    /// How much money one player just gained or lost, for the Share the Wealth jade box.
+    /// </summary>
+    [NetMessage(26)]
+    public sealed class SharedMoneyMessage : NetMessage
+    {
+        public int Delta;
+
+        public override void Write(NetWriter w) => w.Int(Delta);
+        public override void Read(NetReader r) => Delta = r.Int();
+    }
+
     /// <summary>Sent when a player leaves the run for any reason, so the rest can carry on (or choose to return to menu).</summary>
     [NetMessage(13)]
     public sealed class PlayerLeftMessage : NetMessage

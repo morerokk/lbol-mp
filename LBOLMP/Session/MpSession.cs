@@ -239,6 +239,7 @@ namespace LBOLMP.Session
             MpHandInspect.RegisterHandlers();
             MpBorderSensor.RegisterHandlers();
             MpRunFlags.RegisterHandlers();
+            MpSharedMoney.RegisterHandlers();
             MpRestart.RegisterHandlers();
             Battle.MpBattleSync.RegisterHandlers();
         }

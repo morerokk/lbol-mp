@@ -47,7 +47,7 @@
     "0.2.0: \nFixed map voting getting stuck in many cases. Tweaked extra turn and end-of-turn behaviors.",
     "0.1.0: \nInitial development build."
   ],
-  "Version": "0.11.4",
+  "Version": "0.11.5",
   "Author": "Rokk",
   "Tags": [
     "Mod",

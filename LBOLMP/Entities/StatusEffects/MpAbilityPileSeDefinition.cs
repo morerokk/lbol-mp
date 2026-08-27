@@ -15,7 +15,8 @@ using UnityEngine;
 namespace LBOLMP.Entities.StatusEffects
 {
     /// <summary>
-    /// Ability cards cost one more per level. Handed out by the Ability Pile jade box.
+    /// Ability cards cost one more per level.
+    /// Only added by the Ability Pile jade box.
     /// </summary>
     public sealed class MpAbilityPileSeDefinition : StatusEffectTemplate
     {
@@ -30,9 +31,7 @@ namespace LBOLMP.Entities.StatusEffects
         {
             var config = DefaultConfig();
 
-            // Special rather than Negative on purpose. This is a rule of the run rather than
-            // something an enemy did, and as a debuff Amulet would cancel it once per Ability card
-            // played, emptying itself over the course of a single fight.
+            // Cannot be removed with debuff cleanses or amulet
             config.Type = StatusEffectType.Special;
             config.HasLevel = true;
             config.HasDuration = false;
@@ -43,18 +42,13 @@ namespace LBOLMP.Entities.StatusEffects
     /// <summary>
     /// Ability cards cost one more per level, for the rest of the combat.
     /// </summary>
-    /// <remarks>
-    /// Modelled on the game's own Time Limit, down to the events it listens to. Those five are
-    /// every way a card can arrive in a battle, which is what makes this reach the temporary
-    /// Ability cards a deck can produce mid-fight rather than only the ones dealt at the start.
-    /// </remarks>
+    /// Time Limit but filtered to Ability cards only.
+    /// Also doesn't lose levels like Time Limit does when the enemy gets a turn.
     [EntityLogic(typeof(MpAbilityPileSeDefinition))]
     public sealed class MpAbilityPileSe : StatusEffect
     {
-        /// <summary>What one Ability card is paying on top right now.</summary>
         public ManaGroup Mana => ManaGroup.Anys(Level);
 
-        /// <summary>Time Limit's hourglass, which already means "cards cost more".</summary>
         public override string OverrideIconName => nameof(TimeIsLimited);
 
         protected override void OnAdded(Unit unit)

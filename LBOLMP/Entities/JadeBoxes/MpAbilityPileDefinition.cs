@@ -68,8 +68,7 @@ namespace LBOLMP.Entities.JadeBoxes
         }
 
         /// <summary>
-        /// The sharing is just Offering to the Ownerless, handed out for free at the start of every
-        /// fight, so the count is visible on the player and spends itself the same way.
+        /// The sharing is just Offering to the Ownerless, added at the start of every fight.
         /// </summary>
         private IEnumerable<BattleAction> OnBattleStarted(GameEventArgs args)
         {
@@ -78,9 +77,7 @@ namespace LBOLMP.Entities.JadeBoxes
         }
 
         /// <summary>
-        /// Only a card played from the hand counts, for the same reason Offering to the Ownerless
-        /// listens here: CardPlayed also fires for the copies a Partner is asking this player to
-        /// play, and taxing people for each other's turns is not what the jade box says.
+        /// Only a card played from the hand counts, to avoid accidental back-and-forths.
         /// </summary>
         private IEnumerable<BattleAction> OnCardUsed(CardUsingEventArgs args)
         {
@@ -90,16 +87,12 @@ namespace LBOLMP.Entities.JadeBoxes
             }
 
             _played++;
-
-            // The shared ones are free. Counted here rather than read off the status effect, which
-            // is reacting to this same event and may already have spent the level we would be
-            // asking about. It also keeps the count ours, so playing Offering to the Ownerless
-            // shares more cards without also moving where the tax starts.
             if (_played <= _shared)
             {
                 yield break;
             }
 
+            // We ran out of free plays, time to tax abilities more
             NotifyActivating();
             yield return new ApplyStatusEffectAction(typeof(MpAbilityPileSe), Battle.Player, Mana.Amount);
         }
