@@ -111,6 +111,9 @@ namespace LBOLMP.Session.Messages
         public List<string> Deck = new List<string>();
         public int Difficulty;
 
+        /// <summary>Jade box ids ticked on this player's own panel. Only the host's are used.</summary>
+        public List<string> JadeBoxes = new List<string>();
+
         public override void Write(NetWriter w)
         {
             w.String(CharacterId);
@@ -118,6 +121,7 @@ namespace LBOLMP.Session.Messages
             w.String(InitExhibitId);
             w.StringList(Deck);
             w.Int(Difficulty);
+            w.StringList(JadeBoxes);
         }
 
         public override void Read(NetReader r)
@@ -127,6 +131,7 @@ namespace LBOLMP.Session.Messages
             InitExhibitId = r.String();
             Deck = new List<string>(r.StringArray());
             Difficulty = r.Int();
+            JadeBoxes = new List<string>(r.StringArray());
         }
     }
 
@@ -146,6 +151,9 @@ namespace LBOLMP.Session.Messages
         public bool EnemyResilience = true;
         public bool MultiplayerCards = true;
 
+        /// The jade boxes the whole party starts with, ticked on the host's panel.
+        public List<string> JadeBoxes = new List<string>();
+
         public override void Write(NetWriter w)
         {
             w.ULong(Seed);
@@ -158,6 +166,7 @@ namespace LBOLMP.Session.Messages
             w.Float(ReviveHpFraction);
             w.Bool(EnemyResilience);
             w.Bool(MultiplayerCards);
+            w.StringList(JadeBoxes);
         }
 
         public override void Read(NetReader r)
@@ -173,6 +182,7 @@ namespace LBOLMP.Session.Messages
             ReviveHpFraction = r.Float();
             EnemyResilience = r.Bool();
             MultiplayerCards = r.Bool();
+            JadeBoxes = new List<string>(r.StringArray());
         }
     }
 
@@ -343,6 +353,21 @@ namespace LBOLMP.Session.Messages
 
         public override void Write(NetWriter w) => w.Int(Difficulty);
         public override void Read(NetReader r) => Difficulty = r.Int();
+    }
+
+    /// <summary>
+    /// The jade boxes the host has ticked right now on the Start Game screen.
+    ///
+    /// Sent whenever the host's panel refreshes, and once more to each client as it joins, so that
+    /// everybody's panel shows the same list before anyone presses Confirm.
+    /// </summary>
+    [NetMessage(5)]
+    public sealed class LobbyJadeBoxMessage : NetMessage
+    {
+        public List<string> JadeBoxes = new List<string>();
+
+        public override void Write(NetWriter w) => w.StringList(JadeBoxes);
+        public override void Read(NetReader r) => JadeBoxes = new List<string>(r.StringArray());
     }
 
     /// <summary>Periodic mirror of a player's out-of-combat vitals, for the HUD.</summary>

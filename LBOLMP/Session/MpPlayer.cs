@@ -45,6 +45,9 @@ namespace LBOLMP.Session
 
         public int Difficulty = Net.MpConstants.DefaultDifficulty;
 
+        /// <summary>Jade boxes this player had ticked when they confirmed. Only the host's count.</summary>
+        public List<string> JadeBoxes = new List<string>();
+
         // This is basically the run's identity, to figure out if we can load the run or not
         public ulong ResumeSeed;
 

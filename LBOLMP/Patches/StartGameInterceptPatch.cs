@@ -87,13 +87,55 @@ namespace LBOLMP.Patches
                 playerType == PlayerType.TypeB ? 1 : 0,
                 initExhibit?.Id ?? string.Empty,
                 deckList.Select(DescribeCard).ToList(),
-                (int)difficulty);
+                (int)difficulty,
+                _pending.JadeBoxes.Select(jadeBox => jadeBox.Id).ToList());
 
             MpPlugin.Log.LogInfo("Start Game held: waiting for the rest of the lobby");
             return false;
         }
 
         private static string DescribeCard(Card card) => card.IsUpgraded ? card.Id + "+" : card.Id;
+
+        /// <summary>
+        /// Turn the host's list of ids into jade boxes that this player should start a run with.
+        /// </summary>
+        private static List<JadeBox> BuildJadeBoxes(IReadOnlyList<string> ids)
+        {
+            var jadeBoxes = new List<JadeBox>();
+            var groups = new HashSet<string>();
+
+            foreach (var id in ids)
+            {
+                if (jadeBoxes.Any(existing => existing.Id == id))
+                {
+                    continue;
+                }
+
+                var jadeBox = Library.TryCreateJadeBox(id);
+                if (jadeBox == null)
+                {
+                    MpPlugin.Log.LogWarning(
+                        $"The host is playing with the jade box {id}, which was not found locally! " +
+                        "the run will not match theirs");
+                    continue;
+                }
+
+                if (jadeBox.Config.Group.Any(groups.Contains))
+                {
+                    MpPlugin.Log.LogWarning($"Skipping {id}: another jade box already covers its group");
+                    continue;
+                }
+
+                foreach (var group in jadeBox.Config.Group)
+                {
+                    groups.Add(group);
+                }
+
+                jadeBoxes.Add(jadeBox);
+            }
+
+            return jadeBoxes;
+        }
 
         /// <summary>
         /// Called once the host has broadcast the shared seed. Begins the run for everyone.
@@ -117,6 +159,16 @@ namespace LBOLMP.Patches
                     $"Starting on the host's difficulty ({difficulty}) rather than the one selected here ({pending.Difficulty})");
             }
 
+            // Same for the jade boxes, which have to match or the party is playing two different games.
+            var jadeBoxes = BuildJadeBoxes(MpSession.RunJadeBoxes);
+            var ours = pending.JadeBoxes.Select(jadeBox => jadeBox.Id).ToList();
+            if (!jadeBoxes.Select(jadeBox => jadeBox.Id).SequenceEqual(ours))
+            {
+                MpPlugin.Log.LogInfo(
+                    $"Starting with the host's jade boxes ({MpSession.DescribeJadeBoxes(jadeBoxes.Select(j => j.Id))}) "
+                    + $"rather than the ones selected here ({MpSession.DescribeJadeBoxes(ours)})");
+            }
+
             MpPlugin.Log.LogInfo($"Starting multiplayer run with seed {seed} on {difficulty}");
 
             RepairUsOwner(pending.Player);
@@ -126,7 +178,7 @@ namespace LBOLMP.Patches
             {
                 GameMaster.StartGame(seed, difficulty, pending.Puzzles, pending.Player, pending.PlayerType,
                     pending.InitExhibit, pending.InitMoneyOverride, pending.Deck, pending.Stages,
-                    pending.DebutAdventureType, pending.JadeBoxes, pending.GameMode,
+                    pending.DebutAdventureType, jadeBoxes, pending.GameMode,
                     pending.ShowRandomResult);
             }
             finally

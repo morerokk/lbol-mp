@@ -107,6 +107,20 @@ namespace LBOLMP.Session
         public static int RunDifficulty => _runDifficulty ?? HostDifficulty;
 
         /// <summary>
+        /// Jadebox ID's that are enabled by the host.
+        /// </summary>
+        public static IReadOnlyList<string> HostJadeBoxes { get; private set; } = new List<string>();
+
+        /// <summary>The jade boxes the run in progress actually began with. Null outside a run.</summary>
+        private static List<string> _runJadeBoxes;
+
+        /// <summary>
+        /// The jade boxes every client must start with, decided by the host and delivered with the
+        /// seed. Falls back to the lobby list, and then to none.
+        /// </summary>
+        public static IReadOnlyList<string> RunJadeBoxes => _runJadeBoxes ?? HostJadeBoxes;
+
+        /// <summary>
         /// Our name in the party.
         /// </summary>
         /// <remarks>
@@ -217,6 +231,7 @@ namespace LBOLMP.Session
             MpNet.On<RunStartCancelledMessage>(OnRunStartCancelled);
             MpNet.On<BackToLobbyMessage>(OnBackToLobby);
             MpNet.On<LobbyDifficultyMessage>(OnLobbyDifficulty);
+            MpNet.On<LobbyJadeBoxMessage>(OnLobbyJadeBoxes);
             MpNet.On<PlayerStatusMessage>(OnPlayerStatus);
             MpNet.On<PlayerLeftMessage>(OnPlayerLeft);
 
@@ -370,6 +385,8 @@ namespace LBOLMP.Session
             _runEnemyResilience = null;
             _runDifficulty = null;
             HostDifficulty = MpConstants.DefaultDifficulty;
+            _runJadeBoxes = null;
+            HostJadeBoxes = new List<string>();
             StatusLine = statusLine;
 
             // Anything this client was holding for a start that is now never going to happen.
@@ -481,8 +498,13 @@ namespace LBOLMP.Session
             MpNet.SendToConnection(connection, new JoinAcceptedMessage { AssignedPlayerId = playerId });
             BroadcastPlayerList();
 
-            // The difficulty is only broadcast when it changes
+            // The difficulty and jade boxes are only broadcast when they change, so this client
+            // has to be told where they stand. The panel is asked first, in case the host ticked
+            // something before there was anybody to tell.
             MpNet.SendToConnection(connection, new LobbyDifficultyMessage { Difficulty = HostDifficulty });
+            MpSafe.Run("PublishHostJadeBoxes", Patches.LobbyJadeBoxPatch.PublishLocalSelection);
+            MpNet.SendToConnection(connection,
+                new LobbyJadeBoxMessage { JadeBoxes = new List<string>(HostJadeBoxes) });
 
             MpPlugin.Log.LogInfo($"{PlayersById[playerId]} joined from {connection.RemoteEndPoint}");
         }
@@ -608,6 +630,50 @@ namespace LBOLMP.Session
         }
 
         //--
+        // lobby jade boxes
+        //--
+
+        /// <summary>
+        /// The host has ticked or unticked a jade box.
+        /// Tell the rest of the lobby, so their panels also change.
+        /// </summary>
+        public static void PublishHostJadeBoxes(IEnumerable<string> jadeBoxes)
+        {
+            if (!MpNet.IsOnline || !MpNet.IsHost)
+            {
+                return;
+            }
+
+            var chosen = jadeBoxes?.ToList() ?? new List<string>();
+            if (chosen.SequenceEqual(HostJadeBoxes))
+            {
+                return;
+            }
+
+            HostJadeBoxes = chosen;
+            MpPlugin.Log.LogInfo($"Jade boxes for the party are now {DescribeJadeBoxes(chosen)}");
+            MpNet.Send(new LobbyJadeBoxMessage { JadeBoxes = new List<string>(chosen) });
+        }
+
+        private static void OnLobbyJadeBoxes(LobbyJadeBoxMessage message)
+        {
+            if (message.SenderId != MpConstants.HostPlayerId || MpNet.IsHost)
+            {
+                return;
+            }
+
+            HostJadeBoxes = message.JadeBoxes ?? new List<string>();
+            MpPlugin.Log.LogInfo($"The host set the jade boxes to {DescribeJadeBoxes(HostJadeBoxes)}");
+            MpSafe.Run("ApplyHostJadeBoxes", Patches.LobbyJadeBoxPatch.ApplyHostChoice);
+        }
+
+        public static string DescribeJadeBoxes(IEnumerable<string> jadeBoxes)
+        {
+            var names = jadeBoxes?.ToList() ?? new List<string>();
+            return names.Count == 0 ? "none" : string.Join(", ", names);
+        }
+
+        //--
         // run start
         //--
 
@@ -616,7 +682,7 @@ namespace LBOLMP.Session
         /// Publishes the choice and waits. The actual run begins when the host sends the seed.
         /// </summary>
         public static void SubmitLocalReady(string characterId, int playerTypeIndex, string initExhibitId,
-            List<string> deck, int difficulty)
+            List<string> deck, int difficulty, List<string> jadeBoxes)
         {
             State = MpSessionState.WaitingForPlayers;
             StatusLine = L10n.Get(MpText.StatusWaitingForPlayers);
@@ -627,7 +693,8 @@ namespace LBOLMP.Session
                 PlayerTypeIndex = playerTypeIndex,
                 InitExhibitId = initExhibitId,
                 Deck = deck,
-                Difficulty = difficulty
+                Difficulty = difficulty,
+                JadeBoxes = jadeBoxes ?? new List<string>()
             });
         }
 
@@ -644,6 +711,7 @@ namespace LBOLMP.Session
             player.InitExhibitId = message.InitExhibitId;
             player.StartingDeck = message.Deck;
             player.Difficulty = ClampDifficulty(message.Difficulty);
+            player.JadeBoxes = message.JadeBoxes ?? new List<string>();
             player.State = MpPlayerState.Ready;
 
             if (!MpNet.IsHost)
@@ -759,14 +827,20 @@ namespace LBOLMP.Session
                 seed = 1;
             }
 
-            // The host's own answer, rather than the last player to press Start.
-            int difficulty = Get(MpConstants.HostPlayerId)?.Difficulty ?? HostDifficulty;
+            // The host's own answers, rather than the last player to press Start. Taken from what
+            // they actually confirmed with, which the lobby mirror can be a screen behind on.
+            var host = Get(MpConstants.HostPlayerId);
+            int difficulty = host?.Difficulty ?? HostDifficulty;
+            var jadeBoxes = host?.JadeBoxes ?? new List<string>(HostJadeBoxes);
+
+            MpPlugin.Log.LogInfo($"The party is starting with jade boxes: {DescribeJadeBoxes(jadeBoxes)}");
 
             // The host's balance settings go out with the seed.
             MpNet.Send(new RunStartMessage
             {
                 Seed = seed,
                 Difficulty = difficulty,
+                JadeBoxes = new List<string>(jadeBoxes),
                 EnemyHpScalePerExtraPlayer = MpPlugin.EnemyHpScalePerExtraPlayer.Value,
                 EnemyHpEscalationByAct = LocalEscalationSettings(),
                 ReviveHpFraction = MpPlugin.ReviveHpFraction.Value,
@@ -895,6 +969,9 @@ namespace LBOLMP.Session
             AdoptRunRules(message.Difficulty, message.EnemyHpScalePerExtraPlayer,
                 message.EnemyHpEscalationByAct, message.ReviveHpFraction, message.EnemyResilience,
                 message.MultiplayerCards);
+
+            // Only a new run carries these; a resumed one already has its jade boxes in the save.
+            _runJadeBoxes = message.JadeBoxes ?? new List<string>();
 
             foreach (var player in PlayersById.Values)
             {
@@ -1037,6 +1114,7 @@ namespace LBOLMP.Session
             _runReviveHpFraction = null;
             _runEnemyResilience = null;
             _runMultiplayerCards = null;
+            _runJadeBoxes = null;
 
             Patches.StartGameInterceptPatch.Cancel();
             Patches.RestoreGameInterceptPatch.Cancel();
@@ -1173,6 +1251,8 @@ namespace LBOLMP.Session
             _runEnemyResilience = null;
             _runDifficulty = null;
             HostDifficulty = MpConstants.DefaultDifficulty;
+            _runJadeBoxes = null;
+            HostJadeBoxes = new List<string>();
             MapSync.Reset();
             MpRestart.Reset();
             MpHandInspect.Reset();
