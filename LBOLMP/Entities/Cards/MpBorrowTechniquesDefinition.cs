@@ -30,12 +30,7 @@ namespace LBOLMP.Entities.Cards
 
         public override IdContainer GetId() => nameof(MpBorrowTechniques);
 
-        public override LocalizationOption LoadLocalization()
-        {
-            var files = new LocalizationFiles(Source, Locale.En);
-            files.AddLocaleFile(Locale.En, "Resources/CardsEn.yaml");
-            return files;
-        }
+        public override LocalizationOption LoadLocalization() => MpLocalization.Cards.AddEntity(this);
 
         public override CardImages LoadCardImages()
         {

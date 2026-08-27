@@ -30,15 +30,7 @@ namespace LBOLMP.Entities.StatusEffects
 
         public override IdContainer GetId() => nameof(MpResilient);
 
-        public override LocalizationOption LoadLocalization()
-        {
-            var files = new LocalizationFiles(Source, Locale.En);
-            files.AddLocaleFile(Locale.En, "Resources/StatusEffectsEn.yaml");
-            files.AddLocaleFile(Locale.ZhHans, "Resources/StatusEffectsZhHans.yaml");
-            files.AddLocaleFile(Locale.ZhHant, "Resources/StatusEffectsZhHant.yaml");
-            files.AddLocaleFile(Locale.Ja, "Resources/StatusEffectsJa.yaml");
-            return files;
-        }
+        public override LocalizationOption LoadLocalization() => MpLocalization.StatusEffects.AddEntity(this);
 
         public override Sprite LoadSprite() => ResourceLoader.LoadSprite("Resources/StatusEffects/MpResilient.png", Source);
 

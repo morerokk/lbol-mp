@@ -26,16 +26,7 @@ namespace LBOLMP.Entities.Cards
 
         public override IdContainer GetId() => nameof(MpOffering);
 
-        public override LocalizationOption LoadLocalization()
-        {
-            var files = new LocalizationFiles(Source, Locale.En);
-            files.AddLocaleFile(Locale.En, "Resources/CardsEn.yaml");
-            // TODO: Find a translator to translate these
-            //files.AddLocaleFile(Locale.ZhHans, "Resources/CardsZhHans.yaml");
-            //files.AddLocaleFile(Locale.ZhHant, "Resources/CardsZhHant.yaml");
-            //files.AddLocaleFile(Locale.Ja, "Resources/CardsJa.yaml");
-            return files;
-        }
+        public override LocalizationOption LoadLocalization() => MpLocalization.Cards.AddEntity(this);
 
         public override CardImages LoadCardImages()
         {

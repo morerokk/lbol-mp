@@ -35,12 +35,7 @@ namespace LBOLMP.Entities.StatusEffects
 
         public override IdContainer GetId() => nameof(MpAnattaSe);
 
-        public override LocalizationOption LoadLocalization()
-        {
-            var files = new LocalizationFiles(Source, Locale.En);
-            files.AddLocaleFile(Locale.En, "Resources/StatusEffectsEn.yaml");
-            return files;
-        }
+        public override LocalizationOption LoadLocalization() => MpLocalization.StatusEffects.AddEntity(this);
 
         /// <summary>
         /// Borrows the vanilla Anatta icon rather than a copy of it.
