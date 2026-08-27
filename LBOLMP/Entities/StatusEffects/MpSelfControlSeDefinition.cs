@@ -11,7 +11,6 @@ using LBoL.EntityLib.StatusEffects.Koishi;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
-using LBoLEntitySideloader.Resource;
 using UnityEngine;
 
 namespace LBOLMP.Entities.StatusEffects
@@ -27,11 +26,9 @@ namespace LBOLMP.Entities.StatusEffects
     /// At the end of the holder's turn, all players gain Firepower if the holder is in Passion,
     /// or Block if the holder is in Serenity.
     /// </summary>
-    public sealed class MpSelfControlSeDefinition : MpStatusEffectTemplate<MpSelfControlPayload>
+    public sealed class MpSelfControlSeDefinition : LbolMpMultiplayerStatusEffectTemplate<MpSelfControlPayload>
     {
         public override IdContainer GetId() => nameof(MpSelfControlSe);
-
-        public override LocalizationOption LoadLocalization() => MpLocalization.StatusEffects.AddEntity(this);
 
         /// <summary>The vanilla effect's icon is borrowed instead. See <see cref="MpSelfControlSe.OverrideIconName"/>.</summary>
         public override Sprite LoadSprite() => null;

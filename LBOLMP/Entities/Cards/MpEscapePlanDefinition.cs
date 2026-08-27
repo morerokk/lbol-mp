@@ -12,7 +12,6 @@ using LBoL.Core.StatusEffects;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
-using LBoLEntitySideloader.Resource;
 
 namespace LBOLMP.Entities.Cards
 {
@@ -25,22 +24,9 @@ namespace LBOLMP.Entities.Cards
     /// <summary>
     /// Give yourself and one partner Graze.
     /// </summary>
-    public sealed class MpEscapePlanDefinition : MpCardTemplate<MpEscapePlanPayload>
+    public sealed class MpEscapePlanDefinition : LbolMpMultiplayerCardTemplate<MpEscapePlanPayload>
     {
-        private static DirectorySource _source;
-
-        private static DirectorySource Source => _source ?? (_source = new DirectorySource(MpInfo.Guid, ""));
-
         public override IdContainer GetId() => nameof(MpEscapePlan);
-
-        public override LocalizationOption LoadLocalization() => MpLocalization.Cards.AddEntity(this);
-
-        public override CardImages LoadCardImages()
-        {
-            var images = new CardImages(Source);
-            images.AutoLoad(this, extension: ".png", relativePath: "Resources/Cards/");
-            return images;
-        }
 
         public override CardConfig MakeConfig()
         {

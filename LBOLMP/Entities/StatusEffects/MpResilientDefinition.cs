@@ -9,7 +9,6 @@ using LBoL.Core.Units;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
-using LBoLEntitySideloader.Resource;
 using UnityEngine;
 
 namespace LBOLMP.Entities.StatusEffects
@@ -19,20 +18,12 @@ namespace LBOLMP.Entities.StatusEffects
     /// It also makes them gain 1 less firepower down, but each instance always applies *at least* 1 FP down.
     /// The level of this status is equal to playercount - 1.
     /// </summary>
-    public sealed class MpResilientDefinition : StatusEffectTemplate
+    public sealed class MpResilientDefinition : LbolMpStatusEffectTemplate
     {
         /// <summary>
         /// Where the yaml and the icon are read from
         /// </summary>
-        private static DirectorySource _source;
-
-        private static DirectorySource Source => _source ?? (_source = new DirectorySource(MpInfo.Guid, ""));
-
         public override IdContainer GetId() => nameof(MpResilient);
-
-        public override LocalizationOption LoadLocalization() => MpLocalization.StatusEffects.AddEntity(this);
-
-        public override Sprite LoadSprite() => ResourceLoader.LoadSprite("Resources/StatusEffects/MpResilient.png", Source);
 
         public override StatusEffectConfig MakeConfig()
         {

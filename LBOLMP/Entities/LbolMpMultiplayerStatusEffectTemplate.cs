@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using LBOLMP.Net;
 using LBoL.Core.Battle;
 using LBoL.Core.Battle.BattleActions;
-using LBoLEntitySideloader.Entities;
 
 namespace LBOLMP.Entities
 {
@@ -17,12 +16,12 @@ namespace LBOLMP.Entities
     /// The limitation that I have accepted is therefore, we only ever listen to CardUsed.
     /// Hook into CardPlayed at your own risk. If you do, stay far away from "proxy cards" (like playing a card for all your partners)
     /// </remarks>
-    public abstract class MpStatusEffectTemplate<TPayload> : StatusEffectTemplate, IMpEffect
+    public abstract class LbolMpMultiplayerStatusEffectTemplate<TPayload> : LbolMpStatusEffectTemplate, IMpEffect
         where TPayload : MpEffectPayload, new()
     {
         /// <summary>
         /// Namespaced by assembly so two mods cannot collide. Override only if you have to keep a
-        /// key stable across a rename; changing it breaks compatibility with older versions.
+        /// key stable across a rename! Changing it breaks compatibility with older versions.
         /// </summary>
         public virtual string Key => GetType().Assembly.GetName().Name + "." + GetId();
 

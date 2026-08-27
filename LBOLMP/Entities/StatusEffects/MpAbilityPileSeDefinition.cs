@@ -9,7 +9,6 @@ using LBoL.EntityLib.StatusEffects.ExtraTurn;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
-using LBoLEntitySideloader.Resource;
 using UnityEngine;
 
 namespace LBOLMP.Entities.StatusEffects
@@ -18,11 +17,9 @@ namespace LBOLMP.Entities.StatusEffects
     /// Ability cards cost one more per level.
     /// Only added by the Ability Pile jade box.
     /// </summary>
-    public sealed class MpAbilityPileSeDefinition : StatusEffectTemplate
+    public sealed class MpAbilityPileSeDefinition : LbolMpStatusEffectTemplate
     {
         public override IdContainer GetId() => nameof(MpAbilityPileSe);
-
-        public override LocalizationOption LoadLocalization() => MpLocalization.StatusEffects.AddEntity(this);
 
         /// <summary>Time Limit's icon is borrowed instead. See <see cref="MpAbilityPileSe.OverrideIconName"/>.</summary>
         public override Sprite LoadSprite() => null;

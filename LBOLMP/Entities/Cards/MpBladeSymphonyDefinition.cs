@@ -12,7 +12,6 @@ using LBoL.Core.Cards;
 using LBoL.EntityLib.Cards.Character.Sakuya;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
-using LBoLEntitySideloader.Resource;
 
 namespace LBOLMP.Entities.Cards
 {
@@ -22,22 +21,9 @@ namespace LBOLMP.Entities.Cards
         public int Knives;
     }
 
-    public sealed class MpBladeSymphonyDefinition : MpCardTemplate<MpBladeSymphonyPayload>
+    public sealed class MpBladeSymphonyDefinition : LbolMpMultiplayerCardTemplate<MpBladeSymphonyPayload>
     {
-        private static DirectorySource _source;
-
-        private static DirectorySource Source => _source ?? (_source = new DirectorySource(MpInfo.Guid, ""));
-
         public override IdContainer GetId() => nameof(MpBladeSymphony);
-
-        public override LocalizationOption LoadLocalization() => MpLocalization.Cards.AddEntity(this);
-
-        public override CardImages LoadCardImages()
-        {
-            var images = new CardImages(Source);
-            images.AutoLoad(this, extension: ".png", relativePath: "Resources/Cards/");
-            return images;
-        }
 
         public override CardConfig MakeConfig()
         {

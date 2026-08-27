@@ -6,7 +6,6 @@ using LBoL.Core.StatusEffects;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
-using LBoLEntitySideloader.Resource;
 using UnityEngine;
 
 namespace LBOLMP.Entities.StatusEffects
@@ -16,15 +15,9 @@ namespace LBOLMP.Entities.StatusEffects
     /// To use it: put <c>nameof(MpPartner)</c> in the card's RelativeEffects.
     /// Is otherwise unused as an actual status.
     /// </summary>
-    public sealed class MpPartnerDefinition : StatusEffectTemplate
+    public sealed class MpPartnerDefinition : LbolMpStatusEffectTemplate
     {
-        private static DirectorySource _source;
-
-        private static DirectorySource Source => _source ?? (_source = new DirectorySource(MpInfo.Guid, ""));
-
         public override IdContainer GetId() => nameof(MpPartner);
-
-        public override LocalizationOption LoadLocalization() => MpLocalization.StatusEffects.AddEntity(this);
 
         public override Sprite LoadSprite() => null;
 

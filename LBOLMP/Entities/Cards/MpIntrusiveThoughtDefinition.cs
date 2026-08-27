@@ -13,26 +13,12 @@ using LBoL.Core.Cards;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
-using LBoLEntitySideloader.Resource;
 
 namespace LBOLMP.Entities.Cards
 {
-    public sealed class MpIntrusiveThoughtDefinition : MpCardTemplate<MpProxyCardPayload>
+    public sealed class MpIntrusiveThoughtDefinition : LbolMpMultiplayerCardTemplate<MpProxyCardPayload>
     {
-        private static DirectorySource _source;
-
-        private static DirectorySource Source => _source ?? (_source = new DirectorySource(MpInfo.Guid, ""));
-
         public override IdContainer GetId() => nameof(MpIntrusiveThought);
-
-        public override LocalizationOption LoadLocalization() => MpLocalization.Cards.AddEntity(this);
-
-        public override CardImages LoadCardImages()
-        {
-            var images = new CardImages(Source);
-            images.AutoLoad(this, extension: ".png", relativePath: "Resources/Cards/");
-            return images;
-        }
 
         public override CardConfig MakeConfig()
         {

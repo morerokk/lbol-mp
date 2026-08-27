@@ -8,26 +8,12 @@ using LBoL.Core.Cards;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
-using LBoLEntitySideloader.Resource;
 
 namespace LBOLMP.Entities.Cards
 {
-    public sealed class MpFrontalDefenseTalismanDefinition : CardTemplate, IMpOnlyCard
+    public sealed class MpFrontalDefenseTalismanDefinition : LbolMpCardTemplate, IMpOnlyCard
     {
-        private static DirectorySource _source;
-
-        private static DirectorySource Source => _source ?? (_source = new DirectorySource(MpInfo.Guid, ""));
-
         public override IdContainer GetId() => nameof(MpFrontalDefenseTalisman);
-
-        public override LocalizationOption LoadLocalization() => MpLocalization.Cards.AddEntity(this);
-
-        public override CardImages LoadCardImages()
-        {
-            var images = new CardImages(Source);
-            images.AutoLoad(this, extension: ".png", relativePath: "Resources/Cards/");
-            return images;
-        }
 
         public override CardConfig MakeConfig()
         {
@@ -38,10 +24,6 @@ namespace LBOLMP.Entities.Cards
             config.Colors = new List<ManaColor> { ManaColor.White, ManaColor.Blue };
             config.Cost = new ManaGroup { Any = 2, White = 1, Blue = 1 };
             config.UpgradedCost = new ManaGroup { Any = 1 } + ManaGroup.Hybrids(1, ManaColor.White, ManaColor.Blue);
-
-            // Buffs the player holding it and nobody else. DefaultConfig leaves this null, and
-            // EnableSelector reads Config.TargetType.Value, so leaving it out makes the card
-            // unpickable rather than untargeted.
             config.TargetType = TargetType.Self;
 
             config.RelativeKeyword = Keyword.Shield | Keyword.Block;

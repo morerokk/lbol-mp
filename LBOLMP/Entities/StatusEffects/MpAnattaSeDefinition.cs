@@ -11,7 +11,6 @@ using LBoL.EntityLib.StatusEffects.Koishi;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
-using LBoLEntitySideloader.Resource;
 using UnityEngine;
 
 namespace LBOLMP.Entities.StatusEffects
@@ -25,24 +24,18 @@ namespace LBOLMP.Entities.StatusEffects
     /// <summary>
     /// Whenever you exit Serenity, all players gain N rainbow mana.
     /// </summary>
-    public sealed class MpAnattaSeDefinition : MpStatusEffectTemplate<MpAnattaPayload>
+    public sealed class MpAnattaSeDefinition : LbolMpMultiplayerStatusEffectTemplate<MpAnattaPayload>
     {
         internal static ManaGroup RewardPerStack => ManaGroup.Philosophies(1);
 
-        private static DirectorySource _source;
-
-        private static DirectorySource Source => _source ?? (_source = new DirectorySource(MpInfo.Guid, ""));
-
         public override IdContainer GetId() => nameof(MpAnattaSe);
-
-        public override LocalizationOption LoadLocalization() => MpLocalization.StatusEffects.AddEntity(this);
 
         /// <summary>
         /// Borrows the vanilla Anatta icon rather than a copy of it.
         /// </summary>
         public override Sprite LoadSprite() =>
             LBoL.Presentation.ResourcesHelper.TryGetSprite<StatusEffect>(nameof(UpgradePeace))
-            ?? ResourceLoader.LoadSprite("Resources/StatusEffects/MpAnattaSe.png", Source);
+            ?? base.LoadSprite();
 
         public override StatusEffectConfig MakeConfig()
         {

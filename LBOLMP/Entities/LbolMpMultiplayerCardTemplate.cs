@@ -2,13 +2,12 @@ using System.Collections.Generic;
 using LBOLMP.Net;
 using LBoL.Core.Battle;
 using LBoL.Core.Battle.BattleActions;
-using LBoLEntitySideloader.Entities;
 
 namespace LBOLMP.Entities
 {
     /// <summary>
     /// Put this on a card's logic class to make its targeting arrow pick a partner instead of an enemy.
-    /// The card's config still has to say <c>TargetType.SingleEnemy</c>, to borrow the arrow selector.
+    /// The card's config still has to set <c>TargetType.SingleEnemy</c>, to borrow the arrow selector.
     /// </summary>
     /// <remarks>
     /// Read the chosen partner in <c>Actions</c> with <c>MpPartyTargeting.Consume()</c>.
@@ -18,13 +17,11 @@ namespace LBOLMP.Entities
     }
 
     /// <summary>
-    /// Like <see cref="IMpPartnerTargeted"/>, except the player holding the card is offered as a
-    /// target as well.
+    /// Like <see cref="IMpPartnerTargeted"/>, except the local player is also a valid target.
     /// </summary>
     /// <remarks>
     /// <c>MpPartyTargeting.Consume()</c> can therefore hand back the local player's own id. Check
-    /// for that before sending anything: an effect aimed at ourselves has nowhere to travel to and
-    /// has to be resolved on the spot instead.
+    /// for that before sending anything. An effect aimed at the local player should be resolved directly there.
     /// </remarks>
     public interface IMpAnyPlayerTargeted : IMpPartnerTargeted
     {
@@ -47,12 +44,12 @@ namespace LBOLMP.Entities
     /// Send from the actual card class's own <c>Actions</c> with <c>MpEffects.Send</c>.
     /// Receive runs on the target player's client, which has no instance of this card, so Receive is set on the definition.
     /// </remarks>
-    public abstract class MpCardTemplate<TPayload> : CardTemplate, IMpEffect, IMpOnlyCard
+    public abstract class LbolMpMultiplayerCardTemplate<TPayload> : LbolMpCardTemplate, IMpEffect, IMpOnlyCard
         where TPayload : MpEffectPayload, new()
     {
         /// <summary>
         /// Namespaced by assembly so two mods cannot collide. Override only if you have to keep a
-        /// key stable across a rename; changing it breaks compatibility with older versions.
+        /// key stable across a rename! Changing it breaks compatibility with older versions.
         /// </summary>
         public virtual string Key => GetType().Assembly.GetName().Name + "." + GetId();
 

@@ -13,7 +13,6 @@ using LBoLEntitySideloader.Entities;
 using LBoLEntitySideloader.Resource;
 using LBOLMP.Entities.StatusEffects;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace LBOLMP.Entities.Cards
 {
@@ -22,23 +21,12 @@ namespace LBOLMP.Entities.Cards
     /// The vanilla one is hidden in multiplayer runs by <see cref="Session.MpCardAvailability"/>,
     /// so only one of the two is ever findable.
     /// </summary>
-    public sealed class MpAnattaDefinition : CardTemplate, IMpOnlyCard
+    public sealed class MpAnattaDefinition : LbolMpCardTemplate, IMpOnlyCard
     {
-        private static DirectorySource _source;
-
-        private static DirectorySource Source => _source ?? (_source = new DirectorySource(MpInfo.Guid, ""));
-
         public override IdContainer GetId() => nameof(MpAnatta);
 
-        public override LocalizationOption LoadLocalization() => MpLocalization.Cards.AddEntity(this);
-
-        // Borrow the vanilla Anatta image
-        public override CardImages LoadCardImages()
-        {
-            var images = new CardImages(Source);
-            images.main = LBoL.Presentation.ResourcesHelper.TryGetCardImage(nameof(Anatta)) as Texture2D;
-            return images;
-        }
+        /// <summary>Borrows the vanilla card's art.</summary>
+        public override CardImages LoadCardImages() => BorrowVanillaArt(nameof(Anatta));
 
         public override CardConfig MakeConfig()
         {

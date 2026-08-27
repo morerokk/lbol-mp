@@ -15,7 +15,6 @@ using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
 using LBoLEntitySideloader.Resource;
-using UnityEngine;
 
 namespace LBOLMP.Entities.Cards
 {
@@ -23,23 +22,12 @@ namespace LBOLMP.Entities.Cards
     /// Multiplayer version of Cirno's Ice Block, which it replaces.
     /// Plays the singleplayer Ice Block on a person of your choice (including yourself).
     /// </summary>
-    public sealed class MpIceBlockDefinition : MpCardTemplate<MpProxyCardPayload>
+    public sealed class MpIceBlockDefinition : LbolMpMultiplayerCardTemplate<MpProxyCardPayload>
     {
-        private static DirectorySource _source;
-
-        private static DirectorySource Source => _source ?? (_source = new DirectorySource(MpInfo.Guid, ""));
-
         public override IdContainer GetId() => nameof(MpIceBlock);
 
-        public override LocalizationOption LoadLocalization() => MpLocalization.Cards.AddEntity(this);
-
-        // Borrows the vanilla Ice Block art.
-        public override CardImages LoadCardImages()
-        {
-            var images = new CardImages(Source);
-            images.main = LBoL.Presentation.ResourcesHelper.TryGetCardImage(nameof(IceBlock)) as Texture2D;
-            return images;
-        }
+        /// <summary>Borrows the vanilla card's art.</summary>
+        public override CardImages LoadCardImages() => BorrowVanillaArt(nameof(IceBlock));
 
         public override CardConfig MakeConfig()
         {

@@ -11,7 +11,6 @@ using LBoL.Core.Cards;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
-using LBoLEntitySideloader.Resource;
 
 namespace LBOLMP.Entities.Cards
 {
@@ -25,22 +24,9 @@ namespace LBOLMP.Entities.Cards
     /// <summary>
     /// Give one partner Block immediately. Scaled by the Spirit of the player playing it.
     /// </summary>
-    public sealed class MpDonateBlockDefinition : MpCardTemplate<MpDonateBlockPayload>
+    public sealed class MpDonateBlockDefinition : LbolMpMultiplayerCardTemplate<MpDonateBlockPayload>
     {
-        private static DirectorySource _source;
-
-        private static DirectorySource Source => _source ?? (_source = new DirectorySource(MpInfo.Guid, ""));
-
         public override IdContainer GetId() => nameof(MpDonateBlock);
-
-        public override LocalizationOption LoadLocalization() => MpLocalization.Cards.AddEntity(this);
-
-        public override CardImages LoadCardImages()
-        {
-            var images = new CardImages(Source);
-            images.AutoLoad(this, extension: ".png", relativePath: "Resources/Cards/");
-            return images;
-        }
 
         public override CardConfig MakeConfig()
         {

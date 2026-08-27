@@ -12,8 +12,6 @@ using LBoL.Core.Units;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
-using LBoLEntitySideloader.Resource;
-using UnityEngine;
 
 namespace LBOLMP.Entities.StatusEffects
 {
@@ -26,17 +24,9 @@ namespace LBOLMP.Entities.StatusEffects
     /// <summary>
     /// Whenever you gain Barrier from a card, all other players gain half that much Block.
     /// </summary>
-    public sealed class MpFrontalDefenseTalismanSeDefinition : MpStatusEffectTemplate<MpFrontalDefenseTalismanPayload>
+    public sealed class MpFrontalDefenseTalismanSeDefinition : LbolMpMultiplayerStatusEffectTemplate<MpFrontalDefenseTalismanPayload>
     {
-        private static DirectorySource _source;
-
-        private static DirectorySource Source => _source ?? (_source = new DirectorySource(MpInfo.Guid, ""));
-
         public override IdContainer GetId() => nameof(MpFrontalDefenseTalismanSe);
-
-        public override LocalizationOption LoadLocalization() => MpLocalization.StatusEffects.AddEntity(this);
-
-        public override Sprite LoadSprite() => ResourceLoader.LoadSprite("Resources/StatusEffects/MpFrontalDefenseTalismanSe.png", Source);
 
         public override StatusEffectConfig MakeConfig()
         {

@@ -12,7 +12,6 @@ using LBoL.Core.Cards;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
-using LBoLEntitySideloader.Resource;
 
 namespace LBOLMP.Entities.Cards
 {
@@ -27,22 +26,9 @@ namespace LBOLMP.Entities.Cards
     /// <summary>
     /// Make another player play the top 1-2 cards of their draw pile.
     /// </summary>
-    public sealed class MpWhimDefinition : MpCardTemplate<MpWhimPayload>
+    public sealed class MpWhimDefinition : LbolMpMultiplayerCardTemplate<MpWhimPayload>
     {
-        private static DirectorySource _source;
-
-        private static DirectorySource Source => _source ?? (_source = new DirectorySource(MpInfo.Guid, ""));
-
         public override IdContainer GetId() => nameof(MpWhim);
-
-        public override LocalizationOption LoadLocalization() => MpLocalization.Cards.AddEntity(this);
-
-        public override CardImages LoadCardImages()
-        {
-            var images = new CardImages(Source);
-            images.AutoLoad(this, extension: ".png", relativePath: "Resources/Cards/");
-            return images;
-        }
 
         public override CardConfig MakeConfig()
         {

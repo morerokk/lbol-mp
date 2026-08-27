@@ -14,7 +14,6 @@ using LBoL.Core.Randoms;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
-using LBoLEntitySideloader.Resource;
 
 namespace LBOLMP.Entities.Cards
 {
@@ -22,22 +21,9 @@ namespace LBOLMP.Entities.Cards
     /// Steal a page out of a partner's book (literally but not literally).
     /// This is like Remote Support, but you pick a Partner whose card pool you want to use, and it can't generate neutrals.
     /// </summary>
-    public sealed class MpBorrowTechniquesDefinition : CardTemplate, IMpOnlyCard
+    public sealed class MpBorrowTechniquesDefinition : LbolMpCardTemplate, IMpOnlyCard
     {
-        private static DirectorySource _source;
-
-        private static DirectorySource Source => _source ?? (_source = new DirectorySource(MpInfo.Guid, ""));
-
         public override IdContainer GetId() => nameof(MpBorrowTechniques);
-
-        public override LocalizationOption LoadLocalization() => MpLocalization.Cards.AddEntity(this);
-
-        public override CardImages LoadCardImages()
-        {
-            var images = new CardImages(Source);
-            images.AutoLoad(this, extension: ".png", relativePath: "Resources/Cards/");
-            return images;
-        }
 
         public override CardConfig MakeConfig()
         {

@@ -10,25 +10,15 @@ using LBoL.Core.Units;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
-using LBoLEntitySideloader.Resource;
-using UnityEngine;
 
 namespace LBOLMP.Entities.StatusEffects
 {
     /// <summary>
     /// The next Ability card you play is also played for all your Partners.
     /// </summary>
-    public sealed class MpOfferingSeDefinition : MpStatusEffectTemplate<MpProxyCardPayload>
+    public sealed class MpOfferingSeDefinition : LbolMpMultiplayerStatusEffectTemplate<MpProxyCardPayload>
     {
-        private static DirectorySource _source;
-
-        private static DirectorySource Source => _source ?? (_source = new DirectorySource(MpInfo.Guid, ""));
-
         public override IdContainer GetId() => nameof(MpOfferingSe);
-
-        public override LocalizationOption LoadLocalization() => MpLocalization.StatusEffects.AddEntity(this);
-
-        public override Sprite LoadSprite() => ResourceLoader.LoadSprite("Resources/StatusEffects/MpOfferingSe.png", Source);
 
         public override StatusEffectConfig MakeConfig()
         {

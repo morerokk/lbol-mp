@@ -13,7 +13,6 @@ using LBoL.Core.StatusEffects;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
-using LBoLEntitySideloader.Resource;
 
 namespace LBOLMP.Entities.Cards
 {
@@ -25,22 +24,9 @@ namespace LBOLMP.Entities.Cards
         public int TempFirepowerDown;
     }
 
-    public sealed class MpEntrustDefinition : MpCardTemplate<MpEntrustPayload>
+    public sealed class MpEntrustDefinition : LbolMpMultiplayerCardTemplate<MpEntrustPayload>
     {
-        private static DirectorySource _source;
-
-        private static DirectorySource Source => _source ?? (_source = new DirectorySource(MpInfo.Guid, ""));
-
         public override IdContainer GetId() => nameof(MpEntrust);
-
-        public override LocalizationOption LoadLocalization() => MpLocalization.Cards.AddEntity(this);
-
-        public override CardImages LoadCardImages()
-        {
-            var images = new CardImages(Source);
-            images.AutoLoad(this, extension: ".png", relativePath: "Resources/Cards/");
-            return images;
-        }
 
         public override CardConfig MakeConfig()
         {

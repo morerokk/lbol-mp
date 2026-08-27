@@ -13,7 +13,6 @@ using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
 using LBoLEntitySideloader.Resource;
-using UnityEngine;
 
 namespace LBOLMP.Entities.Cards
 {
@@ -21,23 +20,12 @@ namespace LBOLMP.Entities.Cards
     /// The multiplayer replacement for Koishi's Self-Fulfillment card.
     /// The vanilla one is hidden in multiplayer runs by <see cref="Session.MpCardAvailability"/>.
     /// </summary>
-    public sealed class MpSelfControlDefinition : CardTemplate, IMpOnlyCard
+    public sealed class MpSelfControlDefinition : LbolMpCardTemplate, IMpOnlyCard
     {
-        private static DirectorySource _source;
-
-        private static DirectorySource Source => _source ?? (_source = new DirectorySource(MpInfo.Guid, ""));
-
         public override IdContainer GetId() => nameof(MpSelfControl);
 
-        public override LocalizationOption LoadLocalization() => MpLocalization.Cards.AddEntity(this);
-
         /// <summary>Borrows the vanilla card's art.</summary>
-        public override CardImages LoadCardImages()
-        {
-            var images = new CardImages(Source);
-            images.main = LBoL.Presentation.ResourcesHelper.TryGetCardImage(nameof(SelfControl)) as Texture2D;
-            return images;
-        }
+        public override CardImages LoadCardImages() => BorrowVanillaArt(nameof(SelfControl));
 
         public override CardConfig MakeConfig()
         {

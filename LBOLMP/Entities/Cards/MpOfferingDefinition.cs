@@ -8,7 +8,6 @@ using LBoL.Core.Cards;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
-using LBoLEntitySideloader.Resource;
 using LBOLMP.Entities.StatusEffects;
 
 namespace LBOLMP.Entities.Cards
@@ -16,24 +15,11 @@ namespace LBOLMP.Entities.Cards
     /// <summary>
     /// Offering to the Ownerless. Adds <see cref="MpOfferingSe"/>, which does the actual work.
     /// </summary>
-    /// Note: this is not extended from MpCardTemplate because it does not actually immediately send a network message when played.
+    /// Note: this is not extended from LbolMpMultiplayerCardTemplate because it does not actually immediately send a network message when played.
     /// It just adds a status effect, and that status effect will actually do something over the network.
-    public sealed class MpOfferingDefinition : CardTemplate, IMpOnlyCard
+    public sealed class MpOfferingDefinition : LbolMpCardTemplate, IMpOnlyCard
     {
-        private static DirectorySource _source;
-
-        private static DirectorySource Source => _source ?? (_source = new DirectorySource(MpInfo.Guid, ""));
-
         public override IdContainer GetId() => nameof(MpOffering);
-
-        public override LocalizationOption LoadLocalization() => MpLocalization.Cards.AddEntity(this);
-
-        public override CardImages LoadCardImages()
-        {
-            var images = new CardImages(Source);
-            images.AutoLoad(this, extension: ".png", relativePath: "Resources/Cards/");
-            return images;
-        }
 
         public override CardConfig MakeConfig()
         {
