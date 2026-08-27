@@ -63,6 +63,7 @@ namespace LBOLMP.UI
 
                 // The widget reads the card's description, which often requires current run parameters to display correctly.
                 card.GameRun = GameMaster.Instance?.CurrentGameRun;
+                Session.MpCardOwner.Set(card, playerId);
 
                 var widget = Object.Instantiate(prefab, parent);
                 widget.gameObject.name = "MpAllyCard: " + cardId;

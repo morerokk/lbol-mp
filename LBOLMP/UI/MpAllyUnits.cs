@@ -816,6 +816,7 @@ namespace LBOLMP.UI
                     if (!string.IsNullOrEmpty(entry.Value.SourceCardId))
                     {
                         effect.SourceCard = Library.TryCreateCard(entry.Value.SourceCardId, false);
+                        Session.MpCardOwner.Set(effect.SourceCard, ally.PlayerId);
                     }
 
                     effect.Owner = unit;

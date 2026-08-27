@@ -33,19 +33,11 @@ namespace LBOLMP.Entities.Cards
 
         public override LocalizationOption LoadLocalization() => MpLocalization.Cards.AddEntity(this);
 
-        /// <summary>
-        /// Borrows the vanilla Ice Block art.
-        /// </summary>
+        // Borrows the vanilla Ice Block art.
         public override CardImages LoadCardImages()
         {
             var images = new CardImages(Source);
             images.main = LBoL.Presentation.ResourcesHelper.TryGetCardImage(nameof(IceBlock)) as Texture2D;
-
-            if (images.main == null)
-            {
-                images.AutoLoad(this, extension: ".png", relativePath: "Resources/Cards/");
-            }
-
             return images;
         }
 
@@ -59,6 +51,7 @@ namespace LBOLMP.Entities.Cards
             config.Cost = new ManaGroup { Any = 1, Blue = 2 };
             config.UpgradedCost = new ManaGroup { Blue = 1 };
             config.Keywords = Keyword.Exile;
+            config.ImageId = nameof(IceBlock);
 
             // Set to TargetType.SingleEnemy just so we can borrow the selector logic.
             // PartyTargetPatches points it at the party instead of enemies.

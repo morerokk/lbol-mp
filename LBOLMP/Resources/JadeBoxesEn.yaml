@@ -4,7 +4,7 @@
 MpShareTheWealth:
   Name: Share the Wealth
   Description: |-
-    Whenever any player gains or loses <sprite="Point" name="Gold">, everyone else also gains or loses that much.
+    Whenever any player gains or loses <sprite="Point" name="Gold">, everyone else also gains or loses that much <sprite="Point" name="Gold">.
 
 MpAbilityPile:
   Name: Ability Pile

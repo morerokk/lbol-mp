@@ -401,6 +401,7 @@ namespace LBOLMP.Session
             MpPersonalRng.Reset();
             MpRunFlags.Reset();
             MpRunCredit.Reset();
+            MpCardOwner.Reset();
             Battle.MpBattleSync.Reset();
         }
 

@@ -250,7 +250,7 @@ namespace LBOLMP.Session
                 mirror.Discard.Clear();
                 mirror.Exile.Clear();
 
-                foreach (var card in MpCardMirror.Rebuild(message.Cards))
+                foreach (var card in MpCardMirror.Rebuild(message.Cards, message.SenderId))
                 {
                     switch (card.Zone)
                     {
@@ -276,7 +276,7 @@ namespace LBOLMP.Session
             {
                 var mirror = MirrorFor(message.SenderId);
                 mirror.Deck.Clear();
-                mirror.Deck.AddRange(MpCardMirror.Rebuild(message.Cards));
+                mirror.Deck.AddRange(MpCardMirror.Rebuild(message.Cards, message.SenderId));
                 mirror.Revision++;
             });
         }

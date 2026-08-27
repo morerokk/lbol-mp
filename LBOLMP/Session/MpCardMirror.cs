@@ -161,7 +161,10 @@ namespace LBOLMP.Session
         /// <summary>
         /// Deserializes cards into readable cards.
         /// </summary>
-        public static List<Card> Rebuild(IReadOnlyList<MpCardState> states)
+        /// <param name="ownerPlayerId">
+        /// Who is holding these, so that text about "you" names them and not the local player.
+        /// </param>
+        public static List<Card> Rebuild(IReadOnlyList<MpCardState> states, int ownerPlayerId)
         {
             var result = new List<Card>();
             if (states == null)
@@ -177,6 +180,7 @@ namespace LBOLMP.Session
                 var card = MpSafe.Run("MpCardMirror.Rebuild", () => Rebuild(state, gameRun, battle), null);
                 if (card != null)
                 {
+                    MpCardOwner.Set(card, ownerPlayerId);
                     result.Add(card);
                 }
             }

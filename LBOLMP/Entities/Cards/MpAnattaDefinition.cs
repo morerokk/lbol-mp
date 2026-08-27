@@ -1,16 +1,19 @@
-using System.Collections.Generic;
-using LBOLMP.Entities.StatusEffects;
 using LBoL.Base;
 using LBoL.ConfigData;
 using LBoL.Core;
 using LBoL.Core.Battle;
 using LBoL.Core.Battle.BattleActions;
 using LBoL.Core.Cards;
+using LBoL.EntityLib.Cards.Character.Cirno;
+using LBoL.EntityLib.Cards.Character.Koishi;
 using LBoL.EntityLib.StatusEffects.Koishi;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
 using LBoLEntitySideloader.Resource;
+using LBOLMP.Entities.StatusEffects;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace LBOLMP.Entities.Cards
 {
@@ -29,10 +32,11 @@ namespace LBOLMP.Entities.Cards
 
         public override LocalizationOption LoadLocalization() => MpLocalization.Cards.AddEntity(this);
 
+        // Borrow the vanilla Anatta image
         public override CardImages LoadCardImages()
         {
             var images = new CardImages(Source);
-            images.AutoLoad(this, extension: ".png", relativePath: "Resources/Cards/");
+            images.main = LBoL.Presentation.ResourcesHelper.TryGetCardImage(nameof(Anatta)) as Texture2D;
             return images;
         }
 
@@ -50,6 +54,7 @@ namespace LBOLMP.Entities.Cards
             config.Mana = MpAnattaSeDefinition.RewardPerStack;
             config.RelativeEffects = new List<string> { nameof(MoodPeace), nameof(MpPartner) };
             config.UpgradedRelativeEffects = new List<string> { nameof(MoodPeace), nameof(MpPartner) };
+            config.ImageId = nameof(Anatta);
             config.Illustrator = "Tuck坦";
             return config;
         }
