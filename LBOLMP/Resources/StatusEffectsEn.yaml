@@ -25,6 +25,13 @@ MpAbilityPileSe:
   Description: Ability cards cost {Mana} more.
   Brief: Ability cards cost {Mana} more.
 
+MpSelfControlSe:
+  Name: Self-Fulfillment
+  Description: |-
+    At the end of the player's turn, all players gain {Level} |Firepower| if she's in |Passion|, or {Count} |Block| if she's in |Serenity|.
+  Brief: |-
+    At the end of your turn, all players gain {Level} |Firepower| in |Passion|, or {Count} |Block| in |Serenity|.
+
 MpPartner:
   Name: Partner
   Description: Other players.

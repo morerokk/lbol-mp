@@ -13,7 +13,7 @@ MpDonateBlock:
 MpAnatta:
   Name: Anatta
   Description: |-
-    Whenever you exit |Serenity|,
+    Whenever {PlayerName} exits |Serenity|,
     all players gain {Mana}.
     Enter |Serenity|.
 
@@ -73,6 +73,12 @@ MpIntrusiveThought:
   DetailText: |-
     |Copies| and Tools cannot be targeted.
     If the targeted card is an Ability or has |Exile|, it becomes a |Copy|.
+
+MpSelfControl:
+  Name: Self-Fulfillment
+  Description: |-
+    Choose: Enter |Passion| or |Serenity|.
+    At the end of {PlayerName}'s turn, all players gain {Value1} |Firepower| if she's in |Passion|, or {Value2} |Block| if she's in |Serenity|.
 
 MpIceBlock:
   Name: Ice Block

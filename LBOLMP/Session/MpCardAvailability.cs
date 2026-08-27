@@ -33,7 +33,9 @@ namespace LBOLMP.Session
             // Koishi's Anatta, replaced by MpAnatta.
             "Anatta",
             // Cirno's Ice Block, replaced by MpIceBlock.
-            "IceBlock"
+            "IceBlock",
+            // Koishi's Self-Fulfillment, replaced by MpSelfControl.
+            "SelfControl"
         };
 
         private static bool _inMultiplayerRun;
