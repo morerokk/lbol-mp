@@ -20,6 +20,11 @@ MpAnattaSe:
   Description: Whenever you exit |Serenity|, all players gain {Mana}.
   Brief: Exiting |Serenity| gives every player {Mana}.
 
+MpAbilityPileSe:
+  Name: Ability Pile
+  Description: Ability cards cost {Mana} more.
+  Brief: Ability cards cost {Mana} more.
+
 MpPartner:
   Name: Partner
   Description: Other players.

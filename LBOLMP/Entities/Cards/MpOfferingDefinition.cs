@@ -44,7 +44,6 @@ namespace LBOLMP.Entities.Cards
             config.Cost = new ManaGroup { Any = 1, Black = 1, Blue = 1, White = 1 };
             config.TargetType = TargetType.Self;
             config.Keywords = Keyword.Exile | Keyword.Ethereal;
-            config.UpgradedKeywords = Keyword.Exile;
             config.Value1 = 1;
             config.UpgradedValue1 = 2;
             config.RelativeEffects = new List<string> { nameof(MpPartner) };

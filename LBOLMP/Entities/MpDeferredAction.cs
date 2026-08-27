@@ -8,13 +8,13 @@ namespace LBOLMP.Entities
     /// <summary>
     /// An action that works out what to do when it resolves, rather than when it's queued.
     /// </summary>
-    /// This is necessary because <c>MpBattleSync.QueueReplicated</c> walks the whole of a <c>Receive</c> and queues every
+    /// This is necessary because <c>MpBattleSync.QueueReplicated</c> runs <c>Receive</c> and queues every
     /// action before any of them run, so anything read in the body of a Receive is read early. That
     /// is usually harmless, because the replicated queue is read and emptied between the receiving player's
     /// own actions and is normally reached almost immediately.
     ///
     /// However, it is not harmless when they are in the middle of something. Their own actions keep resolving
-    /// in the gap, cards move between zones, and a card that was in the draw pile when the effect
+    /// in the meantime, cards move between zones, and a card that was in the draw pile when the effect
     /// was queued can be sitting in their hand by the time it runs. Thus, a card can visually enter the hand without actually being in the hand.
     /// And then you get big problems :)
     ///

@@ -58,6 +58,7 @@ namespace LBOLMP.Entities.Cards
             config.Colors = new List<ManaColor> { ManaColor.Blue };
             config.Cost = new ManaGroup { Any = 1, Blue = 2 };
             config.UpgradedCost = new ManaGroup { Blue = 1 };
+            config.Keywords = Keyword.Exile;
 
             // Set to TargetType.SingleEnemy just so we can borrow the selector logic.
             // PartyTargetPatches points it at the party instead of enemies.

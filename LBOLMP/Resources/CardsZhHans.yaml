@@ -1,0 +1,90 @@
+# Note: "Partner" is as in "Partner" from Imperishable Night.
+# This refers to other players in multiplayer.
+
+MpDonateBlock:
+  Name: 遥距结界
+  Description: |-
+    选择一名|队友|。
+    她获得 {Block} 点|格挡|。
+  UpgradedDescription: |-
+    选择一名|队友|。
+    她获得 {Block} 点|格挡| {Value1} 次。
+
+MpAnatta:
+  Name: 无我之境
+  Description: |-
+    {PlayerName}离开|平静|时，
+    所有玩家获得{Mana}。
+    进入|平静|。
+
+MpWhim:
+  Name: 心血来潮
+  Description: |-
+    选择一名|队友|。
+    她打出抽牌堆顶的牌。
+  UpgradedDescription: |-
+    选择一名|队友|。
+    她打出抽牌堆顶的 {Value1} 张牌。
+
+MpBorrowTechniques:
+  Name: 借鉴技巧
+  Description: |-
+    选择一名|队友|。
+    从她的备选池中的 {Value1} 张牌选择 1 张牌加入手中，它|暂塑|为{Mana}，具有|放逐|、|虚无|。
+
+MpBladeSymphony:
+  Name: 飞刀交响曲
+  Description: |-
+    从手牌中|放逐|至多 {Value1} 张|飞刀|。
+    将等量的|飞刀|加入每位|队友|的手中。
+
+MpOffering:
+  Name: 向无主者的供奉
+  Description: |-
+    {PlayerName}打出的下 {Value1} 张能力牌也会被所有|队友|打出。
+  FlavorText: |-
+    事实上，那些免费的东西，冥冥中早已标好了价格。但如果真的收费，那就会变成为了世界观而牺牲游戏性了。
+
+MpEscapePlan:
+  Name: 逃生计划
+  Description: |-
+    选择一名|队友|。
+    {PlayerName}和她一起获得 {Value1} 层|闪避|。
+
+MpFrontalDefenseTalisman:
+  Name: 前线防御护身符
+  Description: |-
+    {PlayerName}从卡牌获得|护盾|时，
+    所有|队友|获得一半的|格挡|。
+
+MpRewind:
+  Name: 回溯
+  Description: |-
+    选择一名|队友|。
+    对调她的抽牌堆和弃牌堆。
+    她抽 {Value1} 张牌。
+
+MpIntrusiveThought:
+  Name: 侵入性思维
+  Description: |-
+    选择一名|队友|。
+    选择一张手牌丢弃。
+    她打出那张牌。
+  DetailText: |-
+    |复制|和道具牌不能被选择。
+    如果被选择的牌是能力牌或有|放逐|，它获得|复制|。
+
+MpIceBlock:
+  Name: 寒冰屏障
+  Description: |-
+    选择一名玩家。
+    她免疫所有的伤害一回合。
+    移除她所有的|格挡|、|护盾|及|闪避|。
+    她|保留|当前的手牌一回合，结束她的回合。
+
+MpEntrust:
+  Name: 相信着你
+  Description: |-
+    选择一名|队友|。
+    失去所有|火力|和|暂得火力|。
+    她获得等量的|火力|和|暂得火力|。

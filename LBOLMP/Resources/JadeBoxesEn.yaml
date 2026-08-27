@@ -1,0 +1,9 @@
+# Note: "Partner" is as in "Partner" from Imperishable Night.
+# This refers to other players in multiplayer.
+
+MpAbilityPile:
+  Name: Ability Pile
+  Description: |-
+    In Act 1-2, the first Ability card you play each combat is also played for all your |Partners|.
+    In Act 3-4, the first {Value2} Ability cards you play each combat are also played for all your |Partners|.
+    Whenever you play an Ability card, all Ability cards cost {Mana} more.

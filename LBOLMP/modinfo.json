@@ -3,6 +3,7 @@
   "Description": "Coop mod for LBoL. Press F2 in the main menu to open the network menu. Host a session over Steam or over a direct IP connection, have other players join, then everyone start a new run, pick a character and click Confirm. The host sets the difficulty for everyone.",
   "Brief": "Cooperative multiplayer",
   "Changelog": [
+    "0.11.3: \nFixed missing localization on older Sideloader versions.\n'Offering to the Ownerless' now has Ethereal, and no longer has Retain.\nAdded 'Ability Pile' jadebox modifier.\nFixed Ice Block not having Exile.",
     "0.11.2: \nJadeboxes are now synced (and decided by the host).\nAdded experimental multiplayer-only jadeboxes.",
     "0.11.1: \nFixed a bug where Rewind and Whim caused errors when played at the wrong time.",
     "0.11.0: \nAdded multiplayer-exclusive cards!\nThese can be disabled in the balance settings.\nIn Steam lobbies, when your name is empty or the default 'Player', your name now shows up as your Steam name instead.\nAdded player names to the characters on-screen when hovering over them, rather than the character's name.\nAdded Steam lobby grouping, so that players playing together show up next to each other in the friends list.",
@@ -45,7 +46,7 @@
     "0.2.0: \nFixed map voting getting stuck in many cases. Tweaked extra turn and end-of-turn behaviors.",
     "0.1.0: \nInitial development build."
   ],
-  "Version": "0.11.2",
+  "Version": "0.11.3",
   "Author": "Rokk",
   "Tags": [
     "Mod",
