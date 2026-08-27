@@ -49,8 +49,20 @@ namespace LBOLMP.Entities.JadeBoxes
         /// <summary>The act from which the party gets the larger share.</summary>
         private const int LateActFrom = 3;
 
+        /// <summary>How many of this combat's Ability cards are shared, and so go untaxed.</summary>
+        private int _shared;
+
+        /// <summary>Ability cards played from hand so far this combat.</summary>
+        private int _played;
+
         protected override void OnEnterBattle()
         {
+            // Stage.Level, not Station.Act: the latter counts the segments of one act's map, so it
+            // climbs from 1 to 3 during every act and picks which enemy pool a node draws from.
+            int act = GameRun.CurrentStage?.Level ?? 1;
+            _shared = act >= LateActFrom ? Value2 : Value1;
+            _played = 0;
+
             ReactBattleEvent(Battle.BattleStarted, new EventSequencedReactor<GameEventArgs>(OnBattleStarted));
             ReactBattleEvent(Battle.CardUsed, new EventSequencedReactor<CardUsingEventArgs>(OnCardUsed));
         }
@@ -61,10 +73,8 @@ namespace LBOLMP.Entities.JadeBoxes
         /// </summary>
         private IEnumerable<BattleAction> OnBattleStarted(GameEventArgs args)
         {
-            int abilities = GameRun.CurrentStation.Act >= LateActFrom ? Value2 : Value1;
-
             NotifyActivating();
-            yield return new ApplyStatusEffectAction(typeof(MpOfferingSe), Battle.Player, abilities);
+            yield return new ApplyStatusEffectAction(typeof(MpOfferingSe), Battle.Player, _shared);
         }
 
         /// <summary>
@@ -75,6 +85,17 @@ namespace LBOLMP.Entities.JadeBoxes
         private IEnumerable<BattleAction> OnCardUsed(CardUsingEventArgs args)
         {
             if (args.Card == null || args.Card.CardType != CardType.Ability || Battle.BattleShouldEnd)
+            {
+                yield break;
+            }
+
+            _played++;
+
+            // The shared ones are free. Counted here rather than read off the status effect, which
+            // is reacting to this same event and may already have spent the level we would be
+            // asking about. It also keeps the count ours, so playing Offering to the Ownerless
+            // shares more cards without also moving where the tax starts.
+            if (_played <= _shared)
             {
                 yield break;
             }
