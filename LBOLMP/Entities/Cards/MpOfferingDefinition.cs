@@ -41,15 +41,15 @@ namespace LBOLMP.Entities.Cards
             config.Type = CardType.Skill;
             config.Rarity = Rarity.Rare;
             config.Colors = new List<ManaColor> { ManaColor.Black, ManaColor.Blue, ManaColor.White };
-            config.Cost = new ManaGroup { Any = 1, Blue = 1, White = 1, Black = 1 };
+            config.Cost = new ManaGroup { Any = 1, Black = 1, Blue = 1, White = 1 };
             config.TargetType = TargetType.Self;
-            config.Keywords = Keyword.Exile;
-            config.UpgradedKeywords = Keyword.Exile | Keyword.Retain;
+            config.Keywords = Keyword.Exile | Keyword.Ethereal;
+            config.UpgradedKeywords = Keyword.Exile;
             config.Value1 = 1;
             config.UpgradedValue1 = 2;
             config.RelativeEffects = new List<string> { nameof(MpPartner) };
             config.UpgradedRelativeEffects = new List<string> { nameof(MpPartner) };
-            config.Illustrator = "syaraku";
+            config.Illustrator = "Sya烙";
             return config;
         }
     }
