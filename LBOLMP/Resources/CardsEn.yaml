@@ -93,3 +93,17 @@ MpEntrust:
     Choose a |Partner|.
     Lose all |Firepower| and |Temporary Firepower|.
     They gain that much |Firepower| and |Temporary Firepower|.
+
+MpYinYangDistribution:
+  Name: Yin-Yang Distribution
+  Description: |-
+    Add a |Yin-Yang Orb| to each |Partner|'s hand.
+  UpgradedDescription: |-
+    Add a |Yin-Yang Orb+| to each |Partner|'s hand.
+
+MpTimeDilation:
+  Name: Time Dilation
+  Description: |-
+    Choose a |Partner|.
+    They take an extra turn after their current turn.
+    End {PlayerName}'s turn.

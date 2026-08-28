@@ -107,7 +107,7 @@ namespace LBOLMP
             SharedPartyPositions = Config.Bind("Interface", nameof(SharedPartyPositions), false,
                 "Show every player (including you) in their 'real' positions. Only affects your own screen.");
             ShowPlayerNamesOnCards = Config.Bind("Interface", nameof(ShowPlayerNamesOnCards), false,
-                "Name players rather than characters in card text, so 'Koishi loses the game' reads as 'Rokk loses the game'. Applies to your own cards too. Only affects your own screen.");
+                "Use player names rather than character names on cards. Example: \"End Reimu's Turn\" is turned into \"End CoolDude's Turn\".");
             EnemyHpScalePerExtraPlayer = Config.Bind("Balance", nameof(EnemyHpScalePerExtraPlayer), 1f,
                 "Extra enemy max HP per additional player, as a fraction. 1 means a 100 HP enemy has 200 HP with two players. The host's setting is used.");
 

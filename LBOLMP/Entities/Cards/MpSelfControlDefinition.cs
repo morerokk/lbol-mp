@@ -11,7 +11,6 @@ using LBoL.EntityLib.Cards.Character.Koishi;
 using LBoL.EntityLib.StatusEffects.Koishi;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
-using LBoLEntitySideloader.Entities;
 using LBoLEntitySideloader.Resource;
 
 namespace LBOLMP.Entities.Cards
@@ -36,7 +35,7 @@ namespace LBOLMP.Entities.Cards
 
             config.Rarity = Rarity.Rare;
             config.Colors = new List<ManaColor> { ManaColor.Green };
-            config.Cost = new ManaGroup { Any = 4, Green = 1 };
+            config.Cost = new ManaGroup { Any = 3, Green = 1 };
 
             // Firepower in Passion, and Block in Serenity. Vanilla passes these to the effect as
             // Level and Count respectively, which is what its two halves read.
