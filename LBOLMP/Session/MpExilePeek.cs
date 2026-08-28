@@ -1,7 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using LBOLMP.Entities;
 using LBOLMP.Net;
+using LBOLMP.Session.Battle;
 using LBOLMP.Session.Messages;
+using LBoL.Core.Battle;
+using LBoL.Core.Battle.BattleActions;
 using LBoL.Core.Cards;
 using LBoL.Presentation;
 using UnityEngine;
@@ -35,6 +40,7 @@ namespace LBOLMP.Session
         {
             MpNet.On<ExilePeekRequestMessage>(OnRequest);
             MpNet.On<ExilePeekMessage>(OnReply);
+            MpNet.On<ExileMarkCopyMessage>(OnMarkCopy);
         }
 
         public static void Reset()
@@ -112,6 +118,67 @@ namespace LBOLMP.Session
 
             MpSafe.Run("MpExilePeek.OnReply",
                 () => handler(MpCardMirror.Rebuild(message.Cards, message.SenderId)));
+        }
+
+        /// <summary>
+        /// Tell a player that one card in their exile pile has been spent, so it turns into a Copy
+        /// over there and cannot be taken again.
+        /// </summary>
+        public static void MarkCopy(int playerId, string cardId, bool upgraded)
+        {
+            if (playerId == MpConstants.InvalidPlayerId || playerId == MpNet.LocalPlayerId
+                || string.IsNullOrEmpty(cardId))
+            {
+                return;
+            }
+
+            MpNet.Send(new ExileMarkCopyMessage
+            {
+                TargetPlayerId = playerId,
+                CardId = cardId,
+                Upgraded = upgraded
+            });
+        }
+
+        private static void OnMarkCopy(ExileMarkCopyMessage message)
+        {
+            if (message.TargetPlayerId != MpNet.LocalPlayerId
+                || message.SenderId == MpNet.LocalPlayerId)
+            {
+                return;
+            }
+
+            MpSafe.Run("MpExilePeek.OnMarkCopy", () =>
+            {
+                var battle = GameMaster.Instance?.CurrentGameRun?.Battle;
+                if (battle == null)
+                {
+                    return;
+                }
+
+                // Deferred, because which card this lands on has to be worked out against the pile
+                // as it is when it resolves, not as it was when the message arrived.
+                MpBattleSync.QueueReplicated(battle,
+                    new MpDeferredAction(b => MarkOne(b, message.CardId, message.Upgraded)),
+                    nameof(ExileMarkCopyMessage));
+            });
+        }
+
+        /// <summary>
+        /// Marks the first card in the exile pile that still matches and is not already a Copy.
+        /// Two cards that match are interchangeable, so which one it picks does not matter.
+        /// </summary>
+        private static IEnumerable<BattleAction> MarkOne(BattleController battle, string cardId, bool upgraded)
+        {
+            var card = battle.ExileZone.FirstOrDefault(
+                c => c.Id == cardId && c.IsUpgraded == upgraded && !c.IsCopy);
+
+            if (card != null)
+            {
+                card.IsCopy = true;
+            }
+
+            yield break;
         }
     }
 }

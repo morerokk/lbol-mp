@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using LBOLMP.Entities.StatusEffects;
 using LBOLMP.Net;
 using LBOLMP.Session;
@@ -48,6 +49,11 @@ namespace LBOLMP.Entities.Cards
 
             config.RelativeEffects = new List<string> { nameof(MpPartner) };
             config.UpgradedRelativeEffects = new List<string> { nameof(MpPartner) };
+            // The cost the taken card is given, and what the description shows.
+            config.Mana = ManaGroup.Empty;
+
+            config.RelativeKeyword = Keyword.Copy | Keyword.Ethereal | Keyword.TempMorph;
+            config.UpgradedRelativeKeyword = Keyword.Copy | Keyword.Ethereal | Keyword.TempMorph;
             return config;
         }
     }
@@ -56,12 +62,16 @@ namespace LBOLMP.Entities.Cards
     [EntityLogic(typeof(MpDivergingTimePeekDefinition))]
     public sealed class MpDivergingTimePeek : Card, IMpPartnerTargeted
     {
+        /// <summary>Kept for the answer, which arrives long after the arrow is gone.</summary>
+        private int _partner = MpConstants.InvalidPlayerId;
+
         public override bool CanUse => MpPartyTargeting.AnyValidPartner;
 
         protected override IEnumerable<BattleAction> Actions(
             UnitSelector selector, ManaGroup consumingMana, Interaction precondition)
         {
-            MpExilePeek.Request(MpPartyTargeting.Consume(), Offer);
+            _partner = MpPartyTargeting.Consume();
+            MpExilePeek.Request(_partner, Offer);
             yield break;
         }
 
@@ -71,12 +81,15 @@ namespace LBOLMP.Entities.Cards
         private void Offer(List<Card> exile)
         {
             var battle = GameMaster.Instance?.CurrentGameRun?.Battle;
-            if (battle == null || exile.Count == 0)
+
+            // Like Lost in Paradise and Intrusive Thought, Copies and Tools cannot be taken.
+            var takeable = exile.Where(card => !card.IsCopy && card.CardType != CardType.Tool).ToList();
+            if (battle == null || takeable.Count == 0)
             {
                 return;
             }
 
-            MpBattleSync.QueueReplicated(battle, new MpDeferredAction(b => Take(b, exile)),
+            MpBattleSync.QueueReplicated(battle, new MpDeferredAction(b => Take(b, takeable)),
                 nameof(MpDivergingTimePeek));
         }
 
@@ -98,6 +111,21 @@ namespace LBOLMP.Entities.Cards
             {
                 yield break;
             }
+
+            if (chosen.IsExile || chosen.CardType == CardType.Ability)
+            {
+                MpExilePeek.MarkCopy(_partner, chosen.Id, chosen.IsUpgraded);
+            }
+
+            _partner = MpConstants.InvalidPlayerId;
+
+            // Ours is always a Copy, so it can't be fed back into another one of these.
+            chosen.IsCopy = true;
+            
+            // Make it free so you can actually play it, my bad
+            chosen.SetTurnCost(Mana);
+            chosen.IsExile = true;
+            chosen.IsEthereal = true;
 
             // Relax dude, it's no longer in Exile, don't throw an exception over it
             chosen.Battle = null;

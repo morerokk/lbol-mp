@@ -112,4 +112,8 @@ MpDivergingTimePeek:
   Name: Diverging Time Peek
   Description: |-
     Choose a |Partner|.
-    Add 1 card from their Exile pile into your hand.
+    Add 1 card from their Exile pile into your hand. It |temporarily costs| {Mana} and has |Exile| and |Ethereal|.
+  DetailText: |-
+    |Copies| cannot be targeted.
+    The card added to your hand becomes a |Copy|.
+    If the card is an Ability or has |Exile|, their card becomes a |Copy| as well.

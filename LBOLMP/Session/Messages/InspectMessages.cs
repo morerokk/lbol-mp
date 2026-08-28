@@ -105,4 +105,34 @@ namespace LBOLMP.Session.Messages
             Cards = MpCardMirror.Read(r);
         }
     }
+
+    /// <summary>
+    /// Mark someone else's exiled card as a copy, so a card cannot be taken out of the same exile pile over and over by Diverging Time Peek.
+    /// </summary>
+    [NetMessage(56)]
+    public sealed class ExileMarkCopyMessage : NetMessage
+    {
+        /// <summary>Whose exile pile to mark in. Everyone else ignores it.</summary>
+        public int TargetPlayerId;
+
+        /// <summary>Identifies the card by what it is rather than where it is,
+        /// because the pile may have moved a bit since the snapshot went out.</summary>
+        public string CardId = string.Empty;
+
+        public bool Upgraded;
+
+        public override void Write(NetWriter w)
+        {
+            w.Int(TargetPlayerId);
+            w.String(CardId);
+            w.Bool(Upgraded);
+        }
+
+        public override void Read(NetReader r)
+        {
+            TargetPlayerId = r.Int();
+            CardId = r.String();
+            Upgraded = r.Bool();
+        }
+    }
 }
