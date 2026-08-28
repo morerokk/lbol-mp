@@ -107,3 +107,9 @@ MpTimeDilation:
     Choose a |Partner|.
     They take an extra turn after their current turn.
     End {PlayerName}'s turn.
+
+MpDivergingTimePeek:
+  Name: Diverging Time Peek
+  Description: |-
+    Choose a |Partner|.
+    Add 1 card from their Exile pile into your hand.

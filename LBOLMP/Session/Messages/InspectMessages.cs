@@ -67,4 +67,42 @@ namespace LBOLMP.Session.Messages
         public override void Write(NetWriter w) => MpCardMirror.Write(w, Cards);
         public override void Read(NetReader r) => Cards = MpCardMirror.Read(r);
     }
+
+    /// <summary>
+    /// "Show me what you have exiled." Unlike <see cref="HandInspectMessage"/> this is not a
+    /// subscription: it asks once and is answered once.
+    /// </summary>
+    [NetMessage(54)]
+    public sealed class ExilePeekRequestMessage : NetMessage
+    {
+        /// <summary>Whose exile pile the sender is asking for.</summary>
+        public int TargetPlayerId;
+
+        public override void Write(NetWriter w) => w.Int(TargetPlayerId);
+        public override void Read(NetReader r) => TargetPlayerId = r.Int();
+    }
+
+    /// <summary>
+    /// The answer to one <see cref="ExilePeekRequestMessage"/>.
+    /// </summary>
+    [NetMessage(55)]
+    public sealed class ExilePeekMessage : NetMessage
+    {
+        /// <summary>Who asked. Everyone else ignores it.</summary>
+        public int TargetPlayerId;
+
+        public List<MpCardState> Cards = new List<MpCardState>();
+
+        public override void Write(NetWriter w)
+        {
+            w.Int(TargetPlayerId);
+            MpCardMirror.Write(w, Cards);
+        }
+
+        public override void Read(NetReader r)
+        {
+            TargetPlayerId = r.Int();
+            Cards = MpCardMirror.Read(r);
+        }
+    }
 }

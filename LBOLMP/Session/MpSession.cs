@@ -237,6 +237,7 @@ namespace LBOLMP.Session
 
             MapSync.RegisterHandlers();
             MpHandInspect.RegisterHandlers();
+            MpExilePeek.RegisterHandlers();
             MpBorderSensor.RegisterHandlers();
             MpRunFlags.RegisterHandlers();
             MpSharedMoney.RegisterHandlers();
@@ -397,6 +398,7 @@ namespace LBOLMP.Session
             MapSync.Reset();
             MpRestart.Reset();
             MpHandInspect.Reset();
+            MpExilePeek.Reset();
             MpBorderSensor.Reset();
             MpPersonalRng.Reset();
             MpRunFlags.Reset();
@@ -430,6 +432,7 @@ namespace LBOLMP.Session
             MapSync.Update();
             MpRestart.Update();
             MpHandInspect.Update();
+            MpExilePeek.Update();
             MpBorderSensor.Tick();
             MpPersonalRng.Tick();
             MpRunFlags.Tick();
@@ -1028,6 +1031,7 @@ namespace LBOLMP.Session
             MapSync.Reset();
             MpRestart.Reset();
             MpHandInspect.Reset();
+            MpExilePeek.Reset();
             MpBorderSensor.Reset();
             MpPersonalRng.Reset();
             MpRunFlags.Reset();
@@ -1258,6 +1262,7 @@ namespace LBOLMP.Session
             MapSync.Reset();
             MpRestart.Reset();
             MpHandInspect.Reset();
+            MpExilePeek.Reset();
             MpBorderSensor.Reset();
             MpPersonalRng.Reset();
             MpRunFlags.Reset();
