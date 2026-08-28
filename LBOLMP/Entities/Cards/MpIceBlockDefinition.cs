@@ -39,6 +39,7 @@ namespace LBOLMP.Entities.Cards
             config.Cost = new ManaGroup { Any = 1, Blue = 2 };
             config.UpgradedCost = new ManaGroup { Blue = 1 };
             config.Keywords = Keyword.Exile;
+            config.UpgradedKeywords = Keyword.Exile;
             config.ImageId = nameof(IceBlock);
 
             // Set to TargetType.SingleEnemy just so we can borrow the selector logic.

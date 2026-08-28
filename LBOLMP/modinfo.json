@@ -3,6 +3,7 @@
   "Description": "Coop mod for LBoL. Press F2 in the main menu to open the network menu. Host a session over Steam or over a direct IP connection, have other players join, then everyone start a new run, pick a character and click Confirm. The host sets the difficulty for everyone.",
   "Brief": "Cooperative multiplayer",
   "Changelog": [
+    "0.11.5: \nAdded a few more multiplayer cards (thanks RoamerB and Nolav).\nFixed Ice Block not having Exile on upgrade.",
     "0.11.4: \nTweaked the Ability Pile jade box a little bit to make it less brutal in Act 1/2.",
     "0.11.3: \nFixed missing localization on older Sideloader versions.\n'Offering to the Ownerless' now has Ethereal, and no longer has Retain.\nAdded 'Ability Pile' jadebox modifier.\nFixed Ice Block not having Exile.",
     "0.11.2: \nJadeboxes are now synced (and decided by the host).\nAdded experimental multiplayer-only jadeboxes.",
