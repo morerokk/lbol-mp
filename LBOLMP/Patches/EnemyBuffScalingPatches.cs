@@ -58,9 +58,9 @@ namespace LBOLMP.Patches
         internal static bool SkipsEscalation(Unit unit) => unit is HardworkRabbit || unit is LazyRabbit;
 
         /// <summary>
-        /// The pure moon rabbit duo should only get 50% of the flat HP scaling, too.
+        /// The pure moon rabbit duo should only get 75% of the flat HP scaling, too.
         /// </summary>
-        internal static bool HalfScaled(Unit unit) => unit is HardworkRabbit || unit is LazyRabbit;
+        internal static bool HasReducedHpScale(Unit unit) => unit is HardworkRabbit || unit is LazyRabbit;
 
         /// <summary>
         /// Everything the party adds to an enemy beyond its single-player self, as a fraction.
@@ -79,9 +79,9 @@ namespace LBOLMP.Patches
 
             float flat = MpSession.EnemyHpScalePerExtraPlayer * extra;
 
-            if (HalfScaled(unit))
+            if (HasReducedHpScale(unit))
             {
-                flat *= 0.5f;
+                flat *= 0.75f;
             }
 
             if (SkipsEscalation(unit))
