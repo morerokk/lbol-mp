@@ -58,6 +58,11 @@ namespace LBOLMP.Patches
         internal static bool SkipsEscalation(Unit unit) => unit is HardworkRabbit || unit is LazyRabbit;
 
         /// <summary>
+        /// The pure moon rabbit duo should only get 50% of the flat HP scaling, too.
+        /// </summary>
+        internal static bool HalfScaled(Unit unit) => unit is HardworkRabbit || unit is LazyRabbit;
+
+        /// <summary>
         /// Everything the party adds to an enemy beyond its single-player self, as a fraction.
         /// This is both the flat HP bonus per player, as well as additional escalating bonuses per act.
         /// With the shipped defaults, a 4-player party in Act 3 adds up to +390% enemy HP: 3x100% flat,
@@ -73,6 +78,12 @@ namespace LBOLMP.Patches
             }
 
             float flat = MpSession.EnemyHpScalePerExtraPlayer * extra;
+
+            if (HalfScaled(unit))
+            {
+                flat *= 0.5f;
+            }
+
             if (SkipsEscalation(unit))
             {
                 return flat;
