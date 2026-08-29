@@ -3,6 +3,7 @@
   "Description": "Coop mod for LBoL. Press F2 in the main menu to open the network menu. Host a session over Steam or over a direct IP connection, have other players join, then everyone start a new run, pick a character and click Confirm. The host sets the difficulty for everyone.",
   "Brief": "Cooperative multiplayer",
   "Changelog": [
+    "0.11.6: \nRabbit Trickster running away is now synced.\nEMP Device on drones is now synced.\n\nFixed Koishi's Self-Fulfillment not syncing properly.\nChanged Ability Pile jadebox to always be 1 shared ability play.\nAuto-played partner cards (like with Whim) now select a random target instead of doing nothing.",
     "0.11.5: \nAdded a few more multiplayer cards (thanks RoamerB and Nolav).\nFixed Ice Block not having Exile on upgrade.",
     "0.11.4: \nTweaked the Ability Pile jade box a little bit to make it less brutal in Act 1/2.",
     "0.11.3: \nFixed missing localization on older Sideloader versions.\n'Offering to the Ownerless' now has Ethereal, and no longer has Retain.\nAdded 'Ability Pile' jadebox modifier.\nFixed Ice Block not having Exile.",
@@ -48,7 +49,7 @@
     "0.2.0: \nFixed map voting getting stuck in many cases. Tweaked extra turn and end-of-turn behaviors.",
     "0.1.0: \nInitial development build."
   ],
-  "Version": "0.11.5",
+  "Version": "0.11.6",
   "Author": "Rokk",
   "Tags": [
     "Mod",

@@ -274,6 +274,7 @@ namespace LBOLMP.Session.Battle
             MpNet.On<TurnCompleteMessage>(OnTurnComplete);
             MpNet.On<EnemyDamageMessage>(OnEnemyDamage);
             MpNet.On<EnemyStatusMessage>(OnEnemyStatus);
+            MpNet.On<EnemyBlockShieldLossMessage>(OnEnemyBlockShieldLoss);
             MpNet.On<CuriosityFirepowerMessage>(OnRemoteCuriosity);
             MpNet.On<RemoteCardPlayMessage>(OnRemoteCardPlay);
             MpNet.On<RemoteAnimationMessage>(OnRemoteAnimation);
@@ -789,7 +790,7 @@ namespace LBOLMP.Session.Battle
         {
             NotePlayerAppliedToEnemy(effect?.Id);
 
-            if (!InBattle || ApplyingRemoteEffect || !MpSession.IsActive || SpectatingOnly)
+            if (!CanReportEnemyStatus(enemy) || effect == null)
             {
                 return;
             }
@@ -806,6 +807,89 @@ namespace LBOLMP.Session.Battle
             });
         }
 
+        /// <summary>
+        /// Publish an effect the local player has taken off an enemy completely.
+        /// </summary>
+        public static void ReportEnemyStatusRemoved(EnemyUnit enemy, string statusId)
+        {
+            if (!CanReportEnemyStatus(enemy) || string.IsNullOrEmpty(statusId))
+            {
+                return;
+            }
+
+            MpNet.Send(new EnemyStatusMessage
+            {
+                EnemyIndex = enemy.Index,
+                StatusId = statusId,
+                Removing = true
+            });
+        }
+
+        /// <summary>
+        /// Publish an effect the local player has changed rather than applied.
+        /// </summary>
+        public static void ReportEnemyStatusLevel(EnemyUnit enemy, StatusEffect effect)
+        {
+            if (!CanReportEnemyStatus(enemy) || effect == null)
+            {
+                return;
+            }
+
+            MpNet.Send(new EnemyStatusMessage
+            {
+                EnemyIndex = enemy.Index,
+                StatusId = effect.Id,
+                HasLevel = effect.HasLevel,
+                Level = effect.HasLevel ? effect.Level : 0,
+                HasDuration = effect.HasDuration,
+                Duration = effect.HasDuration ? effect.Duration : 0,
+                Absolute = true
+            });
+        }
+
+        private static bool CanReportEnemyStatus(EnemyUnit enemy) =>
+            InBattle && !ApplyingRemoteEffect && MpSession.IsActive && !SpectatingOnly
+            && enemy != null && !MpPrivateEnemies.IsPrivate(enemy);
+
+        /// <summary>
+        /// Publish block or barrier the local player has taken off a shared enemy.
+        /// </summary>
+        public static void ReportEnemyBlockShieldLoss(EnemyUnit enemy, int block, int shield)
+        {
+            if (!CanReportEnemyStatus(enemy) || (block <= 0 && shield <= 0))
+            {
+                return;
+            }
+
+            MpNet.Send(new EnemyBlockShieldLossMessage
+            {
+                EnemyIndex = enemy.Index,
+                Block = block,
+                Shield = shield
+            });
+        }
+
+        private static void OnEnemyBlockShieldLoss(EnemyBlockShieldLossMessage message)
+        {
+            if (message.SenderId == MpNet.LocalPlayerId)
+            {
+                return;
+            }
+
+            var battle = GameMaster.Instance?.CurrentGameRun?.Battle;
+            var enemy = FindEnemy(battle, message.EnemyIndex);
+            if (enemy == null || !enemy.IsAlive || MpPrivateEnemies.IsPrivate(enemy))
+            {
+                return;
+            }
+
+            // Forced, because this is a replay of something that already happened to somebody.
+            QueueReplicated(
+                battle,
+                new LoseBlockShieldAction(enemy, message.Block, message.Shield, true),
+                "MP remote block loss");
+        }
+
         private static void OnEnemyStatus(EnemyStatusMessage message)
         {
             if (message.SenderId == MpNet.LocalPlayerId)
@@ -820,7 +904,10 @@ namespace LBOLMP.Session.Battle
                 return;
             }
 
-            NotePlayerAppliedToEnemy(message.StatusId);
+            if (!message.Removing)
+            {
+                NotePlayerAppliedToEnemy(message.StatusId);
+            }
 
             ApplyingRemoteEffect = true;
             try
@@ -835,6 +922,24 @@ namespace LBOLMP.Session.Battle
                             "MP remote status remove");
                     }
                     return;
+                }
+
+                if (message.Absolute)
+                {
+                    var existing = enemy.StatusEffects.FirstOrDefault(s => s.Id == message.StatusId);
+                    if (existing != null)
+                    {
+                        if (existing.HasLevel && message.HasLevel)
+                        {
+                            existing.Level = message.Level;
+                        }
+                        if (existing.HasDuration && message.HasDuration)
+                        {
+                            existing.Duration = message.Duration;
+                        }
+                        existing.NotifyActivating();
+                        return;
+                    }
                 }
 
                 var template = Library.TryCreateStatusEffect(message.StatusId);

@@ -93,7 +93,7 @@ namespace LBOLMP.Session.Messages
         }
     }
 
-    /// <summary>A player applied or removed a status effect on a shared enemy.</summary>
+    /// <summary>A player applied, changed or removed a status effect on a shared enemy.</summary>
     [NetMessage(33)]
     public sealed class EnemyStatusMessage : NetMessage
     {
@@ -105,6 +105,11 @@ namespace LBOLMP.Session.Messages
         public bool HasDuration;
         public bool Removing;
 
+        /// <summary>
+        /// If true, the effect should be set to this level rather than gaining/losing this much.
+        /// </summary>
+        public bool Absolute;
+
         public override void Write(NetWriter w)
         {
             w.Int(EnemyIndex);
@@ -114,6 +119,7 @@ namespace LBOLMP.Session.Messages
             w.Bool(HasLevel);
             w.Bool(HasDuration);
             w.Bool(Removing);
+            w.Bool(Absolute);
         }
 
         public override void Read(NetReader r)
@@ -125,6 +131,32 @@ namespace LBOLMP.Session.Messages
             HasLevel = r.Bool();
             HasDuration = r.Bool();
             Removing = r.Bool();
+            Absolute = r.Bool();
+        }
+    }
+
+    /// <summary>
+    /// A player has taken block or barrier off a shared enemy, as Perfect Crime does.
+    /// </summary>
+    [NetMessage(58)]
+    public sealed class EnemyBlockShieldLossMessage : NetMessage
+    {
+        public int EnemyIndex;
+        public int Block;
+        public int Shield;
+
+        public override void Write(NetWriter w)
+        {
+            w.Int(EnemyIndex);
+            w.Int(Block);
+            w.Int(Shield);
+        }
+
+        public override void Read(NetReader r)
+        {
+            EnemyIndex = r.Int();
+            Block = r.Int();
+            Shield = r.Int();
         }
     }
 
