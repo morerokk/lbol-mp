@@ -75,6 +75,7 @@ namespace LBOLMP.UI
             HideOwnHand(cardUi);
             ShowCounts(cardUi);
             ShowMana();
+            MpExhibitView.Show(MpHandInspect.Target);
 
             if (_shownRevision != MpHandInspect.Revision)
             {
@@ -102,6 +103,7 @@ namespace LBOLMP.UI
 
             Clear();
             RestoreMana();
+            MpExhibitView.Restore();
             ShowOwnHand();
             RestoreCounts(cardUi);
 
