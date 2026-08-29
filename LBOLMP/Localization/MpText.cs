@@ -41,6 +41,20 @@ namespace LBOLMP
         LobbyLeaveSession,
         LobbyBalanceSettings,
 
+        // ------------------------------------------------------------------ mismatched sideloaded content
+        ModMismatchTitle,
+        ModMismatchHelp,
+        ModMismatchRow,
+        ModMismatchNotice,
+        ModMissingFor,
+        ModDiffersFor,
+        ModYou,
+        ModKindCharacters,
+        ModKindCards,
+        ModKindExhibits,
+        ModKindEnemies,
+        ModKindAdventures,
+
         // ------------------------------------------------------------------ balance settings window
         SettingsWindowTitle,
         SettingsIntro,

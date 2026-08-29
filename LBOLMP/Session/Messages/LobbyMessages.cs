@@ -100,6 +100,20 @@ namespace LBOLMP.Session.Messages
     //--
 
     /// <summary>
+    /// What the sender's mods have added to the game, one line per mod. See <c>MpModContent</c>.
+    /// </summary>
+    [NetMessage(59)]
+    public sealed class ModContentMessage : NetMessage
+    {
+        /// <summary>"guid|characters|cards|exhibits|enemies|adventures".</summary>
+        public List<string> Mods = new List<string>();
+
+        public override void Write(NetWriter w) => w.StringList(Mods);
+
+        public override void Read(NetReader r) => Mods = new List<string>(r.StringArray());
+    }
+
+    /// <summary>
     /// A player has locked in their character and library on the Start Game screen and is now waiting for the rest of the lobby.
     /// </summary>
     [NetMessage(10)]

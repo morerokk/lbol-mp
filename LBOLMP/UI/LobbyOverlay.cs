@@ -18,6 +18,7 @@ namespace LBOLMP.UI
         private static readonly Color HostColour = new Color(1f, 0.85f, 0.4f);
         private static readonly Color LocalColour = new Color(0.6f, 1f, 0.7f);
         private static readonly Color DeadColour = new Color(0.7f, 0.35f, 0.35f);
+        private static readonly Color WarningColour = new Color(1f, 0.72f, 0.3f);
 
         // Margin from the right edge of the screen when opened, so that players stop clicking "through" the window in the main menu
         private const float Margin = 40f;
@@ -386,6 +387,8 @@ namespace LBOLMP.UI
                 GUI.contentColor = previous;
             }
 
+            DrawModMismatch();
+
             GUILayout.Space(8f);
 
             if (MpSession.State == MpSessionState.WaitingForPlayers)
@@ -404,6 +407,35 @@ namespace LBOLMP.UI
             if (GUILayout.Button(L10n.Get(MpText.LobbyLeaveSession), GUILayout.Width(140f)))
             {
                 MpSession.Leave(MpText.ReasonYouLeft);
+            }
+        }
+
+        /// <summary>
+        /// Lists content-adding mods that are not the same on everyone's installation.
+        /// </summary>
+        private void DrawModMismatch()
+        {
+            var differences = MpSafe.Run("DrawModMismatch", MpModContent.Differences, null);
+            if (differences == null || differences.Count == 0)
+            {
+                return;
+            }
+
+            GUILayout.Space(8f);
+
+            var previous = GUI.contentColor;
+            GUI.contentColor = WarningColour;
+            GUILayout.Label(L10n.Get(MpText.ModMismatchTitle), _headerStyle);
+            GUI.contentColor = previous;
+
+            GUILayout.Label(L10n.Get(MpText.ModMismatchHelp), _rowStyle);
+            GUILayout.Space(2f);
+
+            foreach (var difference in differences)
+            {
+                GUILayout.Label(
+                    L10n.Get(MpText.ModMismatchRow, difference.Mod, difference.Detail, difference.Who),
+                    _rowStyle);
             }
         }
 

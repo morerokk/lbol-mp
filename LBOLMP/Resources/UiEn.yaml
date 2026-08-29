@@ -41,6 +41,22 @@ LobbyMapVoteHint: "Click a map node to vote for it. The party moves once everyon
 LobbyLeaveSession: "Leave session"
 LobbyBalanceSettings: "Balance settings..."
 
+# ---- mismatched sideloaded content
+ModMismatchTitle: "Not everyone has the same mods"
+ModMismatchHelp: "Mods that add content (such as cards) should be installed by everyone."
+# ModMismatchRow example when assembled:
+# "YoumuMod (1 characters, 60 cards): missing for Player2"
+ModMismatchRow: "{0} ({1}): {2}"
+ModMismatchNotice: "Not everyone has the same modded content. Press F2 for details."
+ModMissingFor: "missing for {0}"
+ModDiffersFor: "a different version for {0}"
+ModYou: "you"
+ModKindCharacters: "{0} characters"
+ModKindCards: "{0} cards"
+ModKindExhibits: "{0} exhibits"
+ModKindEnemies: "{0} enemies"
+ModKindAdventures: "{0} events"
+
 # ---- balance settings window
 SettingsWindowTitle: "Balance settings"
 SettingsIntro: "How much harder the game gets with more players."
