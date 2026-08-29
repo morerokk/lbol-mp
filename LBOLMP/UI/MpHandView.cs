@@ -9,7 +9,9 @@ using LBoL.Presentation.UI;
 using LBoL.Presentation.UI.ExtraWidgets;
 using LBoL.Presentation.UI.Panels;
 using LBoL.Presentation.UI.Widgets;
+using LBoL.Presentation.Units;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace LBOLMP.UI
 {
@@ -56,6 +58,7 @@ namespace LBOLMP.UI
             var cardUi = playBoard != null ? playBoard.CardUi : null;
 
             HandleMousePointer(cardUi);
+            HandleBackButton(cardUi);
 
             bool wanted = MpHandInspect.IsInspecting && cardUi != null && MpBattleSync.InBattle;
             if (!wanted)
@@ -502,6 +505,60 @@ namespace LBOLMP.UI
             {
                 MpHandInspect.Begin(playerId);
             }
+        }
+
+        /// <summary>
+        /// The gamepad's back button opens the selected partner's hand, and closes it again.
+        /// </summary>
+        /// <remarks>
+        /// This is what right-click does with a mouse.
+        /// </remarks>
+        private static void HandleBackButton(CardUi cardUi)
+        {
+            if (!MpGamepad.BackPressed()
+                || IsVisible<ShowCardsPanel>() || IsVisible<CardDetailPanel>())
+            {
+                return;
+            }
+
+            if (_active)
+            {
+                MpHandInspect.End();
+                return;
+            }
+
+            if (cardUi == null || !MpBattleSync.InBattle || UiManager.IsBlockingInput)
+            {
+                return;
+            }
+
+            var playBoard = TryGetPanel<PlayBoard>();
+            if (playBoard == null || playBoard._status != PlayBoard.InteractionStatus.Normal)
+            {
+                return;
+            }
+
+            int playerId = GetSelectedPartner();
+            if (playerId != Net.MpConstants.InvalidPlayerId)
+            {
+                MpHandInspect.Begin(playerId);
+            }
+        }
+
+        private static int GetSelectedPartner()
+        {
+            int hovered = Patches.MpHoveredUnit.HoveredPlayer;
+            if (hovered != Net.MpConstants.InvalidPlayerId)
+            {
+                return hovered;
+            }
+
+            var selected = EventSystem.current != null
+                ? EventSystem.current.currentSelectedGameObject
+                : null;
+
+            var view = selected == null ? null : selected.GetComponentInParent<UnitView>();
+            return view == null ? Net.MpConstants.InvalidPlayerId : MpAllyUnits.PlayerFor(view);
         }
 
         private static void Hover(CardUi cardUi)
