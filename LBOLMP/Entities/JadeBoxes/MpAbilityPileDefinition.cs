@@ -27,9 +27,10 @@ namespace LBOLMP.Entities.JadeBoxes
         {
             var config = DefaultConfig();
 
-            // Abilities shared per combat, before and after the halfway point of the run.
+            // Act 1-2
             config.Value1 = 1;
-            config.Value2 = 2;
+            // Act 3-4
+            config.Value2 = 1;
 
             // What each Ability card played adds to the cost of the rest.
             config.Mana = ManaGroup.Anys(1);

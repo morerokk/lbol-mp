@@ -9,6 +9,5 @@ MpShareTheWealth:
 MpAbilityPile:
   Name: Ability Pile
   Description: |-
-    In Act 1-2, the first Ability card you play each combat is also played for all your |Partners|.
-    In Act 3-4, the first 2 Ability cards you play each combat are also played for all your |Partners|.
+    The first Ability card you play each combat is also played for all your |Partners|.
     Whenever you play an Ability card after that, all Ability cards cost {Mana} more.
