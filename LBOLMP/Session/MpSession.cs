@@ -241,6 +241,7 @@ namespace LBOLMP.Session
             MpBorderSensor.RegisterHandlers();
             MpRunFlags.RegisterHandlers();
             MpModContent.RegisterHandlers();
+            MpPlayerExhibits.RegisterHandlers();
             MpSharedMoney.RegisterHandlers();
             MpRestart.RegisterHandlers();
             Battle.MpBattleSync.RegisterHandlers();
@@ -405,6 +406,7 @@ namespace LBOLMP.Session
             MpRunFlags.Reset();
             MpRunCredit.Reset();
             MpModContent.Reset();
+            MpPlayerExhibits.Reset();
             MpCardOwner.Reset();
             Battle.MpBattleSync.Reset();
         }
@@ -440,6 +442,7 @@ namespace LBOLMP.Session
             MpRunFlags.Tick();
             MpRunCredit.Tick();
             MpModContent.Tick();
+            MpPlayerExhibits.Tick();
         }
 
         //--
@@ -1040,6 +1043,7 @@ namespace LBOLMP.Session
             MpRunFlags.Reset();
             MpRunCredit.Reset();
             MpModContent.Reset();
+            MpPlayerExhibits.Reset();
         }
 
         private static void AdoptRunRules(int difficulty, float enemyHpScale, float[] escalation,
@@ -1272,6 +1276,7 @@ namespace LBOLMP.Session
             MpRunFlags.Reset();
             MpRunCredit.Reset();
             MpModContent.Reset();
+            MpPlayerExhibits.Reset();
             Battle.MpBattleSync.Reset();
         }
     }

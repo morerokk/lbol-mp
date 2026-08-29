@@ -114,6 +114,30 @@ namespace LBOLMP.Session.Messages
     }
 
     /// <summary>
+    /// Sync list of exhibits to everyone else.
+    /// </summary>
+    [NetMessage(62)]
+    public sealed class PlayerExhibitsMessage : NetMessage
+    {
+        public List<string> Exhibits = new List<string>();
+
+        /// <summary>Extra percent the sender's Vulnerable adds on enemies, over the base 50.</summary>
+        public int EnemyVulnerableExtra;
+
+        public override void Write(NetWriter w)
+        {
+            w.StringList(Exhibits);
+            w.Int(EnemyVulnerableExtra);
+        }
+
+        public override void Read(NetReader r)
+        {
+            Exhibits = new List<string>(r.StringArray());
+            EnemyVulnerableExtra = r.Int();
+        }
+    }
+
+    /// <summary>
     /// A player has locked in their character and library on the Start Game screen and is now waiting for the rest of the lobby.
     /// </summary>
     [NetMessage(10)]
