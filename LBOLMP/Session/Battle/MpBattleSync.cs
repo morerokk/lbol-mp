@@ -288,6 +288,7 @@ namespace LBOLMP.Session.Battle
             MpDownedPlayers.RegisterHandlers();
             MpEventBattle.RegisterHandlers();
             MpEnemyEscape.RegisterHandlers();
+            MpStatusTriggers.RegisterHandlers();
             MpJunko.RegisterHandlers();
             MpEffects.RegisterHandlers();
         }

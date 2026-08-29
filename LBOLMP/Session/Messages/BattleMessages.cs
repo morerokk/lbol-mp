@@ -508,6 +508,29 @@ namespace LBOLMP.Session.Messages
         public override void Read(NetReader r) => EnemyIndex = r.Int();
     }
 
+    /// <summary>
+    /// A player made one of a shared enemy's status effects go off early, as Larva's ultimate does
+    /// to Poison. See <c>MpStatusTriggers</c>.
+    /// </summary>
+    [NetMessage(61)]
+    public sealed class EnemyStatusTriggerMessage : NetMessage
+    {
+        public int EnemyIndex;
+        public string StatusId;
+
+        public override void Write(NetWriter w)
+        {
+            w.Int(EnemyIndex);
+            w.String(StatusId);
+        }
+
+        public override void Read(NetReader r)
+        {
+            EnemyIndex = r.Int();
+            StatusId = r.String();
+        }
+    }
+
     /// <summary>A downed player has been revived at the end of combat.</summary>
     [NetMessage(38)]
     public sealed class PlayerRevivedMessage : NetMessage
