@@ -14,7 +14,7 @@ namespace LBOLMP.Patches
 {
     /// <summary>
     /// Send to other players what Perfect Crime took off the enemy (removes all Barrier/Graze/Flawless from the enemy, and some firepower/spirit).
-    /// </remarks>
+    /// </summary>
     [HarmonyPatch(typeof(PerfectCrime), "Actions")]
     public static class PerfectCrimeStealPatch
     {
