@@ -107,21 +107,24 @@ namespace LBOLMP.UI
                 return;
             }
 
-            var head = MpPortraits.For(MpSession.Get(playerId)?.CharacterId);
+            var characterId = MpSession.Get(playerId)?.CharacterId;
+            var head = MpPortraits.For(characterId);
             if (head == null)
             {
                 marker.SetActive(false);
                 return;
             }
 
+            // Null for a character whose portrait already draws its own ring.
             var ring = marker.GetComponent<Image>();
-            ring.sprite = MpPortraits.Frame;
+            ring.sprite = MpPortraits.FrameFor(characterId);
             ring.enabled = ring.sprite != null;
 
             // Drawn as a raw quad with the sprite's own atlas coordinates rather than as an Image.
             // This works slightly better for modded characters and avoids guesswork.
             var face = marker.transform.GetChild(0).GetComponent<RawImage>();
-            var region = head.textureRect;
+            // Zoomed by sampling less of the sprite, so the head grows without leaving the ring.
+            var region = MpPortraits.Middle(head.textureRect, MpPortraits.ZoomFor(characterId));
             face.texture = head.texture;
             face.uvRect = new Rect(
                 region.x / head.texture.width,
@@ -151,7 +154,7 @@ namespace LBOLMP.UI
 
                 ((count - 1) * 0.5f - index) * (size * (count > 2 ? 0.62f : 0.8f)));
 
-            float inset = size * MpPortraits.HeadScale();
+            float inset = size * MpPortraits.HeadScale(characterId);
             float aspect = region.height > 0f ? region.width / region.height : 1f;
             var faceSize = aspect > 1f
                 ? new Vector2(inset, inset / aspect)

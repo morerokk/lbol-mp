@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using LBoL.Presentation;
 using LBoL.Presentation.UI;
 using LBoL.Presentation.UI.Panels;
 using LBoL.Presentation.UI.Widgets;
+using LBoLEntitySideloader.Resource;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,12 +23,26 @@ namespace LBOLMP.UI
         /// </summary>
         private const float DefaultHeadScale = 0.78f;
 
+        /// <summary>
+        /// Zoom in a bit further for "fallback" heads (modded characters)
+        /// </summary>
+        private const float FallbackZoom = 1.3f;
+
+        private const string IconFolder = "Resources/UI/";
+        private const string IconSuffix = "Icon.png";
+
         private static readonly Dictionary<string, Sprite> Heads = new Dictionary<string, Sprite>();
         private static readonly Dictionary<string, Sprite> Avatars = new Dictionary<string, Sprite>();
+        private static readonly Dictionary<string, Sprite> Icons = new Dictionary<string, Sprite>();
 
+        private static DirectorySource _source;
         private static Sprite _frame;
         private static float _headScale;
         private static bool _warmed;
+        private static bool _iconsLoaded;
+
+        private static DirectorySource Source =>
+            _source ?? (_source = new DirectorySource(MpInfo.Guid, ""));
 
         /// <summary>
         /// Takes a copy of the collection's art while the collection still exists.
@@ -35,6 +51,8 @@ namespace LBOLMP.UI
         /// </summary>
         public static void Warm()
         {
+            MpSafe.Run("MpPortraits.LoadIcons", LoadIcons);
+
             if (_warmed)
             {
                 return;
@@ -68,9 +86,52 @@ namespace LBOLMP.UI
                     MpPlugin.Log.LogInfo(
                         $"Cached {Heads.Count} collection portraits before the main menu UI is unloaded; " +
                         $"ring={(_frame == null ? "<none, drawing the face bare>" : $"'{_frame.name}' {_frame.rect.width:0}x{_frame.rect.height:0}")}, " +
-                        $"headScale={HeadScale():0.00}");
+                        $"headScale={DefaultHeadScale:0.00}");
                 }
             });
+        }
+
+        private static void LoadIcons()
+        {
+            if (_iconsLoaded)
+            {
+                return;
+            }
+
+            _iconsLoaded = true;
+
+            var root = Source?.dirInfo;
+            var folder = root == null
+                ? null
+                : new DirectoryInfo(Path.Combine(root.FullName, IconFolder.Replace('/', Path.DirectorySeparatorChar)));
+
+            if (folder == null || !folder.Exists)
+            {
+                MpPlugin.Log.LogWarning(
+                    $"No '{IconFolder}' to read character icons from. Is the mod installed correctly? All characters will get a janky assembled portrait");
+                return;
+            }
+
+            foreach (var file in folder.GetFiles("*" + IconSuffix))
+            {
+                string characterId = file.Name.Substring(0, file.Name.Length - IconSuffix.Length);
+                if (characterId.Length == 0)
+                {
+                    continue;
+                }
+
+                var sprite = ResourceLoader.LoadSprite(IconFolder + file.Name, Source);
+                if (sprite == null)
+                {
+                    MpPlugin.Log.LogWarning($"Could not read the character icon '{file.Name}'");
+                    continue;
+                }
+
+                Icons[characterId] = sprite;
+            }
+
+            MpPlugin.Log.LogInfo(
+                $"Loaded {Icons.Count} finished character icons: {string.Join(", ", Icons.Keys)}");
         }
 
         /// <summary>
@@ -79,23 +140,60 @@ namespace LBOLMP.UI
         private const float MinRingAspect = 0.85f;
         private const float MaxRingAspect = 1.18f;
 
-        /// <summary>The ring the portrait sits inside, or null if none was found.</summary>
-        public static Sprite Frame => _frame;
+        private static Sprite Frame => _frame;
 
         /// <summary>
         /// The portrait for a character, or null if no source has one yet.
         /// </summary>
         public static Sprite For(string characterId)
         {
-            return Head(characterId) ?? ProfileHead(characterId) ?? Avatar(characterId);
+            return Icon(characterId) ?? Head(characterId) ?? ProfileHead(characterId) ?? Avatar(characterId);
         }
 
         /// <summary>
-        /// The head's width as a fraction of the ring's.
+        /// The ring to draw behind a character's portrait, or null if it already has one.
         /// </summary>
-        public static float HeadScale()
+        public static Sprite FrameFor(string characterId) => Icon(characterId) != null ? null : Frame;
+
+        /// <summary>
+        /// The portrait's width as a fraction of the ring's.
+        /// </summary>
+        public static float HeadScale(string characterId)
         {
-            return _frame == null ? 1f : DefaultHeadScale;
+            return _frame == null || Icon(characterId) != null ? 1f : DefaultHeadScale;
+        }
+
+        /// <summary>
+        /// How far into a portrait to zoom, used for fallbacks.
+        /// </summary>
+        public static float ZoomFor(string characterId) =>
+            Icon(characterId) != null ? 1f : FallbackZoom;
+
+        public static Rect Middle(Rect region, float zoom)
+        {
+            if (zoom <= 1f || region.width <= 0f || region.height <= 0f)
+            {
+                return region;
+            }
+
+            float width = region.width / zoom;
+            float height = region.height / zoom;
+
+            return new Rect(
+                region.x + (region.width - width) * 0.5f,
+                region.y + (region.height - height) * 0.5f,
+                width,
+                height);
+        }
+
+        /// <summary>The complete portrait for this character, if there is one.</summary>
+        private static Sprite Icon(string characterId)
+        {
+            LoadIcons();
+
+            return !string.IsNullOrEmpty(characterId) && Icons.TryGetValue(characterId, out var icon)
+                ? icon
+                : null;
         }
 
         /// <summary>
@@ -161,13 +259,13 @@ namespace LBOLMP.UI
         public static void Draw(Rect area, string characterId)
         {
             var head = For(characterId);
-            var frame = Frame;
+            var frame = FrameFor(characterId);
 
             if (frame != null)
             {
                 DrawSprite(area, frame);
 
-                float inset = HeadScale();
+                float inset = HeadScale(characterId);
                 float size = Mathf.Min(area.width, area.height) * inset;
                 area = new Rect(
                     area.x + (area.width - size) * 0.5f,
@@ -176,13 +274,18 @@ namespace LBOLMP.UI
                     size);
             }
 
-            DrawSprite(area, head);
+            DrawSprite(area, head, ZoomFor(characterId));
         }
 
         /// <summary>
         /// Draws one sprite into an IMGUI rect, centered and undistorted (unless mods lol).
         /// </summary>
-        public static void DrawSprite(Rect area, Sprite sprite)
+        public static void DrawSprite(Rect area, Sprite sprite) => DrawSprite(area, sprite, 1f);
+
+        /// <summary>
+        /// Same, taking only the middle of the sprite when zoomed past 1.
+        /// </summary>
+        public static void DrawSprite(Rect area, Sprite sprite, float zoom)
         {
             if (sprite == null || sprite.texture == null)
             {
@@ -190,7 +293,7 @@ namespace LBOLMP.UI
             }
 
             var texture = sprite.texture;
-            var region = sprite.textureRect;
+            var region = Middle(sprite.textureRect, zoom);
             if (region.width <= 0f || region.height <= 0f)
             {
                 return;
