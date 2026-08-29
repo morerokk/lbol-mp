@@ -478,7 +478,7 @@ namespace LBOLMP.UI
                 {
                     MpSafe.Run("MpHandView.Detail", () =>
                         UiManager.GetPanel<CardDetailPanel>()
-                            .Show(new CardDetailPayload(widget.RectTransform, widget.Card)));
+                            .Show(new CardDetailPayload(widget.RectTransform, widget.Card, true)));
                     return;
                 }
 

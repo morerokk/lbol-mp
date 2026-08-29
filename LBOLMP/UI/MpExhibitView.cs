@@ -77,6 +77,13 @@ namespace LBOLMP.UI
                 // Left off on purpose: it reads the live Active and Blackout flags every frame, and
                 // these copies are not attached to anybody's run to have them.
                 widget.ShowBattleStatus = false;
+
+                // Opens the detail popup.
+                var clicked = widget;
+                clicked.commonButton.button.onClick.AddListener(() =>
+                    MpSafe.Run("MpExhibitView.Clicked",
+                        () => UiManager.GetPanel<ExhibitInfoPanel>().Show(clicked.Exhibit)));
+
                 widget.gameObject.SetActive(true);
                 Spawned.Add(widget);
             }
