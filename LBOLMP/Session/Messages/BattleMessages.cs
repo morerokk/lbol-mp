@@ -464,6 +464,18 @@ namespace LBOLMP.Session.Messages
         }
     }
 
+    /// <summary>
+    /// A shared enemy has run away on the sender's client, so everyone else should also have it escape.
+    /// </summary>
+    [NetMessage(57)]
+    public sealed class EnemyEscapedMessage : NetMessage
+    {
+        public int EnemyIndex;
+
+        public override void Write(NetWriter w) => w.Int(EnemyIndex);
+        public override void Read(NetReader r) => EnemyIndex = r.Int();
+    }
+
     /// <summary>A downed player has been revived at the end of combat.</summary>
     [NetMessage(38)]
     public sealed class PlayerRevivedMessage : NetMessage

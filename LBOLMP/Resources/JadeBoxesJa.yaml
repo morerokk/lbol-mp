@@ -1,0 +1,14 @@
+# Note: "Partner" is as in "Partner" from Imperishable Night.
+# This refers to other players in multiplayer.
+
+MpShareTheWealth:
+  Name: 富を分かち合う
+  Description: |-
+    いずれかのプレイヤーが<sprite="Point" name="Gold">を得るか失うたび、他のすべてのプレイヤーも同じ量の<sprite="Point" name="Gold">を得るか失う。
+
+MpAbilityPile:
+  Name: 能力の山
+  Description: |-
+    Act 1～2では、各戦闘で最初に使用する能力カードを、すべての|仲間|も使用する。
+    Act 3～4では、各戦闘で最初に使用する2枚の能力カードを、すべての|仲間|も使用する。
+    それ以降に能力カードを使用するたび、すべての能力カードのコストが{Mana}増加する。

@@ -768,7 +768,7 @@ namespace LBOLMP.UI
         private static void SyncStatusEffects(Ally ally, MpBattleSeat seat)
         {
             var unit = ally.Unit;
-            var wanted = new Dictionary<string, (int Level, int Duration, string SourceCardId)>();
+            var wanted = new Dictionary<string, (int Level, int Duration, string SourceCardId, int Count)>();
 
             foreach (var encoded in seat.StatusEffects)
             {
@@ -779,7 +779,13 @@ namespace LBOLMP.UI
                 }
                 int.TryParse(parts[1], out int level);
                 int.TryParse(parts[2], out int duration);
-                wanted[parts[0]] = (level, duration, parts.Length > 3 ? parts[3] : string.Empty);
+                int count = -1;
+                if (parts.Length > 4)
+                {
+                    int.TryParse(parts[4], out count);
+                }
+                wanted[parts[0]] =
+                    (level, duration, parts.Length > 3 ? parts[3] : string.Empty, count);
             }
 
             foreach (var existing in unit.StatusEffects.ToList())
@@ -811,6 +817,10 @@ namespace LBOLMP.UI
                     {
                         effect.Duration = entry.Value.Duration;
                     }
+                    if (effect.HasCount && entry.Value.Count >= 0)
+                    {
+                        effect.Count = entry.Value.Count;
+                    }
 
                     // Fix midsummer flowers tooltip
                     if (!string.IsNullOrEmpty(entry.Value.SourceCardId))
@@ -838,6 +848,10 @@ namespace LBOLMP.UI
                     if (current.HasDuration && entry.Value.Duration >= 0 && current.Duration != entry.Value.Duration)
                     {
                         current.Duration = entry.Value.Duration;
+                    }
+                    if (current.HasCount && entry.Value.Count >= 0 && current.Count != entry.Value.Count)
+                    {
+                        current.Count = entry.Value.Count;
                     }
 
                     if (gained && ally.View != null)

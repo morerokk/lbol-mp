@@ -4,11 +4,38 @@ MpResilient:
     ターン終了時、|脱力|、|弱体| 、|ロックオン|を追加で{Level}減少させる。
     |火力低下|の減少量が{Level}少なくなる。(最低1)
   Brief: "|脱力|、|弱体|、|ロックオン|がより早く減少し、|火力低下|を受けにくくなる。"
+  
 MpOfferingSe:
   Name: 無主への供物
   Description: 次に使用する能力カード{Level}枚は、|仲間|全員の場でも使用される。
   Brief: 次の能力カード{Level}枚は|仲間|の場でも使用される。
+
+MpAnattaSe:
+  Name: 無我の境地
+  Description: "|平静|状態を終了する度、すべてのプレイヤーは{Mana}を得る。"
+  Brief: "|平静|状態を終了する度、すべてのプレイヤーは{Mana}を得る。"
+
+MpAbilityPileSe:
+  Name: 能力の山
+  Description: 能力カードのコストが{Mana}増加する。
+  Brief: 能力カードのコストが{Mana}増加する。
+
+MpSelfControlSe:
+  Name: 自己実現
+  Description: |-
+    プレイヤーのターン終了時、|熱情|状態ならすべてのプレイヤーは|火力|{Level}得る。
+    |平静|状態なら、すべてのプレイヤーは|ブロック|{Count}得る。
+  Brief: |-
+    プレイヤーのターン終了時、|熱情|状態ならすべてのプレイヤーは|火力|{Level}得る。|平静|状態なら、すべてのプレイヤーは|ブロック|{Count}得る。
+
 MpPartner:
   Name: 仲間
   Description: 他のプレイヤー。
   Brief: 他のプレイヤー。
+
+MpFrontalDefenseTalismanSe:
+  Name: 前方安全札
+  Description: |-
+    あなたがカードから|バリア|を得るとき、すべての|仲間|はその半分に等しい|ブロック|を得る。
+  Brief: |-
+    あなたがカードから|バリア|を得るとき、すべての|仲間|はその半分に等しい|ブロック|を得る。

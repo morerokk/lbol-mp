@@ -286,6 +286,7 @@ namespace LBOLMP.Session.Battle
             MpNet.On<EnemyVitalsMessage>(OnEnemyVitals);
             MpDownedPlayers.RegisterHandlers();
             MpEventBattle.RegisterHandlers();
+            MpEnemyEscape.RegisterHandlers();
             MpJunko.RegisterHandlers();
             MpEffects.RegisterHandlers();
         }
@@ -312,6 +313,7 @@ namespace LBOLMP.Session.Battle
             PlayerCountAtBattleStart = 1;
             MpDownedPlayers.Reset();
             MpEventBattle.Reset();
+            MpEnemyEscape.Reset();
             MpJunko.Reset();
         }
 
@@ -1415,9 +1417,14 @@ namespace LBOLMP.Session.Battle
                 int level = effect.HasLevel ? effect.Level : -1;
                 int duration = effect.HasDuration ? effect.Duration : -1;
 
+                // Count carries the number in effects whose text is built around one, such as
+                // Self-Fulfillment's block. Left out, an ally's copy of it reads zero.
+                int count = effect.HasCount ? effect.Count : -1;
+
                 // Some status effects (like Midsummer Flowers scaling) require referencing the card that caused them.
                 // If that is the case, add it too.
-                effects.Add($"{effect.Id}:{level}:{duration}:{effect.SourceCard?.Id ?? string.Empty}");
+                effects.Add(
+                    $"{effect.Id}:{level}:{duration}:{effect.SourceCard?.Id ?? string.Empty}:{count}");
             }
 
             SendStatusIfWorthIt(new BattleStatusMessage

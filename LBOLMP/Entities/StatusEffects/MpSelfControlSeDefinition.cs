@@ -11,11 +11,11 @@ using LBoL.EntityLib.StatusEffects.Koishi;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
+using LBoLEntitySideloader.Utils;
 using UnityEngine;
 
 namespace LBOLMP.Entities.StatusEffects
 {
-    /// <summary>Whichever of the two the holder's mood earned this turn. Only one is ever set.</summary>
     public sealed class MpSelfControlPayload : MpEffectPayload
     {
         public int Firepower;
@@ -33,8 +33,20 @@ namespace LBOLMP.Entities.StatusEffects
         /// <summary>The vanilla effect's icon is borrowed instead. See <see cref="MpSelfControlSe.OverrideIconName"/>.</summary>
         public override Sprite LoadSprite() => null;
 
+        /// <summary>
+        /// Vanilla's own config copied
+        /// </summary>
         public override StatusEffectConfig MakeConfig()
         {
+            var vanilla = StatusEffectConfig.FromId(nameof(SelfControlSe));
+            if (vanilla != null)
+            {
+                return vanilla.Copy();
+            }
+
+            MpPlugin.Log.LogWarning(
+                $"No vanilla {nameof(SelfControlSe)} config to copy from; falling back to defaults");
+
             var config = DefaultConfig();
             config.Type = StatusEffectType.Positive;
             config.HasLevel = true;
@@ -48,9 +60,6 @@ namespace LBOLMP.Entities.StatusEffects
         {
             if (payload.Block > 0)
             {
-                // Direct and uncast, exactly as the vanilla effect gives it to its own holder, so
-                // everybody ends up with the number the card promises rather than their own Spirit's
-                // version of it.
                 yield return new CastBlockShieldAction(
                     battle.Player, payload.Block, 0, BlockShieldType.Direct, false);
             }
@@ -63,15 +72,9 @@ namespace LBOLMP.Entities.StatusEffects
         }
     }
 
-    /// <inheritdoc cref="MpSelfControlSeDefinition"/>
-    /// <remarks>
-    /// The vanilla effect this replaces is the same thing without the sending. The mood that
-    /// decides which half fires is the holder's, so the whole party gets whichever one they earned.
-    /// </remarks>
     [EntityLogic(typeof(MpSelfControlSeDefinition))]
     public sealed class MpSelfControlSe : StatusEffect
     {
-        /// <summary>The vanilla effect's own icon, resolved when it is drawn rather than at load.</summary>
         public override string OverrideIconName => nameof(SelfControlSe);
 
         protected override void OnAdded(Unit unit)

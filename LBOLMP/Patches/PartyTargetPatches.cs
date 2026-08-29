@@ -2,6 +2,7 @@ using HarmonyLib;
 using LBOLMP.Net;
 using LBOLMP.Session.Battle;
 using LBoL.Core;
+using LBoL.Core.Battle.BattleActions;
 using LBoL.Core.Units;
 using LBoL.Presentation.Units;
 using LBoL.Presentation.UI.ExtraWidgets;
@@ -132,6 +133,28 @@ namespace LBOLMP.Patches
             MpPartyTargeting.Set(playerId);
             __result = UnitSelector.Nobody;
             return false;
+        }
+    }
+
+    /// <summary>
+    /// Let card auto-targeting work for partner-played cards
+    /// </summary>
+    [HarmonyPatch(typeof(PlayCardAction), "ReTargeting")]
+    public static class PartyAutoTargetPatch
+    {
+        [HarmonyPrefix]
+        private static void Prefix(PlayCardAction __instance)
+        {
+            MpSafe.Run("PartyAutoTargetPatch", () =>
+            {
+                var card = __instance.Args?.Card;
+                if (!MpPartyTargeting.WantsPartner(card))
+                {
+                    return;
+                }
+
+                MpPartyTargeting.PickMissingRandomTarget(card, __instance.Battle.GameRun.BattleRng);
+            });
         }
     }
 }

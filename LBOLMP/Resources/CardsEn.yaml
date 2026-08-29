@@ -79,6 +79,8 @@ MpSelfControl:
   Description: |-
     Choose: Enter |Passion| or |Serenity|.
     At the end of {PlayerName}'s turn, all players gain {Value1} |Firepower| if she's in |Passion|, or {Value2} |Block| if she's in |Serenity|.
+  ExtraDescription1: Enter |Passion|.
+  ExtraDescription2: Enter |Serenity|.
 
 MpIceBlock:
   Name: Ice Block

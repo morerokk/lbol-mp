@@ -1,6 +1,9 @@
+using System.Collections.Generic;
 using System.Linq;
 using LBOLMP.Entities;
 using LBOLMP.Net;
+using LBoL.Base;
+using LBoL.Base.Extensions;
 using LBoL.Core.Cards;
 
 namespace LBOLMP.Session.Battle
@@ -31,6 +34,41 @@ namespace LBOLMP.Session.Battle
         /// </summary>
         public static bool IsValidTarget(Card card, int playerId) =>
             playerId == MpNet.LocalPlayerId ? IncludesSelf(card) : IsValidPartner(playerId);
+
+        /// <summary>Everyone this card could be pointed at right now.</summary>
+        public static IEnumerable<int> ValidTargets(Card card)
+        {
+            if (card == null || !MpEffects.CanSend)
+            {
+                yield break;
+            }
+
+            if (IncludesSelf(card))
+            {
+                yield return MpNet.LocalPlayerId;
+            }
+
+            foreach (var seat in MpEffects.ValidPartners)
+            {
+                yield return seat.PlayerId;
+            }
+        }
+
+        /// <summary>
+        /// Picks a target at random unless a valid one is already set.
+        /// </summary>
+        internal static void PickMissingRandomTarget(Card card, RandomGen rng)
+        {
+            if (IsValidTarget(card, _pending))
+            {
+                return;
+            }
+
+            var targets = ValidTargets(card).ToList();
+            _pending = targets.Count == 0
+                ? MpConstants.InvalidPlayerId
+                : targets.SampleOrDefault(rng);
+        }
 
         internal static void Set(int playerId) => _pending = playerId;
 

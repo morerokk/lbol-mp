@@ -526,6 +526,19 @@ namespace LBOLMP.Patches
     }
 
     /// <summary>
+    /// Tell everyone when an enemy runs away from our fight.
+    /// </summary>
+    [HarmonyPatch(typeof(BattleController), nameof(BattleController.Escape))]
+    public static class EnemyEscapeReplicationPatch
+    {
+        [HarmonyPostfix]
+        private static void Postfix(EnemyUnit unit)
+        {
+            MpSafe.Run("EnemyEscapeReplicationPatch", () => MpEnemyEscape.Report(unit));
+        }
+    }
+
+    /// <summary>
     /// Replicate debuffs you apply to enemies to everyone else.
     /// Same idea as damage, for debuffs a player lands on a shared enemy.
     /// Patched on the action rather than on <c>TryAddStatusEffect</c> because we need to know what
