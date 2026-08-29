@@ -13,8 +13,7 @@ MpDonateBlock:
 MpAnatta:
   Name: Anatta
   Description: |-
-    Whenever {PlayerName} exits |Serenity|,
-    all players gain {Mana}.
+    Whenever {PlayerName} exits |Serenity|, all players gain {Mana}.
     Enter |Serenity|.
 
 MpWhim:

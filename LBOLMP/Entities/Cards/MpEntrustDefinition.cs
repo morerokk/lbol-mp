@@ -53,6 +53,9 @@ namespace LBOLMP.Entities.Cards
                 nameof(MpPartner), nameof(Firepower), nameof(TempFirepower),
                 nameof(FirepowerNegative), nameof(TempFirepowerNegative)
             };
+
+            config.Illustrator = "犬山風人";
+
             return config;
         }
 

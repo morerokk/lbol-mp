@@ -52,6 +52,9 @@ namespace LBOLMP.Entities.Cards
 
             config.RelativeEffects = new List<string> { nameof(MpPartner), nameof(ExtraTurn) };
             config.UpgradedRelativeEffects = new List<string> { nameof(MpPartner), nameof(ExtraTurn) };
+
+            config.Illustrator = "DEINLOJR";
+
             return config;
         }
 

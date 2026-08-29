@@ -37,8 +37,9 @@ namespace LBOLMP.Entities.Cards
             config.Owner = VanillaCharNames.Sakuya;
 
             config.Rarity = Rarity.Uncommon;
-            config.Colors = new List<ManaColor> { ManaColor.Green, ManaColor.White };
-            config.Cost = new ManaGroup { Any = 1 } + ManaGroup.Hybrids(1, ManaColor.Green, ManaColor.White);
+            config.Colors = new List<ManaColor> { ManaColor.White, ManaColor.Green };
+            config.Cost = new ManaGroup { Any = 1, White = 1, Green = 1 };
+            config.UpgradedCost = new ManaGroup { Any = 1 } + ManaGroup.Hybrids(1, ManaColor.White, ManaColor.Green);
 
             config.Keywords = Keyword.Exile;
             config.UpgradedKeywords = Keyword.Exile;
@@ -54,6 +55,9 @@ namespace LBOLMP.Entities.Cards
 
             config.RelativeKeyword = Keyword.Copy | Keyword.Ethereal | Keyword.TempMorph;
             config.UpgradedRelativeKeyword = Keyword.Copy | Keyword.Ethereal | Keyword.TempMorph;
+
+            config.Illustrator = "幻騒アぽろ";
+
             return config;
         }
     }

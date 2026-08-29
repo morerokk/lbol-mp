@@ -48,6 +48,9 @@ namespace LBOLMP.Entities.Cards
 
             config.RelativeEffects = new List<string> { nameof(MpPartner) };
             config.UpgradedRelativeEffects = new List<string> { nameof(MpPartner) };
+
+            config.Illustrator = "there2007";
+
             return config;
         }
 

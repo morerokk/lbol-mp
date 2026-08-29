@@ -25,7 +25,6 @@ namespace LBOLMP.Entities.Cards
             var config = DefaultConfig();
             config.Type = CardType.Skill;
             config.Rarity = Rarity.Uncommon;
-            config.Owner = VanillaCharNames.Koishi;
             config.Colors = new List<ManaColor> { ManaColor.Black, ManaColor.Blue };
             config.Cost = new ManaGroup { Any = 1 } + ManaGroup.Hybrids(1, ManaColor.Black, ManaColor.Blue);
             config.UpgradedCost = ManaGroup.Hybrids(1, ManaColor.Black, ManaColor.Blue);
@@ -41,6 +40,9 @@ namespace LBOLMP.Entities.Cards
             config.UpgradedRelativeEffects = new List<string> { nameof(MpPartner) };
             config.RelativeKeyword = Keyword.Copy | Keyword.Tool;
             config.UpgradedRelativeKeyword = Keyword.Copy | Keyword.Tool;
+
+            config.Illustrator = "Delly~";
+
             return config;
         }
 
