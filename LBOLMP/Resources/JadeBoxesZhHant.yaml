@@ -1,0 +1,13 @@
+# Note: "Partner" is as in "Partner" from Imperishable Night.
+# This refers to other players in multiplayer.
+
+MpShareTheWealth:
+  Name: 先富帶動後富
+  Description: |-
+    每當任何玩家獲得或失去<sprite="Point" name="Gold">，其他玩家也對應獲得或失去等量<sprite="Point" name="Gold">。
+
+MpAbilityPile:
+  Name: 東方能力夜
+  Description: |-
+    每場戰鬥中你打出的第一張能力牌也會被其他|隊友|打出。
+    那之後，你打出能力牌後，所有的能力牌費用提升{Mana}。

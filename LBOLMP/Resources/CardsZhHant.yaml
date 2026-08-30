@@ -74,6 +74,12 @@ MpIntrusiveThought:
     |複製|和道具牌不能被選擇。
     如果被選擇的牌是能力牌或有|放逐|，它獲得|複製|。
 
+MpSelfControl:
+  Name: 自我圓滿
+  Description: |-
+    |抉擇|：進入|熱情|或|平靜|。
+    {PlayerName}的回合結束時：她處於|熱情|則所有玩家獲得 {Value1} 點|火力|；處於|平靜|則所有玩家獲得 {Value2} 點|格擋|。
+
 MpIceBlock:
   Name: 寒冰屏障
   Description: |-
@@ -88,3 +94,26 @@ MpEntrust:
     選擇一名|隊友|。
     失去所有|火力|和|暫得火力|。
     她獲得等量的|火力|和|暫得火力|。
+
+MpYinYangDistribution:
+  Name: 陰陽調和
+  Description: |-
+    將一張|陰陽玉|加入每個|隊友|的手中。
+  UpgradedDescription: |-
+    將一張|陰陽玉+|加入每個|隊友|的手中。
+
+MpTimeDilation:
+  Name: 時間膨脹
+  Description: |-
+    選擇一名|隊友|。
+    結束{PlayerName}的回合，她進行一個額外的回合。
+
+MpDivergingTimePeek:
+  Name: 發散的時之鋒
+  Description: |-
+    選擇一名|隊友|。
+    將她被|放逐|的 1 張卡牌加入手中，它|暫塑|為{Mana}，具有|放逐|、|虛無|。
+  DetailText: |-
+    |複製|牌不能被選中。
+    加入你手中的牌為|複製|。
+    如果該牌是能力牌或有|放逐|，她的副本也將獲得|複製|。

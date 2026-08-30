@@ -4,11 +4,38 @@ MpResilient:
     回合結束時額外失去 {Level} 層|虛弱|、|易傷|和|鎖定|。
     獲得的|失去火力|減少 {Level} 點，但不低於 1 點。
   Brief: 更快的失去|虛弱|、|易傷|和|鎖定|，且獲得的|失去火力|減少。
+
 MpOfferingSe:
   Name: 無主的供奉
   Description: 你接下來打出的 {Level} 張能力牌同時為你的所有|隊友|打出。
   Brief: 你接下來的 {Level} 張能力牌同時為|隊友|打出。
+
 MpPartner:
   Name: 隊友
   Description: 其他玩家。
   Brief: 其他玩家。
+
+MpAnattaSe:
+  Name: 無我之境
+  Description: "你離開|平靜|時，所有玩家獲得{Mana}。"
+  Brief: "你離開|平靜|時，所有玩家獲得{Mana}。"
+
+MpAbilityPileSe:
+  Name: 東方能力夜
+  Description: 能力牌的費用提升{Mana}。
+  Brief: 能力牌的費用提升{Mana}。
+
+MpSelfControlSe:
+  Name: 自我圓滿
+  Description: |-
+    玩家的的回合結束時，她處於|熱情|則所有玩家獲得 {Level} 點|火力|；處於|平靜|則所有玩家獲得 {Count} 點|格擋|。
+  Brief: |-
+    玩家的的回合結束時，她處於|熱情|則所有玩家獲得 {Level} 點|火力|；處於|平靜|則所有玩家獲得 {Count} 點|格擋|。
+
+MpFrontalDefenseTalismanSe:
+  Name: 前線防禦護身符
+  Description: |-
+    妳從卡牌獲得|護盾|時，
+    所有|隊友|獲得一半的|格擋|。
+  Brief: |-
+    妳從卡牌獲得|護盾|時，所有|隊友|獲得一半的|格擋|。
