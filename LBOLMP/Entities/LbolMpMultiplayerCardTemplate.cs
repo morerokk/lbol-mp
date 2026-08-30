@@ -28,6 +28,13 @@ namespace LBOLMP.Entities
     }
 
     /// <summary>
+    /// Put this on an MP effect that still needs to do something for downed players.
+    /// </summary>
+    public interface IMpReachesDownedPlayers
+    {
+    }
+
+    /// <summary>
     /// Put this on a card definition to make it only ever show up in a multiplayer run.
     /// </summary>
     /// <remarks>

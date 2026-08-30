@@ -737,15 +737,15 @@ namespace LBOLMP.UI
             view.SpineIdle(false);
         }
 
-        public static void Revive(int playerId)
+        public static void Revive(int playerId, bool withFx = false)
         {
             if (Allies.TryGetValue(playerId, out var ally))
             {
-                MpSafe.Run("MpAllyUnits.Revive", () => Revive(ally));
+                MpSafe.Run("MpAllyUnits.Revive", () => Revive(ally, withFx));
             }
         }
 
-        private static void Revive(Ally ally)
+        private static void Revive(Ally ally, bool withFx = false)
         {
             if (ally.Unit != null)
             {
@@ -753,8 +753,15 @@ namespace LBOLMP.UI
             }
 
             var view = ally.View;
-            if (view == null)
+            if (view == null || MpRevivalFx.InProgress(view))
             {
+                return;
+            }
+
+            if (withFx)
+            {
+                // Their explosion, run backwards on our screen too.
+                MpRevivalFx.Play(view);
                 return;
             }
 

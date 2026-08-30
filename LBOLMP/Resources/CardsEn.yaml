@@ -1,6 +1,13 @@
 # Note: "Partner" is as in "Partner" from Imperishable Night.
 # This refers to other players in multiplayer.
 
+MpDefibrillator:
+  Name: Defibrillator
+  Description: |-
+    Revive all downed |Partners| with {Value1}% Life.
+    They can't lose life for {Value2} turn.
+    |Limited【{DeckCounter}】|
+
 MpDonateBlock:
   Name: Remote Boundary
   Description: |-

@@ -553,13 +553,27 @@ namespace LBOLMP.Session.Messages
         }
     }
 
-    /// <summary>A downed player has been revived at the end of combat.</summary>
+    /// <summary>A downed player is back on their feet.</summary>
     [NetMessage(38)]
     public sealed class PlayerRevivedMessage : NetMessage
     {
         public int Hp;
 
-        public override void Write(NetWriter w) => w.Int(Hp);
-        public override void Read(NetReader r) => Hp = r.Int();
+        /// <summary>
+        /// Should be true if the revival happened mid-fight.
+        /// </summary>
+        public bool Defibrillated;
+
+        public override void Write(NetWriter w)
+        {
+            w.Int(Hp);
+            w.Bool(Defibrillated);
+        }
+
+        public override void Read(NetReader r)
+        {
+            Hp = r.Int();
+            Defibrillated = r.Bool();
+        }
     }
 }

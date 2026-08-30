@@ -182,7 +182,7 @@ namespace LBOLMP.Session.Battle
 
         private static void OnPlayerRevived(PlayerRevivedMessage message)
         {
-            UI.MpAllyUnits.Revive(message.SenderId);
+            UI.MpAllyUnits.Revive(message.SenderId, message.Defibrillated);
 
             var seat = MpBattleSync.GetSeat(message.SenderId);
             if (seat == null)
@@ -473,6 +473,74 @@ namespace LBOLMP.Session.Battle
         //--
         // revive logic
         //--
+
+        ///<summary>
+        /// Handles downed player reviving.
+        /// </summary>
+        /// <returns>True if they were downed and are now alive again.</returns>
+        public static bool ReviveInBattle(float lifeFraction)
+        {
+            if (!LocalDown)
+            {
+                return false;
+            }
+
+            var gameRun = GameMaster.Instance?.CurrentGameRun;
+            var player = gameRun?.Player;
+            if (player == null || !player.IsAlive || !MpBattleSync.InBattle)
+            {
+                MpPlugin.Log.LogWarning("Cannot revive here: player="
+                    + (player == null ? "none" : player.IsAlive ? "alive" : "dead")
+                    + $", inBattle={MpBattleSync.InBattle}");
+                return false;
+            }
+
+            LocalDown = false;
+
+            // So a second down in the same combat strips the effects and plays out again.
+            _effectsCleared = false;
+
+            int hp = Mathf.Max(1, Mathf.RoundToInt(player.MaxHp * lifeFraction));
+            hp = Mathf.Min(hp, player.MaxHp);
+
+            if (player.Hp < hp)
+            {
+                gameRun.SetHpAndMaxHp(hp, player.MaxHp, true);
+            }
+
+            var seat = MpBattleSync.GetSeat(MpNet.LocalPlayerId);
+            if (seat != null)
+            {
+                seat.Down = false;
+            }
+
+            MpPlugin.Log.LogInfo($"Revived player: now at {player.Hp} HP");
+            MpNet.Send(new PlayerRevivedMessage { Hp = player.Hp, Defibrillated = true });
+
+            UnplayDeath();
+            return true;
+        }
+
+        /// <summary>
+        /// Run the explosion we played for the defeat backwards, and unhide the character.
+        /// </summary>
+        private static void UnplayDeath()
+        {
+            if (!_deathPlayed)
+            {
+                // Never blew up in the first place, so there is nothing to undo but the hiding.
+                RestoreLocalView();
+                return;
+            }
+
+            _deathPlayed = false;
+
+            var view = GameDirector.Instance?.PlayerUnitView;
+            if (view != null)
+            {
+                UI.MpRevivalFx.Play(view);
+            }
+        }
 
         public static void ReviveIfWon(GameRunController gameRun)
         {

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using LBOLMP.Entities;
 using LBOLMP.Session;
 using LBOLMP.Session.Battle;
 using LBoL.Core.Battle;
@@ -235,7 +236,7 @@ namespace LBOLMP.Net
                 return;
             }
 
-            if (!MpBattleSync.InBattle || MpBattleSync.SpectatingOnly)
+            if (!MpBattleSync.InBattle)
             {
                 return;
             }
@@ -246,16 +247,15 @@ namespace LBOLMP.Net
                 return;
             }
 
-            var seat = MpBattleSync.GetSeat(MpNet.LocalPlayerId);
-            if (seat != null && seat.IsOutOfPlay)
-            {
-                return;
-            }
-
             if (!ByKey.TryGetValue(message.Key, out var handler))
             {
                 MpPlugin.Log.LogWarning(
                     $"No handler for MP effect '{message.Key}'; is somebody running a mod we do not have?");
+                return;
+            }
+
+            if (!Reachable(handler))
+            {
                 return;
             }
 
@@ -275,6 +275,27 @@ namespace LBOLMP.Net
                     MpBattleSync.QueueReplicated(battle, actions, "MP effect " + message.Key);
                 }
             });
+        }
+
+        /// <summary>
+        /// Whether an effect should be processed on the local player at all.
+        /// This may be false if the player is downed.
+        /// </summary>
+        private static bool Reachable(IMpEffect handler)
+        {
+            var seat = MpBattleSync.GetSeat(MpNet.LocalPlayerId);
+
+            bool notOurFight = MpEventBattle.LocalSpectating
+                               || (seat != null && (!seat.Alive || seat.Finished || seat.Spectating));
+
+            if (notOurFight)
+            {
+                return false;
+            }
+
+            bool knockedOut = MpDownedPlayers.LocalDown || (seat != null && seat.Down);
+
+            return !knockedOut || handler is IMpReachesDownedPlayers;
         }
 
         private static bool IsForUs(MpEffectMessage message)
@@ -308,13 +329,14 @@ namespace LBOLMP.Net
 
             if (_budgetUsed >= PerRoundBudget)
             {
-                // Once per round rather than once per message, or a runaway would flood the log too.
                 if (_budgetUsed == PerRoundBudget)
                 {
                     _budgetUsed++;
+                    // Does the game have an action limit?
+                    // If it does, then it's not working with the way we're processing networked actions
                     MpPlugin.Log.LogError(
                         $"Refusing more than {PerRoundBudget} MP effects this round (last was '{key}'). " +
-                        "Something is looping; please report the card combination.");
+                        "Something is looping! Please report the card combination.");
                 }
                 return false;
             }
