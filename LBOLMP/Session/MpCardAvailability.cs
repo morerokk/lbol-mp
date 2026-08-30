@@ -121,6 +121,12 @@ namespace LBOLMP.Session
         {
             foreach (var id in ids)
             {
+                // TODO: Temporarily disabled defibrillator card
+                if (id == "MpDefibrillator")
+                {
+                    continue;
+                }
+
                 var config = CardConfig.FromId(id);
                 if (config == null)
                 {
