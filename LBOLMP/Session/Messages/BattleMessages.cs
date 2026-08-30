@@ -531,6 +531,28 @@ namespace LBOLMP.Session.Messages
         }
     }
 
+    /// <summary>
+    /// How much life a Vampire enemy stole from the sender.
+    /// </summary>
+    [NetMessage(63)]
+    public sealed class EnemyVampireHealMessage : NetMessage
+    {
+        public int EnemyIndex;
+        public int Amount;
+
+        public override void Write(NetWriter w)
+        {
+            w.Int(EnemyIndex);
+            w.Int(Amount);
+        }
+
+        public override void Read(NetReader r)
+        {
+            EnemyIndex = r.Int();
+            Amount = r.Int();
+        }
+    }
+
     /// <summary>A downed player has been revived at the end of combat.</summary>
     [NetMessage(38)]
     public sealed class PlayerRevivedMessage : NetMessage
