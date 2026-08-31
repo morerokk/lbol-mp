@@ -1,24 +1,25 @@
-﻿{
+{
   "Title": "LBOL MP",
   "Description": "Coop mod for LBoL. Press F2 in the main menu to open the network menu. Host a session over Steam or over a direct IP connection, have other players join, then everyone start a new run, pick a character and click Confirm. The host sets the difficulty for everyone.",
   "Brief": "Cooperative multiplayer",
   "Changelog": [
-    "0.11.7: \nImplemented neff's JP translations (thanks!)\nImplemented Lvalon's Zh translations (thanks!)\nAdded missing card art.\nEffects that trigger poison immediately are now synced.\nLaevateinn exhibit vulnerable bonus damage is now synced.\nImplemented modlist check for content-adding mod mismatches.\nFixed hand preview not working on gamepad.\nImplemented exhibits in hand preview.\nFixed right-click card inspect not working in hand preview.\nImplemented remaining missing card artwork.",
-    "0.11.6: \nRabbit Trickster running away is now synced.\nEMP Device on drones is now synced.\n\nFixed Koishi's Self-Fulfillment not syncing properly.\nChanged Ability Pile jadebox to always be 1 shared ability play.\nAuto-played partner cards (like with Whim) now select a random target instead of doing nothing.",
+    "0.11.10: \nFixed missing ZhHant/ZhHans translations for Koishi's multiplayer Self-Control card.",
+    "0.11.7: \nImplemented neff\u0027s JP translations (thanks!)\nImplemented Lvalon\u0027s Zh translations (thanks!)\nAdded missing card art.\nEffects that trigger poison immediately are now synced.\nLaevateinn exhibit vulnerable bonus damage is now synced.\nImplemented modlist check for content-adding mod mismatches.\nFixed hand preview not working on gamepad.\nImplemented exhibits in hand preview.\nFixed right-click card inspect not working in hand preview.\nImplemented remaining missing card artwork.",
+    "0.11.6: \nRabbit Trickster running away is now synced.\nEMP Device on drones is now synced.\n\nFixed Koishi\u0027s Self-Fulfillment not syncing properly.\nChanged Ability Pile jadebox to always be 1 shared ability play.\nAuto-played partner cards (like with Whim) now select a random target instead of doing nothing.",
     "0.11.5: \nAdded a few more multiplayer cards (thanks RoamerB and Nolav).\nFixed Ice Block not having Exile on upgrade.",
     "0.11.4: \nTweaked the Ability Pile jade box a little bit to make it less brutal in Act 1/2.",
-    "0.11.3: \nFixed missing localization on older Sideloader versions.\n'Offering to the Ownerless' now has Ethereal, and no longer has Retain.\nAdded 'Ability Pile' jadebox modifier.\nFixed Ice Block not having Exile.",
+    "0.11.3: \nFixed missing localization on older Sideloader versions.\n\u0027Offering to the Ownerless\u0027 now has Ethereal, and no longer has Retain.\nAdded \u0027Ability Pile\u0027 jadebox modifier.\nFixed Ice Block not having Exile.",
     "0.11.2: \nJadeboxes are now synced (and decided by the host).\nAdded experimental multiplayer-only jadeboxes.",
     "0.11.1: \nFixed a bug where Rewind and Whim caused errors when played at the wrong time.",
-    "0.11.0: \nAdded multiplayer-exclusive cards!\nThese can be disabled in the balance settings.\nIn Steam lobbies, when your name is empty or the default 'Player', your name now shows up as your Steam name instead.\nAdded player names to the characters on-screen when hovering over them, rather than the character's name.\nAdded Steam lobby grouping, so that players playing together show up next to each other in the friends list.",
-    "0.10.6: \nFixed a softlock when trying to end your turn while previewing another player's hand.",
+    "0.11.0: \nAdded multiplayer-exclusive cards!\nThese can be disabled in the balance settings.\nIn Steam lobbies, when your name is empty or the default \u0027Player\u0027, your name now shows up as your Steam name instead.\nAdded player names to the characters on-screen when hovering over them, rather than the character\u0027s name.\nAdded Steam lobby grouping, so that players playing together show up next to each other in the friends list.",
+    "0.10.6: \nFixed a softlock when trying to end your turn while previewing another player\u0027s hand.",
     "0.10.5: \nMost visual card effects are now also visible to other players.\nFixed numerous softlock issues caused by previewing another player.",
     "0.10.4: \nDefeated players can now see the enemy taking turns.\n(This also fixes a potential desync at Seija)\nDefeated players now play their death animations properly.",
     "0.10.3: \nReduced Moon Rabbit Duo HP scaling in multiplayer.",
-    "0.10.2: \nFixed Rin's vengeful spirits dealing damage to clients when Rin was already defeated.",
-    "0.10.1: \nFixed Seija not dying properly in multiplayer if 1 player was downed.\nFixed Seija's damage cap not being synced properly.",
+    "0.10.2: \nFixed Rin\u0027s vengeful spirits dealing damage to clients when Rin was already defeated.",
+    "0.10.1: \nFixed Seija not dying properly in multiplayer if 1 player was downed.\nFixed Seija\u0027s damage cap not being synced properly.",
     "0.10.0: \nPartner status effects FX (like Graze, Mental States or Burst) are now visible on partners (at 50% volume).",
-    "0.9.9: \nAdded 'SharedPartyPositions' config option (found in Bepinex config).\nIf enabled, every player (including you) is put in their 'actual' party position, instead of always showing the local player in front.\nDefaults to false.",
+    "0.9.9: \nAdded \u0027SharedPartyPositions\u0027 config option (found in Bepinex config).\nIf enabled, every player (including you) is put in their \u0027actual\u0027 party position, instead of always showing the local player in front.\nDefaults to false.",
     "0.9.8: \nRaised the player lobby cap to 6 players. Anything above 4 players is not officially supported and may result in UI jank, but go nuts!",
     "0.9.7: \nAdded Japanese localization by neff.jp (thanks!)\nAct 1 boss picks are now remembered in the save data when the run is reloaded.\nFixed Act 1 boss going missing sometimes.\nFixed some more Steam networking issues.\nFixed desynced combats in Act 3 if players choose differently at the Miyoi event.",
     "0.9.6: \nAnother attempt at mitigating bad connections.",
@@ -28,8 +29,8 @@
     "0.9.2: \nFixed players fighting completely different enemies at the same map node, especially when some players were newer and had not seen certain scripted encounters yet.",
     "0.9.1: \nFixed the map vote portraits not appearing, and sometimes being left behind on nodes nobody voted for, after using Restart Level or between acts.",
     "0.9.0: \nFixed desync issues caused by Steam networking.",
-    "0.8.9: \nYou can now save & quit and continue a multiplayer run later. Everyone has to be continuing the same run for this to work (can't carry over singleplayer runs).\nReturning to the main menu after winning/losing a run no longer requires disconnecting and reconnecting to start a new run.\nThe party status panel in combat is now hidden by default. Press F3 to show it.\nLooking at another player's draw/discard/exile pile or library now shows their character portrait on the side, instead of yours.",
-    "0.8.8: \nFixed a desync after using Restart Level.\nMore enemy defenses now scale with multiplayer health, including healing and barrier effects.\nFixed a desync caused by Cirno's Cold.\nFixed intermittent connection issues causing softlocks.",
+    "0.8.9: \nYou can now save \u0026 quit and continue a multiplayer run later. Everyone has to be continuing the same run for this to work (can\u0027t carry over singleplayer runs).\nReturning to the main menu after winning/losing a run no longer requires disconnecting and reconnecting to start a new run.\nThe party status panel in combat is now hidden by default. Press F3 to show it.\nLooking at another player\u0027s draw/discard/exile pile or library now shows their character portrait on the side, instead of yours.",
+    "0.8.8: \nFixed a desync after using Restart Level.\nMore enemy defenses now scale with multiplayer health, including healing and barrier effects.\nFixed a desync caused by Cirno\u0027s Cold.\nFixed intermittent connection issues causing softlocks.",
     "0.8.7: \nYou can now look at another player\u0027s exact hand and game state by right-clicking them. You can also view their draw/discard/exile pile and their library in this state.\nFixed Midsummer Flowers tooltip.\nFixed occasional desync on enemies that summon or spellcard.",
     "0.8.6: \nFixed restarting level at the wrong time causing softlocks. Fixed minor damage desync, especially on Seija.",
     "0.8.5: \nEnemies now get a \u0027Resilient\u0027 status effect in multiplayer. For each player past the first, an enemy loses 1 more Weak, Vulnerable, and Lock On at the end of its turn, and gains 1 less Firepower Down (minimum of 1).",
@@ -50,7 +51,7 @@
     "0.2.0: \nFixed map voting getting stuck in many cases. Tweaked extra turn and end-of-turn behaviors.",
     "0.1.0: \nInitial development build."
   ],
-  "Version": "0.11.7",
+  "Version": "0.11.10",
   "Author": "Rokk",
   "Tags": [
     "Mod",
@@ -65,5 +66,5 @@
     "neo.lbol.frameworks.entitySideloader",
     "neo.lbol.fix.rngFix"
   ],
-  "LastUpdateTime": 1786884455
+  "LastUpdateTime": 1788127247
 }

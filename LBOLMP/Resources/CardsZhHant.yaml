@@ -79,6 +79,8 @@ MpSelfControl:
   Description: |-
     |抉擇|：進入|熱情|或|平靜|。
     {PlayerName}的回合結束時：她處於|熱情|則所有玩家獲得 {Value1} 點|火力|；處於|平靜|則所有玩家獲得 {Value2} 點|格擋|。
+  ExtraDescription1: 進入|熱情|。
+  ExtraDescription2: 進入|平靜|。
 
 MpIceBlock:
   Name: 寒冰屏障
