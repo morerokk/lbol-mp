@@ -559,6 +559,7 @@ namespace LBOLMP.Session
                     existing.MaxHp = incoming.MaxHp;
                     existing.Money = incoming.Money;
                     existing.Power = incoming.Power;
+                    existing.HasRemovableMisfortune = incoming.HasRemovableMisfortune;
                 }
                 else
                 {
@@ -1184,6 +1185,8 @@ namespace LBOLMP.Session
                 return;
             }
 
+            bool misfortune = HasRemovableMisfortune(gameRun);
+
             var local = LocalPlayer;
             if (local != null)
             {
@@ -1191,6 +1194,7 @@ namespace LBOLMP.Session
                 local.MaxHp = gameRun.Player.MaxHp;
                 local.Money = gameRun.Money;
                 local.Power = gameRun.Player.Power;
+                local.HasRemovableMisfortune = misfortune;
             }
 
             MpNet.Send(new PlayerStatusMessage
@@ -1198,8 +1202,20 @@ namespace LBOLMP.Session
                 Hp = gameRun.Player.Hp,
                 MaxHp = gameRun.Player.MaxHp,
                 Money = gameRun.Money,
-                Power = gameRun.Player.Power
+                Power = gameRun.Player.Power,
+                HasRemovableMisfortune = misfortune
             });
+        }
+
+        /// <summary>
+        /// The same question Hina's weighter asks of the local deck. Cheap enough to answer once a
+        /// second: it is a filtered walk of the base deck that stops at the first hit.
+        /// </summary>
+        private static bool HasRemovableMisfortune(LBoL.Core.GameRunController gameRun)
+        {
+            return MpSafe.Run("MpSession.HasRemovableMisfortune",
+                () => gameRun.BaseDeckWithoutUnremovable.Any(c => c.CardType == LBoL.Base.CardType.Misfortune),
+                false);
         }
 
         private static void OnPlayerStatus(PlayerStatusMessage message)
@@ -1214,6 +1230,7 @@ namespace LBOLMP.Session
             player.MaxHp = message.MaxHp;
             player.Money = message.Money;
             player.Power = message.Power;
+            player.HasRemovableMisfortune = message.HasRemovableMisfortune;
             if (!Battle.MpBattleSync.InBattle)
             {
                 UI.MpAllyUnits.SyncOutOfBattle(player);

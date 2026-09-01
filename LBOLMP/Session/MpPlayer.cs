@@ -61,6 +61,11 @@ namespace LBOLMP.Session
         public int Money;
         public int Power;
 
+        /// <summary>
+        /// True when their deck holds a Misfortune that Hina can take away.
+        /// </summary>
+        public bool HasRemovableMisfortune;
+
         public bool IsLocal => Id == Net.MpNet.LocalPlayerId;
         public bool IsHost => Id == Net.MpConstants.HostPlayerId;
 

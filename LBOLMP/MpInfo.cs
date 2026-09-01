@@ -7,7 +7,7 @@
         /// <summary>
         /// Mod version for LBOL MP.
         /// </summary>
-        public const string Version = "0.11.10";
+        public const string Version = "0.11.11";
 
         /// <summary>
         /// The current networking protocol version. Only clients with the same versions can join each other.
@@ -15,7 +15,7 @@
         /// and failures of this type tend to be silent breakage rather than loud error messages.
         /// Simply bump up this version whenever an older version would no longer be able to play nicely with a newer version.
         /// </summary>
-        public const int ProtocolVersion = 58;
+        public const int ProtocolVersion = 59;
 
         /// <summary>
         /// How many people can be in one lobby, the local player included.

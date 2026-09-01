@@ -3,6 +3,7 @@
   "Description": "Coop mod for LBoL. Press F2 in the main menu to open the network menu. Host a session over Steam or over a direct IP connection, have other players join, then everyone start a new run, pick a character and click Confirm. The host sets the difficulty for everyone.",
   "Brief": "Cooperative multiplayer",
   "Changelog": [
+    "0.11.11: \nFixed 'ghost players' bug when players died in events.\nRumia event can only appear if everyone is above 40 P.\nBackup Dancers event can only appear if everyone has at least 11% of their max HP.\nHina event can now appear if anyone in the party has a misfortune. The event is weighted at the percentage of players that have a Misfortune in their deck (so she becomes more likely to show up if multiple people have Misfortunes).",
     "0.11.10: \nFixed missing ZhHant/ZhHans translations for Koishi's multiplayer Self-Control card.",
     "0.11.7: \nImplemented neff\u0027s JP translations (thanks!)\nImplemented Lvalon\u0027s Zh translations (thanks!)\nAdded missing card art.\nEffects that trigger poison immediately are now synced.\nLaevateinn exhibit vulnerable bonus damage is now synced.\nImplemented modlist check for content-adding mod mismatches.\nFixed hand preview not working on gamepad.\nImplemented exhibits in hand preview.\nFixed right-click card inspect not working in hand preview.\nImplemented remaining missing card artwork.",
     "0.11.6: \nRabbit Trickster running away is now synced.\nEMP Device on drones is now synced.\n\nFixed Koishi\u0027s Self-Fulfillment not syncing properly.\nChanged Ability Pile jadebox to always be 1 shared ability play.\nAuto-played partner cards (like with Whim) now select a random target instead of doing nothing.",
@@ -51,7 +52,7 @@
     "0.2.0: \nFixed map voting getting stuck in many cases. Tweaked extra turn and end-of-turn behaviors.",
     "0.1.0: \nInitial development build."
   ],
-  "Version": "0.11.10",
+  "Version": "0.11.11",
   "Author": "Rokk",
   "Tags": [
     "Mod",

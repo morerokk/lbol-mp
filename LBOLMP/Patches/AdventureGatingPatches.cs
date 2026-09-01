@@ -1,6 +1,9 @@
+using System.Linq;
 using HarmonyLib;
 using LBOLMP.Session;
+using LBoL.Base;
 using LBoL.Core;
+using LBoL.EntityLib.Adventures.Shared23;
 using LBoL.EntityLib.Adventures.Stage1;
 using LBoL.EntityLib.Adventures.Stage3;
 
@@ -89,5 +92,58 @@ namespace LBOLMP.Patches
                 __result = 0f;
             }
         }
+    }
+
+    /// <summary>
+    /// Hina's event is now weighted at "what percentage of people in the party have a misfortune in their deck?".
+    /// </summary>
+    [HarmonyPatch(typeof(HinaCollect.HinaCollectWeighter), nameof(HinaCollect.HinaCollectWeighter.WeightFor))]
+    public static class HinaCollectPartyWeightPatch
+    {
+        [HarmonyPostfix]
+        private static void Postfix(GameRunController gameRun, ref float __result)
+        {
+            float weight = MpSafe.Run("HinaCollectPartyWeight", () => PartyShare(gameRun), -1f);
+
+            if (weight >= 0f)
+            {
+                __result = weight;
+            }
+        }
+
+        private static float PartyShare(GameRunController gameRun)
+        {
+            if (!MpSession.IsActive || !MpSession.IsInRun)
+            {
+                return -1f;
+            }
+
+            var self = gameRun?.Player;
+            int total = 0;
+            int carrying = 0;
+
+            foreach (var player in MpSession.ConnectedPlayers)
+            {
+                total++;
+
+                bool mine = player.IsLocal && self != null;
+                if (mine ? HasRemovableMisfortune(gameRun) : player.HasRemovableMisfortune)
+                {
+                    carrying++;
+                }
+            }
+
+            if (total == 0)
+            {
+                return -1f;
+            }
+
+            float weight = carrying / (float)total;
+            MpPlugin.Log.LogInfo($"Hina event: {carrying} of {total} players have a Misfortune, weighting at {weight}");
+            return weight;
+        }
+
+        private static bool HasRemovableMisfortune(GameRunController gameRun) =>
+            gameRun.BaseDeckWithoutUnremovable.Any(c => c.CardType == CardType.Misfortune);
     }
 }
