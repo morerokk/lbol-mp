@@ -28,9 +28,9 @@ MpAbilityPileSe:
 MpSelfControlSe:
   Name: 自我圆满
   Description: |-
-    玩家的的回合结束时，她处于|热情|则所有玩家获得 {Level} 点|火力|；处于|平静|则所有玩家获得 {Count} 点|格挡|。
+    玩家的回合结束时，她处于|热情|则所有玩家获得 {Level} 点|火力|；处于|平静|则所有玩家获得 {Count} 点|格挡|。
   Brief: |-
-    玩家的的回合结束时，她处于|热情|则所有玩家获得 {Level} 点|火力|；处于|平静|则所有玩家获得 {Count} 点|格挡|。
+    玩家的回合结束时，她处于|热情|则所有玩家获得 {Level} 点|火力|；处于|平静|则所有玩家获得 {Count} 点|格挡|。
 
 MpFrontalDefenseTalismanSe:
   Name: 前线防御护身符
