@@ -21,7 +21,7 @@ MpAbilityPileSe:
   Brief: 能力カードのコストが{Mana}増加する。
 
 MpSelfControlSe:
-  Name: 自己実現
+  Name: エゴコントロール
   Description: |-
     プレイヤーのターン終了時、|熱情|状態ならすべてのプレイヤーは|火力|{Level}得る。
     |平静|状態なら、すべてのプレイヤーは|ブロック|{Count}得る。

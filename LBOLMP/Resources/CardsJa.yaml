@@ -1,6 +1,14 @@
 # Note: "Partner" is as in "Partner" from Imperishable Night.
 # This refers to other players in multiplayer.
 
+MpDefibrillator:
+  Name: 蘇生装置
+  Description: |-
+    戦闘不能になったすべての|仲間|を、{Value1}%のライフで復活させる。
+    {Value2}ターンの間、ライフを失わなくなる。
+    |消耗品【{DeckCounter}】|
+
+
 MpDonateBlock:
   Name: 遠隔結界
   Description: |-
@@ -22,16 +30,16 @@ MpWhim:
   Name: 気まぐれ
   Description: |-
     |仲間|を1人選択する。
-    そのプレイヤーは山札のいちばん上のカードをプレイする。
+    その仲間は山札の一番上のカードをプレイする。
   UpgradedDescription: |-
     |仲間|を1人選択する。
-    そのプレイヤーは山札のいちばん上から{Value1}枚のカードをプレイする。
+    その仲間は山札の一番上から{Value1}枚のカードをプレイする。
 
 MpBorrowTechniques:
   Name: 他者の秘術
   Description: |-
     |仲間|を1人選択する。
-    そのプレイヤーのカードプールのランダムな{Value1}枚のカードから1枚選び、手札に追加する。それは|臨時コスト|{Mana}で|廃棄|と|虚無|を持つ。
+    その仲間のカードプールのランダムな{Value1}枚のカードから1枚選び、手札に追加する。それは|臨時コスト|{Mana}で|廃棄|と|虚無|を持つ。
 
 
 MpBladeSymphony:
@@ -43,7 +51,7 @@ MpBladeSymphony:
 MpOffering:
   Name: 無主への供物
   Description: |-
-    次に使用する{Value1:plural one='能力カード' other='% 能力カード'}は、あなたの|仲間|全員も使用する。
+    次に使用する{Value1:plural one='能力カード' other='%枚の能力カード'}は、あなたの|仲間|全員も使用する。
   FlavorText: |-
     タダで与えたものは、真に与えたものではない。とはいえ、金まで失わせるのは、設定のためにゲーム性を犠牲にするというものだ。
 
@@ -70,10 +78,10 @@ MpRewind:
 
 
 MpIntrusiveThought:
-  Name: 侵入思考
+  Name: 思考侵入
   Description: |-
     |仲間|を1人選択する。
-    手札からカードを１枚捨てる。
+    手札からカードを1枚捨てる。
     選択された仲間はそのカードをプレイする。
   DetailText: |-
     |複製|と道具は選択できない。
@@ -83,19 +91,19 @@ MpIntrusiveThought:
 MpSelfControl:
   Name: エゴコントロール
   Description: |-
-    選択: |熱情|又は|平静|に入る。
+    |チョイス|: |熱情|又は|平静|に入る。
     {PlayerName}のターン終了時、
     |熱情|状態であればすべてのプレイヤーは|火力|{Value1} を得る。
     |平静|状態であればすべてのプレイヤーは{Value2}|ブロック|を得る。
-  ExtraDescription1: '|熱情|に入る。'
-  ExtraDescription2: '|平静|に入る。'
+  ExtraDescription1: "|熱情|に入る。"
+  ExtraDescription2: "|平静|に入る。"
 
 MpIceBlock:
   Name: アイスブロック
   Description: |-
-    任意のプレイヤーを選ぶ。そのプレイヤーは1ターンの間、ライフを失わない。
-    そのプレイヤーの|ブロック|、|バリア|、|グレイズ|をすべて失わせる。
-    このターン、そのプレイヤーの手札を保持し、そのターンを終了する。
+    任意のプレイヤーを選ぶ。その仲間は1ターンの間、ライフを失わない。
+    その仲間の|ブロック|、|バリア|、|グレイズ|をすべて失わせる。
+    このターン、その仲間の手札を保持し、そのターンを終了する。
 
 
 MpEntrust:
@@ -103,7 +111,7 @@ MpEntrust:
   Description: |-
     |仲間|を選択する。
     すべての|火力|と|臨時火力|を失う。
-    そのプレイヤーはそれに等しい|火力|と|臨時火力|を得る。
+    その仲間はそれに等しい|火力|と|臨時火力|を得る。
 
 
 MpYinYangDistribution:
@@ -124,7 +132,7 @@ MpDivergingTimePeek:
   Name: 分岐世界の覗き見
   Description: |-
     |仲間|を選択する。
-    そのプレイヤーの廃棄場からカードを1枚加える。それは|臨時コスト|{Mana}で|廃棄|と|虚無|を持つ。
+    その仲間の廃棄場からカードを1枚加える。それは|臨時コスト|{Mana}で|廃棄|と|虚無|を持つ。
   DetailText: |-
     |複製|は選択できない。
     あなたの手札に加えられるカードは|複製|となる。
