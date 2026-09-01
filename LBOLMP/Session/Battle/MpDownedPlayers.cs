@@ -431,7 +431,7 @@ namespace LBOLMP.Session.Battle
 
             if (MpEventBattle.IsFighting(MpNet.LocalPlayerId))
             {
-                MpEventBattle.AbortLocalEvent();
+                MpEventBattle.AbortLocalEvent("The event's fight was lost, canceling event rewards");
             }
 
             battle.InstantWin();

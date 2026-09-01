@@ -240,7 +240,7 @@ namespace LBOLMP.Session.Battle
             _fightResolved = true;
         }
 
-        public static void AbortLocalEvent()
+        public static void AbortLocalEvent(string why)
         {
             if (LocalEventAborted)
             {
@@ -248,7 +248,7 @@ namespace LBOLMP.Session.Battle
             }
 
             LocalEventAborted = true;
-            MpPlugin.Log.LogInfo("The event's fight was lost; the rest of this event is forfeit");
+            MpPlugin.Log.LogInfo(why);
         }
 
         /// <summary>Called when any dialogue ends, so the abort cannot leak into the next node/event/whatever.</summary>

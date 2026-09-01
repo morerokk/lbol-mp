@@ -408,6 +408,7 @@ namespace LBOLMP.Session
             MpModContent.Reset();
             MpPlayerExhibits.Reset();
             MpCardOwner.Reset();
+            MpEventDeaths.Reset();
             Battle.MpBattleSync.Reset();
         }
 
@@ -443,6 +444,7 @@ namespace LBOLMP.Session
             MpRunCredit.Tick();
             MpModContent.Tick();
             MpPlayerExhibits.Tick();
+            MpEventDeaths.Tick();
         }
 
         //--
