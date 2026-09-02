@@ -76,6 +76,9 @@ SettingReviveHpHelp: "How much of their max health a defeated player comes back 
 SettingResilienceName: "Enemies are Resilient"
 SettingResilienceHelp: "Give every enemy the Resilient status effect. For each extra player, enemies lose debuffs faster. Disable this to make debuffs decay as fast as in single player."
 SettingMultiplayerCardsName: "Enable multiplayer cards"
+SettingSharedPartyPositionsName: "Show real party positions"
+SettingPlayerNamesOnCardsName: "Show player names on cards"
+SettingsTabTitle: "Multiplayer"
 
 # ---- corner HUD
 HudParty: "Party ({0})"

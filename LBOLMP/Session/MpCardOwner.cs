@@ -80,7 +80,9 @@ namespace LBOLMP.Session
             if (MpPlugin.ShowPlayerNamesOnCards.Value)
             {
                 string name = ours ? MpSession.LocalName : MpSession.Get(owner)?.Name;
-                return string.IsNullOrWhiteSpace(name) ? null : Build(name);
+                return string.IsNullOrWhiteSpace(name)
+                    ? null
+                    : Build(name, MpSession.Get(owner)?.CharacterId);
             }
 
             // Our own cards already read correctly.
@@ -100,23 +102,34 @@ namespace LBOLMP.Session
                 return cached;
             }
 
-            var config = MpSafe.Run("MpCardOwner.CharacterName",
-                () => PlayerUnitConfig.FromId(characterId), null);
-
-            var name = UnitNameTable.GetName(characterId, config?.NarrativeColor);
+            var name = UnitNameTable.GetName(characterId, NarrativeColor(characterId));
             CharacterNames[characterId] = name;
             return name;
         }
 
-        private static UnitName Build(string name)
+        private static string NarrativeColor(string characterId)
         {
-            if (PlayerNames.TryGetValue(name, out var cached))
+            if (string.IsNullOrEmpty(characterId))
+            {
+                return null;
+            }
+
+            return MpSafe.Run("MpCardOwner.NarrativeColor",
+                () => PlayerUnitConfig.FromId(characterId)?.NarrativeColor, null);
+        }
+
+        private static UnitName Build(string name, string characterId)
+        {
+            // Keyed by both, since the same person on a different character is a different colour.
+            string key = name + "\n" + characterId;
+
+            if (PlayerNames.TryGetValue(key, out var cached))
             {
                 return cached;
             }
 
-            var built = new UnitName(name);
-            PlayerNames[name] = built;
+            var built = new UnitName(name) { Color = NarrativeColor(characterId) };
+            PlayerNames[key] = built;
             return built;
         }
 
