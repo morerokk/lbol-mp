@@ -560,6 +560,7 @@ namespace LBOLMP.Session
                     existing.Money = incoming.Money;
                     existing.Power = incoming.Power;
                     existing.HasRemovableMisfortune = incoming.HasRemovableMisfortune;
+                    existing.MaxPower = incoming.MaxPower;
                 }
                 else
                 {
@@ -1186,6 +1187,7 @@ namespace LBOLMP.Session
             }
 
             bool misfortune = HasRemovableMisfortune(gameRun);
+            int maxPower = MaxPowerOf(gameRun);
 
             var local = LocalPlayer;
             if (local != null)
@@ -1195,6 +1197,7 @@ namespace LBOLMP.Session
                 local.Money = gameRun.Money;
                 local.Power = gameRun.Player.Power;
                 local.HasRemovableMisfortune = misfortune;
+                local.MaxPower = maxPower;
             }
 
             MpNet.Send(new PlayerStatusMessage
@@ -1203,7 +1206,8 @@ namespace LBOLMP.Session
                 MaxHp = gameRun.Player.MaxHp,
                 Money = gameRun.Money,
                 Power = gameRun.Player.Power,
-                HasRemovableMisfortune = misfortune
+                HasRemovableMisfortune = misfortune,
+                MaxPower = maxPower
             });
         }
 
@@ -1216,6 +1220,11 @@ namespace LBOLMP.Session
             return MpSafe.Run("MpSession.HasRemovableMisfortune",
                 () => gameRun.BaseDeckWithoutUnremovable.Any(c => c.CardType == LBoL.Base.CardType.Misfortune),
                 false);
+        }
+
+        private static int MaxPowerOf(LBoL.Core.GameRunController gameRun)
+        {
+            return MpSafe.Run("MpSession.MaxPower", () => gameRun.Player.PowerPerLevel, 0);
         }
 
         private static void OnPlayerStatus(PlayerStatusMessage message)
@@ -1231,6 +1240,7 @@ namespace LBOLMP.Session
             player.Money = message.Money;
             player.Power = message.Power;
             player.HasRemovableMisfortune = message.HasRemovableMisfortune;
+            player.MaxPower = message.MaxPower;
             if (!Battle.MpBattleSync.InBattle)
             {
                 UI.MpAllyUnits.SyncOutOfBattle(player);

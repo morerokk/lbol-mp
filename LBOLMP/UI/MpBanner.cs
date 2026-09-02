@@ -1,4 +1,5 @@
 using System;
+using LBoL.Presentation.I10N;
 using LBoL.Presentation.UI;
 using LBoL.Presentation.UI.Panels;
 using TMPro;
@@ -106,9 +107,19 @@ namespace LBOLMP.UI
 
             var clone = UnityEngine.Object.Instantiate(template, parent, false);
             clone.gameObject.name = _name;
-            clone.gameObject.SetActive(true);
+            clone.gameObject.SetActive(false);
 
-            clone.fontSize = template.fontSize * _fontScale;
+            float size = template.fontSize * _fontScale;
+            clone.fontSize = size;
+
+            // Re-set size when enabled
+            var localized = clone.GetComponent<LocalizedText>();
+            if (localized != null)
+            {
+                localized._originSize = size;
+            }
+
+            clone.gameObject.SetActive(true);
 
             var rect = clone.rectTransform;
             rect.anchorMin = _anchor;

@@ -79,6 +79,12 @@ namespace LBOLMP
         SettingPlayerNamesOnCardsName,
         SettingsTabTitle,
 
+        // ------------------------------------------------------------------ scoreboard
+        ScoreboardName,
+        ScoreboardHp,
+        ScoreboardPower,
+        ScoreboardGold,
+
         // ------------------------------------------------------------------ corner HUD
         HudParty,
         HudPlayerRow,

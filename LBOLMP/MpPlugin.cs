@@ -27,6 +27,7 @@ namespace LBOLMP
         public static ConfigEntry<string> PlayerName;
         public static ConfigEntry<KeyCode> LobbyHotkey;
         public static ConfigEntry<KeyCode> DiagnosticsHotkey;
+        public static ConfigEntry<KeyCode> ScoreboardHotkey;
         public static ConfigEntry<bool> SharedPartyPositions;
         public static ConfigEntry<bool> ShowPlayerNamesOnCards;
 
@@ -102,6 +103,8 @@ namespace LBOLMP
                 "The name other players see you as.");
             LobbyHotkey = Config.Bind("Interface", nameof(LobbyHotkey), KeyCode.F2,
                 "Key that toggles the multiplayer lobby overlay.");
+            ScoreboardHotkey = Config.Bind("Interface", nameof(ScoreboardHotkey), KeyCode.Tab,
+                "Key held down to show the party scoreboard.");
             DiagnosticsHotkey = Config.Bind("Interface", nameof(DiagnosticsHotkey), KeyCode.F3,
                 "Key that toggles the combat sync diagnostics overlay.");
             SharedPartyPositions = Config.Bind("Interface", nameof(SharedPartyPositions), false,
@@ -147,6 +150,8 @@ namespace LBOLMP
                     Log.LogInfo("Combat sync state: " + Session.Battle.MpBattleSync.DescribeTurnState());
                 }
             }
+
+            UI.MpScoreboard.Tick();
 
             Net.SteamNet.EnsureCallbacks();
             UI.MpPortraits.Warm();

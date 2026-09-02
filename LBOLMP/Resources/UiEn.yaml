@@ -80,6 +80,12 @@ SettingSharedPartyPositionsName: "Show real party positions"
 SettingPlayerNamesOnCardsName: "Show player names on cards"
 SettingsTabTitle: "Multiplayer"
 
+# ---- party scoreboard
+ScoreboardName: "Player"
+ScoreboardHp: "Life"
+ScoreboardPower: "Power"
+ScoreboardGold: "Gold"
+
 # ---- corner HUD
 HudParty: "Party ({0})"
 HudPlayerRow: "{0}  {1}/{2}{3}"

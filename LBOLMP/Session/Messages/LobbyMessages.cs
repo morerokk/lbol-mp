@@ -69,6 +69,7 @@ namespace LBOLMP.Session.Messages
                 w.Int(player.Money);
                 w.Int(player.Power);
                 w.Bool(player.HasRemovableMisfortune);
+                w.Int(player.MaxPower);
             }
         }
 
@@ -91,7 +92,8 @@ namespace LBOLMP.Session.Messages
                     MaxHp = r.Int(),
                     Money = r.Int(),
                     Power = r.Int(),
-                    HasRemovableMisfortune = r.Bool()
+                    HasRemovableMisfortune = r.Bool(),
+                    MaxPower = r.Int()
                 });
             }
         }
@@ -422,6 +424,9 @@ namespace LBOLMP.Session.Messages
         /// <summary>See <see cref="MpPlayer.HasRemovableMisfortune"/>.</summary>
         public bool HasRemovableMisfortune;
 
+        /// <summary>See <see cref="MpPlayer.MaxPower"/>.</summary>
+        public int MaxPower;
+
         public override void Write(NetWriter w)
         {
             w.Int(Hp);
@@ -429,6 +434,7 @@ namespace LBOLMP.Session.Messages
             w.Int(Money);
             w.Int(Power);
             w.Bool(HasRemovableMisfortune);
+            w.Int(MaxPower);
         }
 
         public override void Read(NetReader r)
@@ -438,6 +444,7 @@ namespace LBOLMP.Session.Messages
             Money = r.Int();
             Power = r.Int();
             HasRemovableMisfortune = r.Bool();
+            MaxPower = r.Int();
         }
     }
 

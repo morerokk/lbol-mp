@@ -1,6 +1,6 @@
 {
   "name": "LBOLMP",
-  "version_number": "0.11.12",
+  "version_number": "0.11.13",
   "website_url": "",
   "description": "Adds co-op multiplayer to LBoL, similar to Slay the Spire 2. F2 to open multiplayer menu.",
   "dependencies": [

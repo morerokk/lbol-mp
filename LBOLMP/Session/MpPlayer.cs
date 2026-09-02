@@ -66,6 +66,9 @@ namespace LBOLMP.Session
         /// </summary>
         public bool HasRemovableMisfortune;
 
+        /// <summary>What their spell card costs.</summary>
+        public int MaxPower;
+
         public bool IsLocal => Id == Net.MpNet.LocalPlayerId;
         public bool IsHost => Id == Net.MpConstants.HostPlayerId;
 
