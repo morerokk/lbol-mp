@@ -38,6 +38,12 @@ namespace LBOLMP.UI
 
         private void OnDestroy()
         {
+            MpSafe.Run("RemotePlayerBoard.OnDestroy", () =>
+            {
+                Waiting.Hide();
+                Standing.Hide();
+            });
+
             if (_instance == this)
             {
                 _instance = null;
@@ -75,10 +81,38 @@ namespace LBOLMP.UI
             EnsureStyles();
             DrawSeatPanels();
             DrawInspectBanner();
-            DrawDownedBanner();
-            DrawWaitingBanner();
             DrawDiagnostics();
         }
+
+        private static readonly MpBanner Waiting =
+            new MpBanner("MpWaitingBanner", new Vector2(0.5f, 0.22f), 0.5f, 2.3f);
+
+        private void Update()
+        {
+            MpSafe.Run("RemotePlayerBoard.Banners", () =>
+            {
+                if (!MpBattleSync.InBattle || !MpSession.IsActive)
+                {
+                    Waiting.Hide();
+                    Standing.Hide();
+                    return;
+                }
+
+                Waiting.Show(WaitingText());
+
+                if (!MpDownedPlayers.OutOfFight)
+                {
+                    Standing.Hide();
+                    return;
+                }
+
+                Standing.Show(
+                    L10n.Get(MpDownedPlayers.LocalDown ? MpText.BoardDefeated : MpText.BoardSittingOut));
+            });
+        }
+
+        private static readonly MpBanner Standing =
+            new MpBanner("MpStandingBanner", new Vector2(0.5f, 0.30f), 0.5f, 2.3f);
 
         /// <summary>
         /// Say whose hand is on the board, and how to get your own back.
@@ -136,45 +170,6 @@ namespace LBOLMP.UI
                 GUI.Label(new Rect(area.x + 8f, area.y + 4f + i * 16f, area.width - 16f, 16f),
                     lines[i], _smallStyle);
             }
-        }
-
-        private void DrawDownedBanner()
-        {
-            if (!MpDownedPlayers.OutOfFight)
-            {
-                return;
-            }
-
-            string text = L10n.Get(MpDownedPlayers.LocalDown
-                ? MpText.BoardDefeated
-                : MpText.BoardSittingOut);
-
-            var size = MpGui.Measure(_nameStyle, text);
-            var rect = new Rect((Screen.width - size.x) * 0.5f - 16f, Screen.height * 0.70f,
-                size.x + 32f, size.y + 14f);
-
-            GUI.color = new Color(0.25f, 0f, 0.04f, 0.82f);
-            GUI.DrawTexture(rect, _white);
-            GUI.color = Color.white;
-            GUI.Label(new Rect(rect.x + 16f, rect.y + 7f, size.x, size.y), text, _nameStyle);
-        }
-
-        private void DrawWaitingBanner()
-        {
-            string text = MpSafe.Run("WaitingBanner", WaitingText, null);
-            if (text == null)
-            {
-                return;
-            }
-
-            var size = MpGui.Measure(_nameStyle, text);
-            var rect = new Rect((Screen.width - size.x) * 0.5f - 16f, Screen.height * 0.78f,
-                size.x + 32f, size.y + 14f);
-
-            GUI.color = new Color(0f, 0f, 0f, 0.7f);
-            GUI.DrawTexture(rect, _white);
-            GUI.color = Color.white;
-            GUI.Label(new Rect(rect.x + 16f, rect.y + 7f, size.x, size.y), text, _nameStyle);
         }
 
         private static string WaitingText()
