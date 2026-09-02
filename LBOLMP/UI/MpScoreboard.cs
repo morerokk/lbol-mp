@@ -11,17 +11,6 @@ using UnityEngine.UI;
 
 namespace LBOLMP.UI
 {
-    /// <summary>
-    /// The party scoreboard, on screen for as long as its key is held.
-    /// </summary>
-    /// <remarks>
-    /// Built into the game's own canvas rather than a canvas of the mod's, so the cloned text is
-    /// scaled by the same CanvasScaler it was authored against. Sizes here are in that canvas's
-    /// units, which are roughly a 3840-wide reference, not screen pixels.
-    ///
-    /// The row text is copied from a settings row label, which is the game's plain UI body face
-    /// rather than the display font used by the turn banner.
-    /// </remarks>
     internal static class MpScoreboard
     {
         private static RectTransform _root;
@@ -79,7 +68,6 @@ namespace LBOLMP.UI
                 _root.gameObject.SetActive(true);
             }
 
-            // Cheap enough to run every frame: each one sets a single string.
             foreach (var update in Updaters)
             {
                 update();
@@ -100,8 +88,6 @@ namespace LBOLMP.UI
             var notifier = TryPanel<BattleNotifier>();
             var settings = TryPanel<SettingPanel>();
 
-            // Neither panel exists while the game is loading a scene. Nothing is wrong, so this
-            // must not give up: it simply tries again on the next frame the key is held.
             if (notifier == null || settings == null)
             {
                 return false;
@@ -111,8 +97,6 @@ namespace LBOLMP.UI
             var label = settings.transform.Find(TemplatePath);
             var template = label == null ? null : label.GetComponent<TextMeshProUGUI>();
 
-            // Both panels are up but are not laid out the way this expects, which retrying cannot
-            // fix. This is the only case worth giving up on.
             if (parent == null || template == null)
             {
                 MpPlugin.Log.LogWarning("Could not find the pieces to build the scoreboard from; it stays off");
@@ -122,7 +106,6 @@ namespace LBOLMP.UI
 
             _textTemplate = template;
 
-            // A fresh table has no rows, whatever the last set of players was.
             _builtFor = string.Empty;
 
             _root = Panel("MpScoreboard", parent);
@@ -131,7 +114,6 @@ namespace LBOLMP.UI
             _root.offsetMin = Vector2.zero;
             _root.offsetMax = Vector2.zero;
 
-            // The dim. Not a raycast target: holding a key should not swallow clicks underneath.
             var dim = _root.gameObject.AddComponent<Image>();
             dim.color = new Color(0f, 0f, 0f, 0.72f);
             dim.raycastTarget = false;
@@ -320,17 +302,8 @@ namespace LBOLMP.UI
         // borrowed pieces
         //--
 
-        /// <summary>
-        /// A settings row label, which is the game's ordinary UI text rather than the display font
-        /// the turn banner uses. The board itself hangs off the turn banner's layer, so it draws
-        /// above the board and inherits the game canvas's scaling.
-        /// </summary>
         private const string TemplatePath = "Root/Preference/LeftPanel/TurboMode/KeyTmp";
 
-        /// <summary>
-        /// <c>UiManager.GetPanel</c> throws rather than returning null for a panel that has not been
-        /// loaded, and this runs every frame including on screens where nothing is up yet.
-        /// </summary>
         private static TPanel TryPanel<TPanel>() where TPanel : UiPanelBase
         {
             try
