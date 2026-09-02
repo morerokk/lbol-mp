@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
@@ -5,7 +6,6 @@ using LBOLMP.Entities.JadeBoxes;
 using LBOLMP.Net;
 using LBOLMP.Session;
 using LBoL.Core;
-using LBoL.Core.Randoms;
 using LBoL.EntityLib.Adventures;
 
 namespace LBOLMP.Patches
@@ -35,72 +35,34 @@ namespace LBOLMP.Patches
         }
     }
 
-    // Disable Eirin's "Lose all money, gain a random rare exhibit" option with share the wealth
-    [HarmonyPatch(typeof(Debut), nameof(Debut.RollBonus))]
-    public static class DebutTradeOptionPatch
+    // Eirin's [Trade] option asks for all your money.
+    // If money is shared, this becomes a problem.
+    // So therefore, the trade is now priced at "this character's initial money" rather than "ALL your money".
+    [HarmonyPatch(typeof(Debut), "InitVariables")]
+    public static class DebutTradePricePatch
     {
-        /// <summary>[Trade], the third of the six options, which the yarn refers to as Bonus3.</summary>
-        private const int TradeOption = 2;
+        private const string YarnPriceVar = "$allMoney";
 
-        private const int OptionCount = 6;
-        private const int BonusCount = 2;
+        [HarmonyPostfix]
+        private static void Postfix(Debut __instance) =>
+            MpSafe.Run("DebutTradePricePatch", () => Reprice(__instance));
 
-        [HarmonyPrefix]
-        private static bool Prefix(Debut __instance) =>
-            !MpSafe.Run("DebutTradeOption", () => RollWithoutTrade(__instance), false);
-
-        private static bool RollWithoutTrade(Debut debut)
+        private static void Reprice(Debut debut)
         {
             var gameRun = debut?.GameRun;
             if (gameRun == null || !MpNet.IsOnline || !gameRun.HasJadeBox<MpShareTheWealth>())
             {
-                return false;
+                return;
             }
-
-            var pool = new UniqueRandomPool<int>(false);
-            for (int option = 0; option < OptionCount; option++)
-            {
-                if (option != TradeOption)
-                {
-                    pool.Add(option, 1f);
-                }
-            }
-
-            var picks = pool.SampleMany(gameRun.DebutRng, BonusCount, true);
-            debut._bonusNos = picks;
 
             var storage = debut.Storage;
-            storage.SetValue("$bonusNo1", picks[0]);
-            storage.SetValue("$bonusNo2", picks[1]);
-
-            for (int option = 0; option < OptionCount; option++)
+            if (storage == null)
             {
-                debut._optionTitles[option] =
-                    storage.TryGetValue($"$option{option + 1}Source", out string title) ? title : string.Empty;
+                return;
             }
 
-            storage.SetValue("$bonusOption1", debut._optionTitles[picks[0]]);
-            storage.SetValue("$bonusOption2", debut._optionTitles[picks[1]]);
-
-            for (int slot = 0; slot < BonusCount; slot++)
-            {
-                storage.SetValue($"$bonusTarget{slot + 1}", $"Bonus{picks[slot] + 1}");
-
-                switch (picks[slot])
-                {
-                    case 0:
-                        storage.SetValue("$tipUncommonCard", slot + 3);
-                        break;
-                    case 1:
-                        storage.SetValue("$tipRareCard", slot + 3);
-                        break;
-                    case 5:
-                        storage.SetValue("$tipTransformCard", slot + 3);
-                        break;
-                }
-            }
-
-            return true;
+            int share = Math.Max(0, Math.Min(gameRun.Player?.Config.InitialMoney ?? 0, gameRun.Money));
+            storage.SetValue(YarnPriceVar, share);
         }
     }
 }
