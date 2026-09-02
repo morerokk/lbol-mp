@@ -4,6 +4,7 @@ using System.Linq;
 using HarmonyLib;
 using LBOLMP.Net;
 using LBOLMP.Session;
+using LBoL.ConfigData;
 using LBoL.Core;
 using LBoL.Core.Cards;
 using LBoL.Base;
@@ -173,11 +174,14 @@ namespace LBOLMP.Patches
 
             RepairUsOwner(pending.Player);
 
+            var money = MpSafe.Run("PooledStartingMoney",
+                () => PooledStartingMoney(pending, jadeBoxes), pending.InitMoneyOverride);
+
             _allowThrough = true;
             try
             {
                 GameMaster.StartGame(seed, difficulty, pending.Puzzles, pending.Player, pending.PlayerType,
-                    pending.InitExhibit, pending.InitMoneyOverride, pending.Deck, pending.Stages,
+                    pending.InitExhibit, money, pending.Deck, pending.Stages,
                     pending.DebutAdventureType, jadeBoxes, pending.GameMode,
                     pending.ShowRandomResult);
             }
@@ -185,6 +189,34 @@ namespace LBOLMP.Patches
             {
                 _allowThrough = false;
             }
+        }
+
+        // Makes Share the Wealth work with different amounts of character starting money
+        private static int? PooledStartingMoney(PendingRun pending, List<JadeBox> jadeBoxes)
+        {
+            if (!jadeBoxes.Any(jadeBox => jadeBox.Id == nameof(Entities.JadeBoxes.MpShareTheWealth)))
+            {
+                return pending.InitMoneyOverride;
+            }
+
+            int pot = pending.InitMoneyOverride ?? pending.Player?.Config.InitialMoney ?? 0;
+
+            foreach (var player in MpSession.ConnectedPlayers.Where(p => !p.IsLocal))
+            {
+                var config = PlayerUnitConfig.FromId(player.CharacterId);
+                if (config == null)
+                {
+                    MpPlugin.Log.LogWarning(
+                        $"{player.Name} is playing '{player.CharacterId}', which this game does not have; "
+                        + "their starting money is not in the pot");
+                    continue;
+                }
+
+                pot += config.InitialMoney;
+            }
+
+            MpPlugin.Log.LogInfo($"Share the Wealth: the party opens on a pooled {pot} gold");
+            return pot;
         }
 
         /// <summary>

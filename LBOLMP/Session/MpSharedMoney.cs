@@ -1,9 +1,12 @@
+using System;
 using System.Linq;
 using LBOLMP.Entities.JadeBoxes;
 using LBOLMP.Net;
 using LBOLMP.Session.Messages;
 using LBoL.Core;
 using LBoL.Presentation;
+using LBoL.Presentation.UI;
+using LBoL.Presentation.UI.Panels;
 
 namespace LBOLMP.Session
 {
@@ -69,6 +72,27 @@ namespace LBOLMP.Session
             }
 
             Announce(gameRun);
+            MpSafe.Run("MpSharedMoney.RefreshShop", RefreshShop);
+        }
+
+        // Fixes the shop having stale data if other players buy something.
+        private static void RefreshShop()
+        {
+            ShopPanel shop;
+            try
+            {
+                shop = UiManager.GetPanel<ShopPanel>();
+            }
+            catch (InvalidOperationException)
+            {
+                // This is really ass, but basically if there is no shop panel then we can ignore it.
+                return;
+            }
+
+            if (shop != null && shop.IsVisible)
+            {
+                shop.SetShopAfterBuying();
+            }
         }
 
         /// <summary>
