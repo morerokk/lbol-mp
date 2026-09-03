@@ -80,6 +80,9 @@ SettingSharedPartyPositionsName: "実際のパーティ位置を表示"
 SettingPlayerNamesOnCardsName: "カードにプレイヤー名を表示"
 SettingsTabTitle: "マルチプレイヤー"
 
+# ---- main menu
+MainMenuMultiplayer: "マルチプレイヤー"
+
 # ---- party scoreboard
 ScoreboardName: "プレイヤー"
 ScoreboardHp: "ライフ"

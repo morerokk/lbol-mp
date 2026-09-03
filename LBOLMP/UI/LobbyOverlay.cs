@@ -26,6 +26,8 @@ namespace LBOLMP.UI
         // Roughly one line of the roster.
         private const float RosterRowHeight = 20f;
 
+        private static LobbyOverlay _instance;
+
         private bool _visible;
         private Rect _window = new Rect(Margin, Margin, 460f,
             380f + MpInfo.MaxPlayers * RosterRowHeight);
@@ -35,11 +37,45 @@ namespace LBOLMP.UI
         private GUIStyle _headerStyle;
         private GUIStyle _rowStyle;
         private GUIStyle _hudStyle;
+        private GUIStyle _closeStyle;
 
         /// <summary>
         /// The Balance section of the config, opened from the button at the bottom of this window.
         /// </summary>
         private readonly BalanceSettingsWindow _balance = new BalanceSettingsWindow();
+
+        private void Awake() => _instance = this;
+
+        private void OnDestroy()
+        {
+            if (_instance == this)
+            {
+                _instance = null;
+            }
+        }
+
+        /// <summary>True when the lobby window is on screen.</summary>
+        internal static bool IsOpen => _instance != null && _instance._visible;
+
+        internal static void Toggle()
+        {
+            if (_instance == null)
+            {
+                return;
+            }
+
+            _instance.SetVisible(!_instance._visible);
+        }
+
+        private void SetVisible(bool visible)
+        {
+            if (visible)
+            {
+                AnchorRight();
+            }
+
+            _visible = visible;
+        }
 
         private void Start()
         {
@@ -52,11 +88,7 @@ namespace LBOLMP.UI
         {
             if (Input.GetKeyDown(MpPlugin.LobbyHotkey.Value))
             {
-                if (!_visible)
-                {
-                    AnchorRight();
-                }
-                _visible = !_visible;
+                SetVisible(!_visible);
             }
         }
 
@@ -88,6 +120,14 @@ namespace LBOLMP.UI
                 alignment = TextAnchor.UpperLeft,
                 normal = { textColor = Color.white }
             });
+
+            _closeStyle = new GUIStyle(GUI.skin.button)
+            {
+                fontSize = 12,
+                alignment = TextAnchor.MiddleCenter,
+                padding = new RectOffset(0, 0, 0, 0),
+                margin = new RectOffset(0, 0, 0, 0)
+            };
         }
 
         private void OnGUI()
@@ -254,7 +294,24 @@ namespace LBOLMP.UI
                 GUILayout.Label(MpSession.StatusLine, _rowStyle);
             }
 
+            DrawCloseButton();
+
             GUI.DragWindow(new Rect(0f, 0f, 10000f, 20f));
+        }
+
+        private const float CloseSize = 18f;
+
+        /// <summary>
+        /// The X in the top right.
+        /// </summary>
+        private void DrawCloseButton()
+        {
+            var rect = new Rect(_window.width - CloseSize - 4f, 2f, CloseSize, CloseSize);
+
+            if (GUI.Button(rect, "x", _closeStyle))
+            {
+                SetVisible(false);
+            }
         }
 
         private void DrawOfflineControls()

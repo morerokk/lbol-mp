@@ -80,6 +80,9 @@ SettingSharedPartyPositionsName: "Show real party positions"
 SettingPlayerNamesOnCardsName: "Show player names on cards"
 SettingsTabTitle: "Multiplayer"
 
+# ---- main menu
+MainMenuMultiplayer: "Multiplayer"
+
 # ---- party scoreboard
 ScoreboardName: "Player"
 ScoreboardHp: "Life"

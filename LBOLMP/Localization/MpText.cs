@@ -79,6 +79,9 @@ namespace LBOLMP
         SettingPlayerNamesOnCardsName,
         SettingsTabTitle,
 
+        // ------------------------------------------------------------------ main menu
+        MainMenuMultiplayer,
+
         // ------------------------------------------------------------------ scoreboard
         ScoreboardName,
         ScoreboardHp,

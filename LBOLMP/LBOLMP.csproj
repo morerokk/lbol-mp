@@ -7,7 +7,7 @@
     <RootNamespace>LBOLMP</RootNamespace>
     <!-- The one real version. tools/Sync-Version.ps1 copies it into MpInfo.cs,
          manifest.json and modinfo.json, and the build runs it. -->
-    <Version>0.11.14</Version>
+    <Version>0.11.15</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <DebugType>none</DebugType>
