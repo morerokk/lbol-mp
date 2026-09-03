@@ -21,7 +21,7 @@ MpWhim:
   Name: 心血来潮
   Description: |-
     选择一名|队友|。
-    她打出抽牌堆顶的牌。
+    她打出抽牌堆顶的 {Value1} 张牌。
   UpgradedDescription: |-
     选择一名|队友|。
     她打出抽牌堆顶的 {Value1} 张牌。

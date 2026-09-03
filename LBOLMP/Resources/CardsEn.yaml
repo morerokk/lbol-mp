@@ -27,7 +27,7 @@ MpWhim:
   Name: Whim
   Description: |-
     Choose a |Partner|.
-    They play the top card of their draw pile.
+    They play the top {Value1} cards of their draw pile.
   UpgradedDescription: |-
     Choose a |Partner|.
     They play the top {Value1} cards of their draw pile.
