@@ -43,6 +43,8 @@ namespace LBOLMP.Entities.Cards
 
             config.Illustrator = "Delly~";
 
+            config.Pack = "MpIntrusiveThoughtPack";
+
             return config;
         }
 

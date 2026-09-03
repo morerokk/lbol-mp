@@ -37,10 +37,11 @@ namespace LBOLMP.Entities.Cards
             config.Rarity = Rarity.Uncommon;
             config.Owner = VanillaCharNames.Koishi;
             config.Colors = new List<ManaColor> { ManaColor.Green };
-            config.Cost = new ManaGroup { Any = 1, Green = 1 };
+            config.Cost = new ManaGroup { Any = 2, Green = 1 };
+            config.UpgradedCost = new ManaGroup { Any = 1, Green = 1 };
 
             // How many cards off the top of their deck get played.
-            config.Value1 = 1;
+            config.Value1 = 2;
             config.UpgradedValue1 = 2;
 
             // Set to TargetType.SingleEnemy just so we can borrow the selector logic.
@@ -50,6 +51,10 @@ namespace LBOLMP.Entities.Cards
             config.RelativeEffects = new List<string> { nameof(MpPartner) };
             config.UpgradedRelativeEffects = new List<string> { nameof(MpPartner) };
             config.Illustrator = "あまにわ";
+
+            // Can be disabled by players who don't like it
+            config.Pack = "MpWhimPack";
+
             return config;
         }
 

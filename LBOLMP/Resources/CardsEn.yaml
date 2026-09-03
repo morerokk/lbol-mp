@@ -42,7 +42,7 @@ MpBladeSymphony:
   Name: Blade Symphony
   Description: |-
     Exile up to {Value1} |Throwing Knives| from the hand.
-    Add that many |Throwing Knives| to each |Partner|'s hand.
+    Add that many |Throwing Knives| with |Auto-Exile| to the top of each |Partner|'s draw pile.
 
 MpOffering:
   Name: Offering to the Ownerless

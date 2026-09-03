@@ -19,6 +19,7 @@ namespace LBOLMP.Entities.Cards
     public sealed class MpBladeSymphonyPayload : MpEffectPayload
     {
         public int Knives;
+        public bool AutoExile;
     }
 
     public sealed class MpBladeSymphonyDefinition : LbolMpMultiplayerCardTemplate<MpBladeSymphonyPayload>
@@ -44,6 +45,8 @@ namespace LBOLMP.Entities.Cards
             config.UpgradedRelativeCards = new List<string> { nameof(Knife) };
             config.RelativeEffects = new List<string> { nameof(MpPartner) };
             config.UpgradedRelativeEffects = new List<string> { nameof(MpPartner) };
+            config.RelativeKeyword = Keyword.AutoExile;
+            config.UpgradedRelativeKeyword = Keyword.AutoExile;
 
             config.Illustrator = "orientalzenzai";
 
@@ -58,8 +61,16 @@ namespace LBOLMP.Entities.Cards
                 yield break;
             }
 
-            yield return new AddCardsToHandAction(
-                Library.CreateCards<Knife>(payload.Knives, false), AddCardsType.Normal, false);
+            var cards = Library.CreateCards<Knife>(payload.Knives, false);
+            if (payload.AutoExile)
+            {
+                foreach (var card in cards)
+                {
+                    card.IsAutoExile = true;
+                }
+            }
+
+            yield return new AddCardsToDrawZoneAction(cards, DrawZoneTarget.Top, AddCardsType.Normal);
         }
     }
 
@@ -84,8 +95,7 @@ namespace LBOLMP.Entities.Cards
 
             yield return new ExileManyCardAction(chosen);
 
-            MpEffects.Send(Id, new MpBladeSymphonyPayload { Knives = chosen.Count },
-                MpEffectTarget.AllPartners);
+            MpEffects.Send(Id, new MpBladeSymphonyPayload { Knives = chosen.Count, AutoExile = true }, MpEffectTarget.AllPartners);
         }
 
         private IEnumerable<Card> KnivesInHand() =>
