@@ -28,6 +28,7 @@ namespace LBOLMP
         public static ConfigEntry<KeyCode> LobbyHotkey;
         public static ConfigEntry<KeyCode> DiagnosticsHotkey;
         public static ConfigEntry<KeyCode> ScoreboardHotkey;
+        public static ConfigEntry<string> SeededPacks;
         public static ConfigEntry<bool> SharedPartyPositions;
         public static ConfigEntry<bool> ShowPlayerNamesOnCards;
 
@@ -103,6 +104,8 @@ namespace LBOLMP
                 "The name other players see you as.");
             LobbyHotkey = Config.Bind("Interface", nameof(LobbyHotkey), KeyCode.F2,
                 "Key that toggles the multiplayer lobby overlay.");
+            SeededPacks = Config.Bind("Interface", nameof(SeededPacks), string.Empty,
+                "Booster packs this mod has already default-enabled one time. Anything listed here is left alone afterwards.");
             ScoreboardHotkey = Config.Bind("Interface", nameof(ScoreboardHotkey), KeyCode.Tab,
                 "Key held down to show the party scoreboard.");
             DiagnosticsHotkey = Config.Bind("Interface", nameof(DiagnosticsHotkey), KeyCode.F3,
@@ -151,6 +154,7 @@ namespace LBOLMP
                 }
             }
 
+            Session.MpPacks.Tick();
             UI.MpScoreboard.Tick();
 
             Net.SteamNet.EnsureCallbacks();

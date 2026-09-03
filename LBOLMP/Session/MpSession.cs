@@ -114,6 +114,14 @@ namespace LBOLMP.Session
         /// <summary>The jade boxes the run in progress actually began with. Null outside a run.</summary>
         private static List<string> _runJadeBoxes;
 
+        /// <summary>The host's booster packs for the run in progress. Null outside a new run.</summary>
+        private static List<string> _runPacks;
+
+        /// <summary>
+        /// The packs every client's card pool must use, decided by the host. Null when there is nothing to impose.
+        /// </summary>
+        public static IReadOnlyList<string> RunPacks => _runPacks;
+
         /// <summary>
         /// The jade boxes every client must start with, decided by the host and delivered with the
         /// seed. Falls back to the lobby list, and then to none.
@@ -390,6 +398,7 @@ namespace LBOLMP.Session
             _runDifficulty = null;
             HostDifficulty = MpConstants.DefaultDifficulty;
             _runJadeBoxes = null;
+            _runPacks = null;
             HostJadeBoxes = new List<string>();
             StatusLine = statusLine;
 
@@ -860,7 +869,8 @@ namespace LBOLMP.Session
                 EnemyHpEscalationByAct = LocalEscalationSettings(),
                 ReviveHpFraction = MpPlugin.ReviveHpFraction.Value,
                 EnemyResilience = MpPlugin.EnableEnemyResilience.Value,
-                MultiplayerCards = MpPlugin.MultiplayerCardsEnabled.Value
+                MultiplayerCards = MpPlugin.MultiplayerCardsEnabled.Value,
+                Packs = MpPacks.Local()
             });
         }
 
@@ -987,6 +997,7 @@ namespace LBOLMP.Session
 
             // Only a new run carries these; a resumed one already has its jade boxes in the save.
             _runJadeBoxes = message.JadeBoxes ?? new List<string>();
+            _runPacks = message.Packs ?? new List<string>();
 
             foreach (var player in PlayersById.Values)
             {
@@ -1133,6 +1144,7 @@ namespace LBOLMP.Session
             _runEnemyResilience = null;
             _runMultiplayerCards = null;
             _runJadeBoxes = null;
+            _runPacks = null;
 
             Patches.StartGameInterceptPatch.Cancel();
             Patches.RestoreGameInterceptPatch.Cancel();
@@ -1295,6 +1307,7 @@ namespace LBOLMP.Session
             _runDifficulty = null;
             HostDifficulty = MpConstants.DefaultDifficulty;
             _runJadeBoxes = null;
+            _runPacks = null;
             HostJadeBoxes = new List<string>();
             MapSync.Reset();
             MpRestart.Reset();

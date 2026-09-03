@@ -22,6 +22,7 @@ namespace LBOLMP.Entities
         private static BatchLocalization _cards;
         private static BatchLocalization _statusEffects;
         private static BatchLocalization _jadeBoxes;
+        private static BatchLocalization _packs;
 
         /// <summary>Resources/Cards&lt;Locale&gt;.yaml</summary>
         internal static BatchLocalization Cards =>
@@ -34,6 +35,10 @@ namespace LBOLMP.Entities
         /// <summary>Resources/JadeBoxes&lt;Locale&gt;.yaml</summary>
         internal static BatchLocalization JadeBoxes =>
             _jadeBoxes ?? (_jadeBoxes = Build(typeof(JadeBoxTemplate), "Resources/JadeBoxes"));
+
+        /// <summary>Resources/Packs&lt;Locale&gt;.yaml</summary>
+        internal static BatchLocalization Packs =>
+            _packs ?? (_packs = Build(typeof(PackTemplate), "Resources/Packs"));
 
         private static BatchLocalization Build(Type templateType, string prefix)
         {

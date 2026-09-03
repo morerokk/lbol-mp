@@ -196,6 +196,9 @@ namespace LBOLMP.Session.Messages
         /// The jade boxes the whole party starts with, ticked on the host's panel.
         public List<string> JadeBoxes = new List<string>();
 
+        /// The booster packs the host has switched on, which decide the card pool for everyone.
+        public List<string> Packs = new List<string>();
+
         public override void Write(NetWriter w)
         {
             w.ULong(Seed);
@@ -209,6 +212,7 @@ namespace LBOLMP.Session.Messages
             w.Bool(EnemyResilience);
             w.Bool(MultiplayerCards);
             w.StringList(JadeBoxes);
+            w.StringList(Packs);
         }
 
         public override void Read(NetReader r)
@@ -225,6 +229,7 @@ namespace LBOLMP.Session.Messages
             EnemyResilience = r.Bool();
             MultiplayerCards = r.Bool();
             JadeBoxes = new List<string>(r.StringArray());
+            Packs = new List<string>(r.StringArray());
         }
     }
 
