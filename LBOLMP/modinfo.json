@@ -3,6 +3,7 @@
   "Description": "Coop mod for LBoL. Press F2 in the main menu to open the network menu. Host a session over Steam or over a direct IP connection, have other players join, then everyone start a new run, pick a character and click Confirm. The host sets the difficulty for everyone.",
   "Brief": "Cooperative multiplayer",
   "Changelog": [
+    "0.11.14: \nMoved 'Whim' and 'Intrusive Thought' to default-enabled booster packs, so that they can be disabled individually.\nBooster packs are now decided by the host.\nReworked 'Blade Symphony' card. The knives are now added to the top of the draw pile instead, and have auto-exile.\nRebalanced 'Whim' card. Now costs more mana unupgraded, but always plays the top 2 cards.",
     "0.11.13: \nUI tweaks to make it look nicer.\nHold TAB to open a list of all players and their status (such as Power and Gold).\nAdded Multiplayer settings tab in options.",
     "0.11.12: \nFixed many, many instances where the 'Share the Wealth' jadebox was broken.\nShare the Wealth now only deducts the current character's starting money when choosing a Rare exhibit at Eirin, rather than all of it.",
     "0.11.11: \nFixed 'ghost players' bug when players died in events.\nRumia event can only appear if everyone is above 40 P.\nBackup Dancers event can only appear if everyone has at least 11% of their max HP.\nHina event can now appear if anyone in the party has a misfortune. The event is weighted at the percentage of players that have a Misfortune in their deck (so she becomes more likely to show up if multiple people have Misfortunes).",
@@ -54,7 +55,7 @@
     "0.2.0: \nFixed map voting getting stuck in many cases. Tweaked extra turn and end-of-turn behaviors.",
     "0.1.0: \nInitial development build."
   ],
-  "Version": "0.11.13",
+  "Version": "0.11.14",
   "Author": "Rokk",
   "Tags": [
     "Mod",
