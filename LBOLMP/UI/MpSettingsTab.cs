@@ -50,6 +50,10 @@ namespace LBOLMP.UI
 
         private static void Build(SettingPanel panel)
         {
+            // The panel is destroyed and remade as the game moves between scenes, so this can run
+            // more than once. We might get NRE's if we do that.
+            Refreshers.Clear();
+
             var tabs = panel.tabGroup == null ? null : panel.tabGroup.transform;
             var pages = panel.tabs;
 
@@ -308,6 +312,11 @@ namespace LBOLMP.UI
 
             Refreshers.Add(() =>
             {
+                if (toggle == null)
+                {
+                    return;
+                }
+
                 toggle.SetValueWithoutNotifier(entry.Value);
                 Relabel(caption, label());
             });

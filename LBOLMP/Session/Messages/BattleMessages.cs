@@ -532,6 +532,28 @@ namespace LBOLMP.Session.Messages
     }
 
     /// <summary>
+    /// An enemy is defeated on the host, so they should be defeated for all clients too.
+    /// </summary>
+    [NetMessage(64)]
+    public sealed class EnemyDiedMessage : NetMessage
+    {
+        public ulong Seed;
+        public int EnemyIndex;
+
+        public override void Write(NetWriter w)
+        {
+            w.ULong(Seed);
+            w.Int(EnemyIndex);
+        }
+
+        public override void Read(NetReader r)
+        {
+            Seed = r.ULong();
+            EnemyIndex = r.Int();
+        }
+    }
+
+    /// <summary>
     /// How much life a Vampire enemy stole from the sender.
     /// </summary>
     [NetMessage(63)]

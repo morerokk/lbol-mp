@@ -285,6 +285,7 @@ namespace LBOLMP.Session.Battle
             MpNet.On<BattleProgressMessage>(OnBattleProgress);
             MpNet.On<BattleFinishedMessage>(OnBattleFinished);
             MpNet.On<EnemyVitalsMessage>(OnEnemyVitals);
+            MpNet.On<EnemyDiedMessage>(OnEnemyDied);
             MpDownedPlayers.RegisterHandlers();
             MpEventBattle.RegisterHandlers();
             MpEnemyEscape.RegisterHandlers();
@@ -308,11 +309,14 @@ namespace LBOLMP.Session.Battle
             InBattle = false;
             EnemyTurnRunning = false;
             _atEndOfBattleGate = false;
+            _atEnemyTurnGate = false;
             _reportedFinished = false;
             BattleSeed = 0;
             _finishedSeed = 0;
             _vitalsSequence = 0;
             _seenVitals.Clear();
+            _announcedDeaths.Clear();
+            _forcedKills.Clear();
             PlayerCountAtBattleStart = 1;
             MpDownedPlayers.Reset();
             MpEventBattle.Reset();
@@ -364,11 +368,14 @@ namespace LBOLMP.Session.Battle
             PlayerCountAtBattleStart = Math.Max(1, MpSession.ConnectedCount);
             InBattle = true;
             _atEndOfBattleGate = false;
+            _atEnemyTurnGate = false;
             _reportedFinished = false;
             _pendingInjections = 0;
 
             _finishedSeed = 0;
             _seenVitals.Clear();
+            _announcedDeaths.Clear();
+            _forcedKills.Clear();
 
             _lastStatus = null;
             _lastProgress = null;
@@ -415,6 +422,7 @@ namespace LBOLMP.Session.Battle
             InBattle = false;
             EnemyTurnRunning = false;
             _atEndOfBattleGate = false;
+            _atEnemyTurnGate = false;
             _reportedFinished = false;
             Seats.Clear();
             Injected.Clear();
@@ -601,30 +609,44 @@ namespace LBOLMP.Session.Battle
             float reportInterval = GateFirstReportSeconds;
             float nextReport = reportInterval;
 
-            while (!MpSafe.Run("TurnGate",
-                       () => battle.BattleShouldEnd
-                             || (AllSeatsCompleted(round) && battle._debugActionQueue.Count == 0),
-                       true))
+            _atEnemyTurnGate = true;
+            try
             {
-                if (waited > nextReport)
+                while (!MpSafe.Run("TurnGate",
+                           () => battle.BattleShouldEnd
+                                 || (AllSeatsCompleted(round) && battle._debugActionQueue.Count == 0),
+                           true))
                 {
-                    // This can happen legitimately, so we just log it now.
-                    reportInterval = Math.Min(reportInterval * 2f, GateMaxReportSeconds);
-                    nextReport = waited + reportInterval;
-                    MpPlugin.Log.LogInfo("Still at the enemy-turn gate. " + DescribeTurnState());
-                }
+                    if (waited > nextReport)
+                    {
+                        // This can happen legitimately, so we just log it now.
+                        reportInterval = Math.Min(reportInterval * 2f, GateMaxReportSeconds);
+                        nextReport = waited + reportInterval;
+                        MpPlugin.Log.LogInfo("Still at the enemy-turn gate. " + DescribeTurnState());
+                    }
 
-                // Ensure other player's card plays still apply to the enemy.
-                bool drain = MpSafe.Run("TurnGateDrain", () => battle._debugActionQueue.Count > 0, false);
-                if (drain)
-                {
-                    yield return battle.ResolveDebugActions();
-                }
+                    // Ensure other player's card plays still apply to the enemy.
+                    bool drain = MpSafe.Run("TurnGateDrain", () => battle._debugActionQueue.Count > 0, false);
+                    if (drain)
+                    {
+                        _atEnemyTurnGate = false;
+                        yield return battle.ResolveDebugActions();
+                        _atEnemyTurnGate = true;
+                    }
 
-                waited += Time.unscaledDeltaTime;
-                yield return null;
+                    waited += Time.unscaledDeltaTime;
+                    yield return null;
+                }
+            }
+            finally
+            {
+                _atEnemyTurnGate = false;
             }
         }
+
+        public static bool AtEnemyTurnGate => _atEnemyTurnGate && InBattle;
+
+        private static bool _atEnemyTurnGate;
 
         /// <summary>First report of who we are still waiting on; the interval doubles from here.</summary>
         private const float GateFirstReportSeconds = 5f;
@@ -1295,6 +1317,21 @@ namespace LBOLMP.Session.Battle
         /// <summary>How often the host publishes where the enemies stand.</summary>
         private const float EnemyVitalsInterval = 1f;
 
+        /// <summary>Shared enemies the host has already announced as defeated.</summary>
+        private static readonly HashSet<int> _announcedDeaths = new HashSet<int>();
+
+        private static readonly HashSet<int> _forcedKills = new HashSet<int>();
+
+        private static void ForceKillOnce(BattleController battle, EnemyUnit enemy, string reason)
+        {
+            if (!_forcedKills.Add(enemy.Index))
+            {
+                return;
+            }
+
+            battle.RequestDebugAction(Inject(new ForceKillAction(battle.Player, enemy)), reason);
+        }
+
         /// <summary>
         /// True when the battle is a little bit quieter for now, and we can safely correct wrong enemy HP values.
         /// </summary>
@@ -1305,7 +1342,8 @@ namespace LBOLMP.Session.Battle
                 return false;
             }
 
-            return battle.IsWaitingPlayerInput || SpectatingOnly || battle.BattleShouldEnd;
+            return battle.IsWaitingPlayerInput || SpectatingOnly || battle.BattleShouldEnd
+                   || AtEnemyTurnGate;
         }
 
         /// <summary>
@@ -1393,6 +1431,67 @@ namespace LBOLMP.Session.Battle
             }
         }
 
+        private static void AnnounceEnemyDeaths()
+        {
+            if (!MpNet.IsHost || !InBattle)
+            {
+                return;
+            }
+
+            var battle = GameMaster.Instance?.CurrentGameRun?.Battle;
+            if (battle == null)
+            {
+                return;
+            }
+
+            foreach (var enemy in battle.EnemyGroup)
+            {
+                if (enemy.IsAlive || enemy.IsEscaped || MpPrivateEnemies.IsPrivate(enemy))
+                {
+                    continue;
+                }
+
+                if (!_announcedDeaths.Add(enemy.Index))
+                {
+                    continue;
+                }
+
+                MpNet.Send(new EnemyDiedMessage { Seed = BattleSeed, EnemyIndex = enemy.Index });
+            }
+        }
+
+        /// <summary>
+        /// Defeat an enemy the host has already seen get defeated.
+        /// </summary>
+        private static void OnEnemyDied(EnemyDiedMessage message)
+        {
+            if (message.SenderId == MpNet.LocalPlayerId || !InBattle)
+            {
+                return;
+            }
+
+            if (message.Seed != BattleSeed)
+            {
+                return;
+            }
+
+            var battle = GameMaster.Instance?.CurrentGameRun?.Battle;
+            var enemy = FindEnemy(battle, message.EnemyIndex);
+            if (enemy == null || !enemy.IsAlive || enemy.IsEscaped || MpPrivateEnemies.IsPrivate(enemy))
+            {
+                return;
+            }
+
+            // Skip killing summons since they'll die anyway.
+            // This avoids undeserved Rin truth nukes when her spirits would detonate
+            if (enemy.IsServant && OnlyServantsLeft(battle))
+            {
+                return;
+            }
+
+            ForceKillOnce(battle, enemy, "MP remote enemy death");
+        }
+
         /// <summary>
         /// Helper to sync Seija's damage cap correctly
         /// </summary>
@@ -1445,10 +1544,7 @@ namespace LBOLMP.Session.Battle
                 // If an enemy is dead on the host, force-kill them on the client too.
                 // This fixes a problem where Seija's damage cap would ignore host HP syncing since she would just reduce the damage correction to 0.
                 // The player is marked as getting "credit" for the kill, to avoid Rin spirits detonating with double damage and other shenanigans.
-                MpPlugin.Log.LogInfo($"{enemy.Id} is already down on the host; finishing it here");
-                battle.RequestDebugAction(
-                    Inject(new ForceKillAction(battle.Player, enemy)),
-                    "MP enemy correction");
+                ForceKillOnce(battle, enemy, "MP enemy correction");
                 return;
             }
 
@@ -1501,6 +1597,7 @@ namespace LBOLMP.Session.Battle
             TickInputDeferralWatchdog();
             AnnounceSilentSeats();
             SweepSpentStatusEffects();
+            MpSafe.Run("AnnounceEnemyDeaths", AnnounceEnemyDeaths);
             MpSafe.Run("BroadcastEnemyVitals", BroadcastEnemyVitals);
 
             if (Time.unscaledTime < _nextStatusBroadcast)
