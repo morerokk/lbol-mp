@@ -41,6 +41,22 @@ LobbyMapVoteHint: "マップのノードをクリックして投票してくだ�
 LobbyLeaveSession: "セッションから退出"
 LobbyBalanceSettings: "バランス設定・・・"
 
+# ---- mismatched sideloaded content
+ModMismatchTitle: "全員が同じMODを使用しているわけではありません。"
+ModMismatchHelp: "カードなどのコンテンツを追加するMODは、全員が導入する必要があります。"
+# ModMismatchRow example when assembled:
+# "YoumuMod (1 characters, 60 cards): missing for Player2"
+ModMismatchRow: "{0} ({1}): {2}"
+ModMismatchNotice: "全員のMODコンテンツが揃っていません。詳細はF2キーを押してください。"
+ModMissingFor: "{0}にありません"
+ModDiffersFor: "{0}とは異なるバージョンです"
+ModYou: "あなた"
+ModKindCharacters: "{0}キャラクター"
+ModKindCards: "{0}枚のカード"
+ModKindExhibits: "{0}枚の展示品"
+ModKindEnemies: "{0}体の敵"
+ModKindAdventures: "{0}個のイベント"
+
 # ---- balance settings window
 SettingsWindowTitle: "バランス設定"
 SettingsIntro: "プレイヤーが増えることで、ゲームの難易度がどの程度上昇するかを設定します。"
@@ -60,6 +76,15 @@ SettingReviveHpHelp: "パーティーが戦闘に勝利した際、倒された�
 SettingResilienceName: "敵が「耐性」を持つ"
 SettingResilienceHelp: "すべての敵に「耐性」状態を付与します。プレイヤーが増えるほど、敵のデバフが早く解除されます。無効にすると、デバフの減少速度はシングルプレイ時と同じになります。"
 SettingMultiplayerCardsName: "マルチプレイカードを有効にする"
+SettingSharedPartyPositionsName: "実際のパーティ位置を表示"
+SettingPlayerNamesOnCardsName: "カードにプレイヤー名を表示"
+SettingsTabTitle: "マルチプレイヤー"
+
+# ---- party scoreboard
+ScoreboardName: "プレイヤー"
+ScoreboardHp: "ライフ"
+ScoreboardPower: "P"
+ScoreboardGold: "金"
 
 # ---- corner HUD
 HudParty: "パーティー（{0}）"
