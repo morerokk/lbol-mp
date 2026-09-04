@@ -74,24 +74,28 @@ namespace LBOLMP.Entities.Cards
             _partner = MpPartyTargeting.Consume();
 
             // Like Lost in Paradise, this cannot target Copies and Tools.
-            var others = Battle.HandZone
+            var otherCardsInHand = Battle.HandZone
                 .Where(card => card != this && !card.IsCopy && card.CardType != CardType.Tool)
                 .ToList();
-            if (others.Count == 1)
+            if (otherCardsInHand.Count == 1)
             {
-                _onlyOther = others[0];
+                _onlyOther = otherCardsInHand.FirstOrDefault();
+            }
+            else
+            {
+                _onlyOther = null;
             }
 
-            return others.Count <= 1 ? null : new SelectHandInteraction(1, 1, others);
+            return otherCardsInHand.Count <= 1 ? null : new SelectHandInteraction(1, 1, otherCardsInHand);
         }
 
         protected override IEnumerable<BattleAction> Actions(
             UnitSelector selector, ManaGroup consumingMana, Interaction precondition)
         {
             Card chosen = null;
-            if (precondition is SelectHandInteraction select)
+            if (precondition is SelectHandInteraction select && select != null)
             {
-                chosen = select.SelectedCards[0];
+                chosen = select.SelectedCards.FirstOrDefault();
             }
             else if (_onlyOther != null)
             {
