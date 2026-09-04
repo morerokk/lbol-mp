@@ -408,6 +408,7 @@ namespace LBOLMP.Session
 
             MapSync.Reset();
             MpRestart.Reset();
+            Battle.MpLoadGate.Reset();
             MpHandInspect.Reset();
             MpExilePeek.Reset();
             MpBorderSensor.Reset();
@@ -1051,6 +1052,7 @@ namespace LBOLMP.Session
         {
             MapSync.Reset();
             MpRestart.Reset();
+            Battle.MpLoadGate.Reset();
             MpHandInspect.Reset();
             MpExilePeek.Reset();
             MpBorderSensor.Reset();
@@ -1311,6 +1313,7 @@ namespace LBOLMP.Session
             HostJadeBoxes = new List<string>();
             MapSync.Reset();
             MpRestart.Reset();
+            Battle.MpLoadGate.Reset();
             MpHandInspect.Reset();
             MpExilePeek.Reset();
             MpBorderSensor.Reset();

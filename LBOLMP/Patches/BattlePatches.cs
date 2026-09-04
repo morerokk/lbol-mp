@@ -284,6 +284,7 @@ namespace LBOLMP.Patches
 
         private static IEnumerator<object> Gated(BattleController battle, IEnumerator<object> flow)
         {
+            yield return MpBattleSync.WaitForEveryoneToLoadIn(battle);
             yield return flow;
             yield return MpBattleSync.WaitForEveryoneToFinish(battle);
         }

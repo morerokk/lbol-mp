@@ -180,6 +180,14 @@ namespace LBOLMP.UI
                 return L10n.Get(MpText.BoardLostContact, string.Join(", ", silent));
             }
 
+            if (MpBattleSync.AtLoadInGate)
+            {
+                var loading = MpBattleSync.SeatsStillLoading.ToList();
+                return loading.Count == 0
+                    ? null
+                    : L10n.Get(MpText.BoardWaitingForMany, string.Join(", ", loading));
+            }
+
             if (MpBattleSync.AtEndOfBattleGate)
             {
                 var fighting = MpBattleSync.SeatsStillFighting.ToList();

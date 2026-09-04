@@ -254,6 +254,9 @@ namespace LBOLMP.Session
 
                 MapSync.ClearCommit();
                 Patches.MapVotingPatch.Reset();
+
+                // This should be last, so that the resets above don't clear this!
+                Battle.MpLoadGate.Arm("the level is restarting");
             });
         }
     }

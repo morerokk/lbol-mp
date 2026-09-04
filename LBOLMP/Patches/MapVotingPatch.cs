@@ -230,6 +230,10 @@ namespace LBOLMP.Patches
                 panel.RequestEnterNode(widget);
                 _movingSince = UnityEngine.Time.unscaledTime;
                 MpPlugin.Log.LogInfo($"Party moving to map node ({_pendingX}, {_pendingY})");
+
+                // No loading screen needed when we're leaving a node and going to the next.
+                // That means we don't have to wait for everyone to be in the combat before we start.
+                Session.Battle.MpLoadGate.Disarm();
             }
             catch (Exception e)
             {

@@ -310,6 +310,7 @@ namespace LBOLMP.Session.Battle
             EnemyTurnRunning = false;
             _atEndOfBattleGate = false;
             _atEnemyTurnGate = false;
+            _waitForLoadIn = false;
             _reportedFinished = false;
             BattleSeed = 0;
             _finishedSeed = 0;
@@ -372,6 +373,8 @@ namespace LBOLMP.Session.Battle
             _reportedFinished = false;
             _pendingInjections = 0;
 
+            _waitForLoadIn = MpLoadGate.Consume();
+
             _finishedSeed = 0;
             _seenVitals.Clear();
             _announcedDeaths.Clear();
@@ -423,6 +426,7 @@ namespace LBOLMP.Session.Battle
             EnemyTurnRunning = false;
             _atEndOfBattleGate = false;
             _atEnemyTurnGate = false;
+            _waitForLoadIn = false;
             _reportedFinished = false;
             Seats.Clear();
             Injected.Clear();
@@ -590,6 +594,82 @@ namespace LBOLMP.Session.Battle
 
             return string.Join(", ", parts);
         }
+
+        private static bool _waitForLoadIn;
+
+        /// <summary>
+        /// If we need to wait for all other players to load in, then this will block until that happens.
+        /// </summary>
+        public static IEnumerator<object> WaitForEveryoneToLoadIn(BattleController battle)
+        {
+            bool wait = _waitForLoadIn;
+            _waitForLoadIn = false;
+
+            if (!wait || !MpSession.IsActive || !InBattle || battle == null || Seats.Count < 2)
+            {
+                yield break;
+            }
+
+            MpPlugin.Log.LogInfo("This combat opened from a loading screen. Waiting for the party to get here...");
+
+            float waited = 0f;
+            float reportInterval = GateFirstReportSeconds;
+            float nextReport = reportInterval;
+
+            _atLoadInGate = true;
+            try
+            {
+                while (!MpSafe.Run("LoadInGate", EveryoneHasLoadedIn, true))
+                {
+                    if (waited >= LoadInGateMaxSeconds)
+                    {
+                        MpPlugin.Log.LogWarning(
+                            $"Gave up waiting for everyone to load into this combat after {waited:F0}s. " + DescribeTurnState());
+                        yield break;
+                    }
+
+                    if (waited > nextReport)
+                    {
+                        reportInterval = Math.Min(reportInterval * 2f, GateMaxReportSeconds);
+                        nextReport = waited + reportInterval;
+                        MpPlugin.Log.LogInfo("Still waiting for the party to load into this combat. " + DescribeTurnState());
+                    }
+
+                    waited += Time.unscaledDeltaTime;
+                    yield return null;
+                }
+            }
+            finally
+            {
+                _atLoadInGate = false;
+            }
+        }
+
+        /// <summary>True while the fight is held open waiting for the rest of the party to load.</summary>
+        public static bool AtLoadInGate => _atLoadInGate && InBattle;
+
+        private static bool _atLoadInGate;
+
+        /// <summary>
+        /// True once every seat taking this fight has said it is in this fight. A client still on
+        /// the loading screen has not published progress for this seed yet.
+        /// </summary>
+        private static bool EveryoneHasLoadedIn() => !StillLoading.Any();
+
+        /// <summary>Seats that have not reported into this fight yet.</summary>
+        private static IEnumerable<MpBattleSeat> StillLoading =>
+            Seats.Values.Where(s => s.PlayerId != MpNet.LocalPlayerId
+                                    && !s.Spectating
+                                    && !IsUnresponsive(s)
+                                    && s.ReportedSeed != BattleSeed);
+
+        public static IEnumerable<string> SeatsStillLoading => StillLoading.Select(s => s.Name);
+
+        /// <summary>
+        /// Longest the party holds a fight for someone who is still loading. Well past any honest
+        /// load; a client that has genuinely dropped goes quiet and is written off long before this.
+        /// </summary>
+        private const float LoadInGateMaxSeconds = 90f;
 
         /// <summary>
         /// The waiting gate every player waits at between their own turn and the enemies'.

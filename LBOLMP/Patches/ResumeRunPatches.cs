@@ -74,6 +74,8 @@ namespace LBOLMP.Patches
 
             MpPlugin.Log.LogInfo($"Continuing multiplayer run {seed}");
 
+            Session.Battle.MpLoadGate.Arm("a saved run is being continued");
+
             _allowThrough = true;
             try
             {
