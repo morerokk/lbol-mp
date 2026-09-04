@@ -234,12 +234,16 @@ namespace LBOLMP.Session
         }
 
         /// <summary>
-        /// Put down everything that belonged to the station we are leaving.
+        /// The game does not like force restarting under certain conditions,
+        /// so over here, we tear down anything that might still be open.
+        /// (Particularly those pesky dialog panels that can only ever have 1 open at a time)
         /// </summary>
         private static void Teardown()
         {
             MpSafe.Run("MpRestart.Teardown", () =>
             {
+                UI.MpUiTeardown.CloseOpenWindows();
+
                 Patches.EnemyDamageHook.UnhookAll();
                 Patches.PlayerDamageHook.Unhook();
                 Patches.CardPlayHook.Unhook();
