@@ -1573,12 +1573,12 @@ namespace LBOLMP.Session.Battle
         }
 
         /// <summary>
-        /// Helper to sync Seija's damage cap correctly
+        /// Helper to sync Seija's damage cap correctly.
         /// </summary>
         private static int DamageCapOf(EnemyUnit enemy)
         {
-            var cap = enemy.StatusEffects.FirstOrDefault(e => e is LimitedDamage);
-            return cap != null && cap.HasCount ? cap.Count : -1;
+            var cap = enemy.StatusEffects.FirstOrDefault(e => e is LimitedDamage) as LimitedDamage;
+            return cap != null && cap.HasCount ? Math.Max(0, cap._internalCount) : -1;
         }
 
         /// <summary>Put an enemy's damage cap back to the host's. See <see cref="DamageCapOf"/>.</summary>
@@ -1590,13 +1590,13 @@ namespace LBOLMP.Session.Battle
             }
 
             var effect = enemy.StatusEffects.FirstOrDefault(e => e is LimitedDamage) as LimitedDamage;
-            if (effect == null || !effect.HasCount || effect.Count == cap)
+            if (effect == null || !effect.HasCount || effect._internalCount == cap)
             {
                 return;
             }
 
             MpPlugin.Log.LogInfo(
-                $"Correcting {enemy.Id}'s damage cap to the host: {effect.Count}->{cap}");
+                $"Correcting {enemy.Id}'s damage cap to the host: {effect._internalCount}->{cap}");
 
             // The property is what the icon shows; the field is what actually gates the damage.
             effect._internalCount = cap;
