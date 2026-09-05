@@ -381,6 +381,12 @@ namespace LBOLMP.Patches
         internal const int VanillaCost = 100;
 
         /// <summary>
+        /// The most power Tenshi can ever hold.
+        /// Even if Tenshi has more than 10x HP, this ensures she can always use her spellcard.
+        /// </summary>
+        internal const int MaxPower = 999;
+
+        /// <summary>
         /// What Tenshi should pay
         /// </summary>
         internal static int Cost(EnemyUnit tianzi)
@@ -390,8 +396,9 @@ namespace LBOLMP.Patches
                 return VanillaCost;
             }
 
-            return Mathf.Max(VanillaCost,
-                Mathf.RoundToInt(VanillaCost * MpEnemyScaling.MultiplierFor(tianzi)));
+            return Mathf.Clamp(
+                Mathf.RoundToInt(VanillaCost * MpEnemyScaling.MultiplierFor(tianzi)),
+                VanillaCost, MaxPower);
         }
     }
 
