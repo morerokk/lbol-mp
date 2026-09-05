@@ -3,6 +3,7 @@
   "Description": "Coop mod for LBoL. Press F2 in the main menu to open the network menu. Host a session over Steam or over a direct IP connection, have other players join, then everyone start a new run, pick a character and click Confirm. The host sets the difficulty for everyone.",
   "Brief": "Co-op mod. Press F2 to open the multiplayer menu.",
   "Changelog": [
+    "0.11.17: \nFixed Seija's damage cap being broken if her damage cap was above 999.\nThe damage cap is still visually capped out at 999, but internally it now correctly goes higher than that for clients too.",
     "0.11.16: \nFixed enemies not dying under certain scenarios.\nFixed host HP sync not always applying during an enemy turn.\nThe mod now waits at the start of combat for everyone to load in, after a Restart or Continue.",
     "0.11.15: \nAdded multiplayer button to main menu.",
     "0.11.14: \nMoved 'Whim' and 'Intrusive Thought' to default-enabled booster packs, so that they can be disabled individually.\nBooster packs are now decided by the host.\nReworked 'Blade Symphony' card. The knives are now added to the top of the draw pile instead, and have auto-exile.\nRebalanced 'Whim' card. Now costs more mana unupgraded, but always plays the top 2 cards.",
@@ -57,7 +58,7 @@
     "0.2.0: \nFixed map voting getting stuck in many cases. Tweaked extra turn and end-of-turn behaviors.",
     "0.1.0: \nInitial development build."
   ],
-  "Version": "0.11.16",
+  "Version": "0.11.17",
   "Author": "Rokk",
   "Tags": [
     "Mod",
