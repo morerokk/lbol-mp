@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using LBOLMP.Entities.StatusEffects;
+using LBOLMP.Session;
 using LBoL.Base;
 using LBoL.ConfigData;
 using LBoL.Core;
@@ -12,6 +13,7 @@ using LBoL.EntityLib.StatusEffects.Koishi;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Resource;
+using UnityEngine;
 
 namespace LBOLMP.Entities.Cards
 {
@@ -37,8 +39,8 @@ namespace LBOLMP.Entities.Cards
             config.Colors = new List<ManaColor> { ManaColor.Green };
             config.Cost = new ManaGroup { Any = 3, Green = 1 };
 
-            // Firepower in Passion, and Block in Serenity. Vanilla passes these to the effect as
-            // Level and Count respectively, which is what its two halves read.
+            // Firepower in Passion, and Block in Serenity.
+            // Vanilla passes these to the effect as Level and Count respectively.
             config.Value1 = 3;
             config.Value2 = 9;
             config.UpgradedValue1 = 4;
@@ -62,6 +64,44 @@ namespace LBOLMP.Entities.Cards
     [EntityLogic(typeof(MpSelfControlDefinition))]
     public sealed class MpSelfControl : Card
     {
+        /// <summary>
+        /// Scales the card by playercount.
+        /// </summary>
+        private static int PartySize => Mathf.Clamp(MpSession.IsActive ? MpSession.ConnectedCount : 2, 2, 4);
+
+        // Firepower modifier
+        public override int AdditionalValue1
+        {
+            get
+            {
+                if (PartySize >= 3)
+                {
+                    return -1;
+                }
+
+                return 0;
+            }
+        }
+
+        // Block modifier
+        public override int AdditionalValue2
+        {
+            get
+            {
+                if (PartySize >= 4)
+                {
+                    return -2;
+                }
+
+                if (PartySize == 3)
+                {
+                    return -1;
+                }
+
+                return 0;
+            }
+        }
+
         public override Interaction Precondition()
         {
             var options = Library.CreateCards<MpSelfControl>(2, IsUpgraded).ToList();
