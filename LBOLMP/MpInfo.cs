@@ -15,7 +15,7 @@
         /// and failures of this type tend to be silent breakage rather than loud error messages.
         /// Simply bump up this version whenever an older version would no longer be able to play nicely with a newer version.
         /// </summary>
-        public const int ProtocolVersion = 62;
+        public const int ProtocolVersion = 63;
 
         /// <summary>
         /// How many people can be in one lobby, the local player included.

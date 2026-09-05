@@ -305,7 +305,7 @@ namespace LBOLMP.Session.Messages
     }
 
     /// <summary>
-    /// The host's opinion of the enemy's current life/block/barrier/damage cap. This is a quick and dirty fix for kedamas and other out-of-order effects,
+    /// The host's opinion of the enemy's current life/block/barrier. This is a quick and dirty fix for kedamas and other out-of-order effects,
     /// I don't foresee this being "fixed the proper way" without significant architectural changes (which would likely make the game feel laggier to play tbh).
     /// </summary>
     [NetMessage(39, Unreliable = true)]
@@ -319,8 +319,7 @@ namespace LBOLMP.Session.Messages
         public int Sequence;
 
         /// <summary>
-        /// Enemy index, current HP, block, shield and damage cap, five ints per enemy. The cap is
-        /// -1 for an enemy that has none, which is everyone except Seija.
+        /// Enemy index, current HP, block and barrier, four ints per enemy.
         /// </summary>
         public List<int> Vitals = new List<int>();
 
@@ -528,6 +527,43 @@ namespace LBOLMP.Session.Messages
         {
             EnemyIndex = r.Int();
             StatusId = r.String();
+        }
+    }
+
+    /// <summary>
+    /// The host's opinion of Tenshi's spell card P and Seija's damage cap.
+    /// </summary>
+    [NetMessage(65, Unreliable = true)]
+    public sealed class EnemyCountersMessage : NetMessage
+    {
+        /// <summary>
+        /// The sequence number. Higher sequence numbers override earlier ones, lower ones are dropped.
+        /// This is because we marked this message as "Unreliable" so Steam is allowed to drop it or deliver it out of order.
+        /// </summary>
+        public int Sequence;
+
+        public int EnemyIndex;
+
+        /// <summary>Seija's remaining damage allowance for this turn.</summary>
+        public int DamageCap = -1;
+
+        /// <summary>Tenshi's stored spell card power.</summary>
+        public int SpellPower = -1;
+
+        public override void Write(NetWriter w)
+        {
+            w.Int(Sequence);
+            w.Int(EnemyIndex);
+            w.Int(DamageCap);
+            w.Int(SpellPower);
+        }
+
+        public override void Read(NetReader r)
+        {
+            Sequence = r.Int();
+            EnemyIndex = r.Int();
+            DamageCap = r.Int();
+            SpellPower = r.Int();
         }
     }
 

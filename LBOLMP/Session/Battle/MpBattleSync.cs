@@ -9,6 +9,7 @@ using LBoL.Core.Battle;
 using LBoL.Core.Battle.BattleActions;
 using LBoL.Core.StatusEffects;
 using LBoL.Core.Units;
+using LBoL.EntityLib.StatusEffects.Enemy;
 using LBoL.Presentation;
 using UnityEngine;
 
@@ -286,6 +287,7 @@ namespace LBOLMP.Session.Battle
             MpNet.On<BattleFinishedMessage>(OnBattleFinished);
             MpNet.On<EnemyVitalsMessage>(OnEnemyVitals);
             MpNet.On<EnemyDiedMessage>(OnEnemyDied);
+            MpNet.On<EnemyCountersMessage>(OnEnemyCounters);
             MpDownedPlayers.RegisterHandlers();
             MpEventBattle.RegisterHandlers();
             MpEnemyEscape.RegisterHandlers();
@@ -316,6 +318,8 @@ namespace LBOLMP.Session.Battle
             _finishedSeed = 0;
             _vitalsSequence = 0;
             _seenVitals.Clear();
+            _counterSequence.Clear();
+            _seenCounters.Clear();
             _announcedDeaths.Clear();
             _forcedKills.Clear();
             PlayerCountAtBattleStart = 1;
@@ -377,6 +381,8 @@ namespace LBOLMP.Session.Battle
 
             _finishedSeed = 0;
             _seenVitals.Clear();
+            _counterSequence.Clear();
+            _seenCounters.Clear();
             _announcedDeaths.Clear();
             _forcedKills.Clear();
 
@@ -1457,7 +1463,6 @@ namespace LBOLMP.Session.Battle
                 vitals.Add(enemy.IsAlive ? enemy.Hp : 0);
                 vitals.Add(enemy.Block);
                 vitals.Add(enemy.Shield);
-                vitals.Add(DamageCapOf(enemy));
             }
 
             if (vitals.Count > 0)
@@ -1491,7 +1496,7 @@ namespace LBOLMP.Session.Battle
                 return;
             }
 
-            for (int i = 0; i + 4 < message.Vitals.Count; i += 5)
+            for (int i = 0; i + 3 < message.Vitals.Count; i += 4)
             {
                 var enemy = FindEnemy(battle, message.Vitals[i]);
                 if (enemy == null || !enemy.IsAlive)
@@ -1507,7 +1512,6 @@ namespace LBOLMP.Session.Battle
                 }
 
                 CorrectEnemy(battle, enemy, message.Vitals[i + 1], message.Vitals[i + 2], message.Vitals[i + 3]);
-                CorrectDamageCap(enemy, message.Vitals[i + 4]);
             }
         }
 
@@ -1570,6 +1574,119 @@ namespace LBOLMP.Session.Battle
             }
 
             ForceKillOnce(battle, enemy, "MP remote enemy death");
+        }
+
+        //--
+        // Running counters that belong to one enemy's own logic
+        //
+
+        private static float _nextEnemyCounters;
+
+        /// <summary>Counts up per enemy, and the newest one seen from each sender for each enemy.</summary>
+        private static readonly Dictionary<int, int> _counterSequence = new Dictionary<int, int>();
+
+        private static readonly Dictionary<(int Sender, int Enemy), int> _seenCounters =
+            new Dictionary<(int, int), int>();
+
+        private const float EnemyCountersInterval = 0.5f;
+
+        private static void BroadcastEnemyCounters()
+        {
+            if (!MpNet.IsHost || !InBattle || Time.unscaledTime < _nextEnemyCounters)
+            {
+                return;
+            }
+
+            var battle = GameMaster.Instance?.CurrentGameRun?.Battle;
+            if (!BattleIsSettled(battle))
+            {
+                return;
+            }
+
+            _nextEnemyCounters = Time.unscaledTime + EnemyCountersInterval;
+
+            foreach (var enemy in battle.EnemyGroup)
+            {
+                if (!enemy.IsAlive || MpPrivateEnemies.IsPrivate(enemy))
+                {
+                    continue;
+                }
+
+                int cap = DamageCapOf(enemy);
+                int power = SpellPowerOf(enemy);
+
+                if (cap < 0 && power < 0)
+                {
+                    continue;
+                }
+
+                _counterSequence.TryGetValue(enemy.Index, out int sequence);
+                _counterSequence[enemy.Index] = ++sequence;
+
+                MpNet.Send(new EnemyCountersMessage
+                {
+                    Sequence = sequence,
+                    EnemyIndex = enemy.Index,
+                    DamageCap = cap,
+                    SpellPower = power
+                });
+            }
+        }
+
+        private static void OnEnemyCounters(EnemyCountersMessage message)
+        {
+            if (message.SenderId == MpNet.LocalPlayerId || !InBattle)
+            {
+                return;
+            }
+
+            var key = (message.SenderId, message.EnemyIndex);
+            if (_seenCounters.TryGetValue(key, out int seen) && message.Sequence <= seen)
+            {
+                return;
+            }
+            _seenCounters[key] = message.Sequence;
+
+            var battle = GameMaster.Instance?.CurrentGameRun?.Battle;
+            if (!BattleIsSettled(battle))
+            {
+                return;
+            }
+
+            var enemy = FindEnemy(battle, message.EnemyIndex);
+            if (enemy == null || !enemy.IsAlive || MpPrivateEnemies.IsPrivate(enemy))
+            {
+                return;
+            }
+
+            CorrectDamageCap(enemy, message.DamageCap);
+            CorrectSpellPower(enemy, message.SpellPower);
+        }
+
+        /// <summary>
+        /// Tenshi's stored spell card power.
+        /// -1 for an enemy that doesn't have P.
+        /// </summary>
+        private static int SpellPowerOf(EnemyUnit enemy)
+        {
+            var energy = enemy.StatusEffects.FirstOrDefault(e => e is EnemyEnergy);
+            return energy != null && energy.HasLevel ? Math.Max(0, energy.Level) : -1;
+        }
+
+        private static void CorrectSpellPower(EnemyUnit enemy, int power)
+        {
+            if (power < 0)
+            {
+                return;
+            }
+
+            var energy = enemy.StatusEffects.FirstOrDefault(e => e is EnemyEnergy);
+            if (energy == null || !energy.HasLevel || energy.Level == power)
+            {
+                return;
+            }
+
+            energy.Level = power;
         }
 
         /// <summary>
@@ -1678,6 +1795,7 @@ namespace LBOLMP.Session.Battle
             AnnounceSilentSeats();
             SweepSpentStatusEffects();
             MpSafe.Run("AnnounceEnemyDeaths", AnnounceEnemyDeaths);
+            MpSafe.Run("BroadcastEnemyCounters", BroadcastEnemyCounters);
             MpSafe.Run("BroadcastEnemyVitals", BroadcastEnemyVitals);
 
             if (Time.unscaledTime < _nextStatusBroadcast)
