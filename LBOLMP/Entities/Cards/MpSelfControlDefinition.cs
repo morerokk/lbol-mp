@@ -60,7 +60,6 @@ namespace LBOLMP.Entities.Cards
         }
     }
 
-    /// <inheritdoc cref="MpSelfControlDefinition"/>
     [EntityLogic(typeof(MpSelfControlDefinition))]
     public sealed class MpSelfControl : Card
     {

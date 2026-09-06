@@ -36,6 +36,8 @@ namespace LBOLMP.Session
         private static Action<List<Card>> _onArrived;
         private static float _expires;
 
+        private static int _requestId;
+
         public static void RegisterHandlers()
         {
             MpNet.On<ExilePeekRequestMessage>(OnRequest);
@@ -69,8 +71,13 @@ namespace LBOLMP.Session
             _awaiting = playerId;
             _onArrived = onArrived;
             _expires = Time.unscaledTime + Timeout;
+            _requestId++;
 
-            MpNet.Send(new ExilePeekRequestMessage { TargetPlayerId = playerId });
+            MpNet.Send(new ExilePeekRequestMessage
+            {
+                TargetPlayerId = playerId,
+                RequestId = _requestId
+            });
         }
 
         public static void Update()
@@ -97,6 +104,7 @@ namespace LBOLMP.Session
                 MpNet.Send(new ExilePeekMessage
                 {
                     TargetPlayerId = message.SenderId,
+                    RequestId = message.RequestId,
                     Cards = battle == null
                         ? new List<MpCardState>()
                         : MpCardMirror.Capture(battle.ExileZone)
@@ -108,6 +116,7 @@ namespace LBOLMP.Session
         {
             if (message.TargetPlayerId != MpNet.LocalPlayerId
                 || message.SenderId != _awaiting
+                || message.RequestId != _requestId
                 || _onArrived == null)
             {
                 return;

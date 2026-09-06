@@ -44,3 +44,8 @@ MpFrontalDefenseTalismanSe:
     all |Partners| gain half that much |Block|.
   Brief: |-
     |Barrier| you gain from cards also gives all |Partners| half that much |Block|.
+
+MpScaled:
+  Name: Scaled
+  Description: Costs more mana for each |Partner| present.
+  Brief: Costs more mana for each |Partner| present.

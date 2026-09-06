@@ -113,7 +113,7 @@ MpTimeDilation:
   Name: Time Dilation
   Description: |-
     Choose a |Partner|.
-    They take an extra turn after their current turn.
+    They take an extra turn.
     End {PlayerName}'s turn.
 
 MpDivergingTimePeek:
@@ -125,3 +125,12 @@ MpDivergingTimePeek:
     |Copies| cannot be targeted.
     The card added to your hand becomes a |Copy|.
     If the card is an Ability or has |Exile|, their card becomes a |Copy| as well.
+
+MpCleanse:
+  Name: Cleanse
+  Description: |-
+    Remove all debuffs from all |Partners|.
+    |Scaled| {Mana}
+  UpgradedDescription: |-
+    Remove all debuffs from all players.
+    |Scaled| {Mana}

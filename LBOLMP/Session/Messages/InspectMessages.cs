@@ -78,8 +78,19 @@ namespace LBOLMP.Session.Messages
         /// <summary>Whose exile pile the sender is asking for.</summary>
         public int TargetPlayerId;
 
-        public override void Write(NetWriter w) => w.Int(TargetPlayerId);
-        public override void Read(NetReader r) => TargetPlayerId = r.Int();
+        public int RequestId;
+
+        public override void Write(NetWriter w)
+        {
+            w.Int(TargetPlayerId);
+            w.Int(RequestId);
+        }
+
+        public override void Read(NetReader r)
+        {
+            TargetPlayerId = r.Int();
+            RequestId = r.Int();
+        }
     }
 
     /// <summary>
@@ -91,17 +102,22 @@ namespace LBOLMP.Session.Messages
         /// <summary>Who asked. Everyone else ignores it.</summary>
         public int TargetPlayerId;
 
+        /// <summary>Straight back from <see cref="ExilePeekRequestMessage.RequestId"/>.</summary>
+        public int RequestId;
+
         public List<MpCardState> Cards = new List<MpCardState>();
 
         public override void Write(NetWriter w)
         {
             w.Int(TargetPlayerId);
+            w.Int(RequestId);
             MpCardMirror.Write(w, Cards);
         }
 
         public override void Read(NetReader r)
         {
             TargetPlayerId = r.Int();
+            RequestId = r.Int();
             Cards = MpCardMirror.Read(r);
         }
     }

@@ -100,8 +100,8 @@ namespace LBOLMP.Session
             SetLevel(SingleplayerOnly, multiplayer ? HiddenDebugLevel : 0);
 
             MpPlugin.Log.LogInfo(multiplayer
-                ? "Multiplayer cards available; the cards they replace are hidden"
-                : "Multiplayer cards hidden; this is either a single player run or the host turned them off");
+                ? "Multiplayer cards available."
+                : "Multiplayer cards hidden. This is either a single player run, or the host turned them off.");
         }
 
         private static void Restore()
@@ -123,6 +123,11 @@ namespace LBOLMP.Session
             {
                 // TODO: Temporarily disabled defibrillator card
                 if (id == "MpDefibrillator")
+                {
+                    continue;
+                }
+                // TODO: Cleanse isn't done yet
+                if (id == "MpCleanse")
                 {
                     continue;
                 }

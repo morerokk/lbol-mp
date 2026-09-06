@@ -379,6 +379,9 @@ namespace LBOLMP.Session.Battle
 
             _waitForLoadIn = MpLoadGate.Consume();
 
+            MpHandInspect.ForgetBattleZones();
+            MpExilePeek.Reset();
+
             _finishedSeed = 0;
             _seenVitals.Clear();
             _counterSequence.Clear();

@@ -130,6 +130,24 @@ namespace LBOLMP.Session
             _lastDeck = null;
         }
 
+        /// <summary>
+        /// Forget everyone's hand inspect piles when the combat ends.
+        /// </summary>
+        public static void ForgetBattleZones()
+        {
+            foreach (var mirror in Mirrors.Values)
+            {
+                mirror.Hand.Clear();
+                mirror.Draw.Clear();
+                mirror.Discard.Clear();
+                mirror.Exile.Clear();
+                mirror.Mana = ManaGroup.Empty;
+                mirror.Revision++;
+            }
+
+            _lastCards = null;
+        }
+
         public static void Update()
         {
             MpSafe.Run("MpHandInspect.Update", () =>
