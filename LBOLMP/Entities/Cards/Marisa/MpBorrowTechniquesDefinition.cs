@@ -15,7 +15,7 @@ using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
 
-namespace LBOLMP.Entities.Cards
+namespace LBOLMP.Entities.Cards.Marisa
 {
     /// <summary>
     /// Steal a page out of a partner's book (literally but not literally).

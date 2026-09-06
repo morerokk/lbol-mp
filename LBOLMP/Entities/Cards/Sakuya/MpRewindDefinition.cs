@@ -13,7 +13,7 @@ using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
 
-namespace LBOLMP.Entities.Cards
+namespace LBOLMP.Entities.Cards.Sakuya
 {
     /// <summary>
     /// How many cards the other player draws after the swap.

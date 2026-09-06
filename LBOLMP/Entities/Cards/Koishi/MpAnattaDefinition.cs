@@ -14,7 +14,7 @@ using LBoLEntitySideloader.Resource;
 using LBOLMP.Entities.StatusEffects;
 using System.Collections.Generic;
 
-namespace LBOLMP.Entities.Cards
+namespace LBOLMP.Entities.Cards.Koishi
 {
     /// <summary>
     /// The multiplayer replacement for Koishi's Anatta card.

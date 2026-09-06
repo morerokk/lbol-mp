@@ -14,7 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace LBOLMP.Entities.Cards
+namespace LBOLMP.Entities.Cards.Reimu
 {
     public sealed class MpCleansePayload : MpEffectPayload
     {

@@ -16,7 +16,7 @@ using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
 using LBoLEntitySideloader.Resource;
 
-namespace LBOLMP.Entities.Cards
+namespace LBOLMP.Entities.Cards.Cirno
 {
     /// <summary>
     /// Multiplayer version of Cirno's Ice Block, which it replaces.

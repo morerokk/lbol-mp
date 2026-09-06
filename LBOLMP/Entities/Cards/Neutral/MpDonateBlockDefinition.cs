@@ -12,7 +12,7 @@ using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
 
-namespace LBOLMP.Entities.Cards
+namespace LBOLMP.Entities.Cards.Neutral
 {
     /// <summary>How much Block the partner is getting, and how many times.</summary>
     public sealed class MpDonateBlockPayload : MpEffectPayload

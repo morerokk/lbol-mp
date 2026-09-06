@@ -11,7 +11,7 @@ using LBoL.EntityLib.Cards.Character.Reimu;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 
-namespace LBOLMP.Entities.Cards
+namespace LBOLMP.Entities.Cards.Reimu
 {
     /// <summary>Whether the orb the partner is getting is upgraded.</summary>
     public sealed class MpYinYangDistributionPayload : MpEffectPayload

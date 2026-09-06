@@ -14,7 +14,7 @@ using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
 
-namespace LBOLMP.Entities.Cards
+namespace LBOLMP.Entities.Cards.Reimu
 {
     public sealed class MpEntrustPayload : MpEffectPayload
     {

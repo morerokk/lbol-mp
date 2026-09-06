@@ -13,7 +13,7 @@ using LBoL.EntityLib.Cards.Character.Sakuya;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 
-namespace LBOLMP.Entities.Cards
+namespace LBOLMP.Entities.Cards.Sakuya
 {
     /// <summary>How many knives each partner is getting.</summary>
     public sealed class MpBladeSymphonyPayload : MpEffectPayload

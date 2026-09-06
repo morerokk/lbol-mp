@@ -15,7 +15,7 @@ using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Resource;
 using UnityEngine;
 
-namespace LBOLMP.Entities.Cards
+namespace LBOLMP.Entities.Cards.Koishi
 {
     /// <summary>
     /// The multiplayer replacement for Koishi's Self-Fulfillment card.

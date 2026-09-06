@@ -14,7 +14,7 @@ using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
 
-namespace LBOLMP.Entities.Cards
+namespace LBOLMP.Entities.Cards.Neutral
 {
     public sealed class MpDefibrillatorPayload : MpEffectPayload
     {

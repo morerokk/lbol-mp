@@ -13,7 +13,7 @@ using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
 
-namespace LBOLMP.Entities.Cards
+namespace LBOLMP.Entities.Cards.Koishi
 {
     /// <summary>
     /// How many cards off the top of their draw pile get played.

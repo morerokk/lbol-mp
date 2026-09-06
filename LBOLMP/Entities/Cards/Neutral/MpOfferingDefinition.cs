@@ -10,7 +10,7 @@ using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
 using LBOLMP.Entities.StatusEffects;
 
-namespace LBOLMP.Entities.Cards
+namespace LBOLMP.Entities.Cards.Neutral
 {
     /// <summary>
     /// Offering to the Ownerless. Adds <see cref="MpOfferingSe"/>, which does the actual work.

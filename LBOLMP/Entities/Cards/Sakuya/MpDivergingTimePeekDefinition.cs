@@ -16,7 +16,7 @@ using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
 
-namespace LBOLMP.Entities.Cards
+namespace LBOLMP.Entities.Cards.Sakuya
 {
     /// <summary>
     /// Take a copy of something a partner has exiled.
