@@ -36,8 +36,6 @@ namespace LBOLMP.Entities.Cards.Reimu
             config.TargetType = TargetType.Nobody;
             config.Keywords = Keyword.Exile;
             config.UpgradedKeywords = Keyword.Exile;
-            // This isn't being released yet due to translations and other things
-            config.DebugLevel = 3;
 
             config.RelativeEffects = new List<string> { nameof(MpPartner), nameof(MpScaled) };
             config.UpgradedRelativeEffects = new List<string> { nameof(MpPartner), nameof(MpScaled) };
@@ -46,8 +44,7 @@ namespace LBOLMP.Entities.Cards.Reimu
             config.Mana = new ManaGroup { Any = 1 };
             config.UpgradedMana = new ManaGroup { Any = 1 };
 
-            // TODO: Fill this in when card art!
-            config.Illustrator = "";
+            config.Illustrator = "Toro";
 
             return config;
         }
