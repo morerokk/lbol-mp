@@ -11,7 +11,7 @@ MpResilient:
 MpOfferingSe:
   Name: Offering to the Ownerless
   Description: |-
-    The next {Level:plural one='Ability card' other='% Ability cards'} you play will also be played for all your |Partners|.
+    The next {Level:plural one='Ability card' other='% Ability cards'} played will also be played for all your |Partners|.
   Brief: |-
     Your next {Level:plural one='Ability card' other='% Ability cards'} will also be played for your |Partners|.
 
@@ -28,7 +28,7 @@ MpAbilityPileSe:
 MpSelfControlSe:
   Name: Self-Fulfillment
   Description: |-
-    At the end of the player's turn, all players gain {Level} |Firepower| if she's in |Passion|, or {Count} |Block| if she's in |Serenity|.
+    At the end of {PlayerName}'s turn, all players gain {Level} |Firepower| if she's in |Passion|, or {Count} |Block| if she's in |Serenity|.
   Brief: |-
     At the end of your turn, all players gain {Level} |Firepower| in |Passion|, or {Count} |Block| in |Serenity|.
 
@@ -40,12 +40,19 @@ MpPartner:
 MpFrontalDefenseTalismanSe:
   Name: Frontal Defense Talisman
   Description: |-
-    Whenever you gain |Barrier| from a card,
+    Whenever {PlayerName} gains |Barrier| from a card,
     all |Partners| gain half that much |Block|.
   Brief: |-
-    |Barrier| you gain from cards also gives all |Partners| half that much |Block|.
+    |Barrier| gained from cards also gives all |Partners| half that much |Block|.
 
 MpScaled:
   Name: Scaled
   Description: Costs more mana for each |Partner| present.
   Brief: Costs more mana for each |Partner| present.
+
+MpCatalystSe:
+  Name: Catalyst
+  Description: |-
+    Whenever {PlayerName} creates an |Unstable Potion|, add an |Unstable Potion| to a random |Partner|'s draw pile {Level:plural one='1 time' other='% times'}.
+  Brief: |-
+    Created Unstable Potions are also added to a random |Partner|'s draw pile, {Level:plural one='once' other='% times'}.

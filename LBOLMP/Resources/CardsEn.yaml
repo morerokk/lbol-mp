@@ -145,3 +145,11 @@ MpChemistryLesson:
   FlavorText: |-
     Add the nitroglycerin last.
     If it starts fizzing, run.
+
+MpCatalyst:
+  Name: Catalyst
+  Description: |-
+    Whenever {PlayerName} creates an |Unstable Potion|, add an |Unstable Potion| to a random |Partner|'s draw pile.
+  UpgradedDescription: |-
+    Whenever {PlayerName} creates an |Unstable Potion|, add an |Unstable Potion| to a random |Partner|'s draw pile.
+    Add 2 |Unstable Potions| to the draw pile.
