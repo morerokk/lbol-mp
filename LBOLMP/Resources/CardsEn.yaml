@@ -134,3 +134,14 @@ MpCleanse:
   UpgradedDescription: |-
     Remove all debuffs from all players.
     |Scaled| {Mana}
+
+MpChemistryLesson:
+  Name: Chemistry Lesson
+  Description: |-
+    For every |Unstable Potion| in the draw and discard pile, add an |Unstable Potion| to a random |Partner|'s draw pile.
+  UpgradedDescription: |-
+    Add an |Unstable Potion| to the draw pile.
+    For every |Unstable Potion| in the draw and discard pile, add an |Unstable Potion| to a random |Partner|'s draw pile.
+  FlavorText: |-
+    Add the nitroglycerin last.
+    If it starts fizzing, run.

@@ -94,10 +94,8 @@ namespace LBOLMP.Entities.Cards.Sakuya
         protected override IEnumerable<BattleAction> Actions(
             UnitSelector selector, ManaGroup consumingMana, Interaction precondition)
         {
-            MpEffects.Send(Id, new MpTimeDilationPayload { Turns = Value1 },
-                MpEffectTarget.Partner, MpPartyTargeting.Consume());
+            MpEffects.Send(Id, new MpTimeDilationPayload { Turns = Value1 }, MpEffectTarget.Partner, MpPartyTargeting.Consume());
 
-            // Same closer as Luna Dial, minus the extra turn for ourselves.
             yield return new RequestEndPlayerTurnAction();
         }
     }
