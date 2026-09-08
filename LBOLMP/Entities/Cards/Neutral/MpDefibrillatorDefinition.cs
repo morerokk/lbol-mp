@@ -38,8 +38,6 @@ namespace LBOLMP.Entities.Cards.Neutral
             config.Rarity = Rarity.Rare;
             config.Cost = ManaGroup.Empty;
             config.TargetType = TargetType.Nobody;
-            // This isn't being released yet due to translations and other things
-            config.DebugLevel = 3;
 
             config.Colors = new List<ManaColor>();
 
@@ -50,6 +48,9 @@ namespace LBOLMP.Entities.Cards.Neutral
 
             config.RelativeEffects = new List<string> { nameof(MpPartner) };
             config.UpgradedRelativeEffects = new List<string> { nameof(MpPartner) };
+
+            config.Illustrator = "にこり";
+
             return config;
         }
 
