@@ -45,7 +45,7 @@ namespace LBOLMP.Entities.Cards.Marisa
             config.RelativeEffects = new List<string> { nameof(MpPartner), nameof(TempFirepower) };
             config.UpgradedRelativeEffects = new List<string> { nameof(MpPartner), nameof(TempFirepower) };
 
-            config.Illustrator = "";
+            config.Illustrator = "Rina里奈";
 
             return config;
         }
