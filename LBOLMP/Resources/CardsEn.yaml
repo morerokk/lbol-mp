@@ -153,3 +153,9 @@ MpCatalyst:
   UpgradedDescription: |-
     Whenever {PlayerName} creates an |Unstable Potion|, add an |Unstable Potion| to a random |Partner|'s draw pile.
     Add 2 |Unstable Potions| to the draw pile.
+
+MpOvercharge:
+  Name: Overcharge
+  Description: |-
+    Gain {Value1} |Temporary Firepower|.
+    |Overdrive| {Value2}: all |Partners| gain {Value1} Temporary Firepower.
