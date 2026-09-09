@@ -165,3 +165,17 @@ MpWrenchToss:
   Description: |-
     Deal {Damage} damage.
     Increase this card's damage by {Value1} this combat, and add it to the top of a random |Partner|'s draw pile. Mana of any color can be spent to pay its cost.
+
+MpAuraOfTranquility:
+  Name: Aura of Tranquility
+  Description: |-
+    |For each <sprite="ManaSprite" name="2"> spent|: add a |Pure| to each |Partner|'s hand.
+  UpgradedDescription: |-
+    |For each <sprite="ManaSprite" name="2"> spent|: add a |Pure+| to each |Partner|'s hand.
+
+MpCosmicInsight:
+  Name: Cosmic Insight
+  Description: |-
+    Add an |Astrology| to each player's hand.
+  UpgradedDescription: |-
+    Add an |Astrology+| to each player's hand.
