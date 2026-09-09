@@ -1,0 +1,12 @@
+# The entries below are event-only characters that we need for some spurious reason.
+MpBenben:
+  Name: 'Benben Tsukumo'
+  Title: 'Tsukumogami of an Aging Biwa'
+  Default: Benben Tsukumo
+  Short: Benben
+
+MpYatsuhashi:
+  Name: 'Yatsuhashi Tsukumo'
+  Title: 'Tsukumogami of an Aging Koto'
+  Default: Yatsuhashi Tsukumo
+  Short: Yatsuhashi

@@ -118,12 +118,14 @@ namespace LBOLMP.Patches
         }
 
         /// <summary>
-        /// DEBUG ONLY: depending on config settings, forces the Yachie, Miyoi and Doremy events so I don't have to play an hour-long run to "maybe" test them.
+        /// DEBUG ONLY: depending on config settings, forces the Yachie, Miyoi, Doremy and
+        /// Performance Lesson events so I don't have to play an hour-long run to "maybe" test them.
         /// </summary>
         [HarmonyPostfix]
         private static void Postfix(ref Type __result, bool __state)
         {
-            if (__state || !(MpPlugin.ForceCombatEvents.Value || MpPlugin.ForceDoremyEvent.Value))
+            if (__state || !(MpPlugin.ForceCombatEvents.Value || MpPlugin.ForceDoremyEvent.Value
+                             || MpPlugin.ForcePerformanceLessonEvent.Value))
             {
                 return;
             }
@@ -156,7 +158,8 @@ namespace LBOLMP.Patches
         }
 
         /// <summary>
-        /// Orders the debug events correctly so that Yachie, Miyoi and Doremy are always offered in that order
+        /// Orders the debug events correctly so that Yachie, Miyoi, Doremy and Performance Lesson
+        /// are always offered in that order
         /// </summary>
         private static List<string> ForcedEventNames()
         {
@@ -170,6 +173,11 @@ namespace LBOLMP.Patches
             if (MpPlugin.ForceDoremyEvent.Value)
             {
                 names.Add("DoremyPortal");
+            }
+
+            if (MpPlugin.ForcePerformanceLessonEvent.Value)
+            {
+                names.Add(nameof(Entities.Adventures.MpPerformanceLesson));
             }
 
             return names;

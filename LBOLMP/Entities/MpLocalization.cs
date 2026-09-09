@@ -23,6 +23,8 @@ namespace LBOLMP.Entities
         private static BatchLocalization _statusEffects;
         private static BatchLocalization _jadeBoxes;
         private static BatchLocalization _packs;
+        private static BatchLocalization _adventures;
+        private static BatchLocalization _enemyUnits;
 
         /// <summary>Resources/Cards&lt;Locale&gt;.yaml</summary>
         internal static BatchLocalization Cards =>
@@ -40,9 +42,24 @@ namespace LBOLMP.Entities
         internal static BatchLocalization Packs =>
             _packs ?? (_packs = Build(typeof(PackTemplate), "Resources/Packs"));
 
-        private static BatchLocalization Build(Type templateType, string prefix)
+        /// <summary>Resources/Adventure&lt;Locale&gt;.yaml, holding each event's title and host name.</summary>
+        internal static BatchLocalization Adventures =>
+            _adventures ?? (_adventures = Build(typeof(AdventureTemplate), "Resources/Adventure"));
+
+        /// <summary>
+        /// Resources/EnemyUnit&lt;Locale&gt;.yaml. Only lore characters so far, for events.
+        /// </summary>
+        internal static BatchLocalization EnemyUnits =>
+            _enemyUnits ?? (_enemyUnits = Build(typeof(EnemyUnitTemplate), "Resources/EnemyUnit",
+                // Without this, the game has no name to put on the dialogue box.
+                isUnitNameSource: true));
+
+        private static BatchLocalization Build(Type templateType, string prefix, bool isUnitNameSource = false)
         {
-            var batch = new BatchLocalization(Source, templateType, Fallback, FileFor(prefix, Fallback));
+            var batch = new BatchLocalization(Source, templateType, Fallback, FileFor(prefix, Fallback))
+            {
+                IsUnitNameSource = isUnitNameSource
+            };
             var found = new List<string> { Fallback.ToString() };
 
             MpSafe.Run("MpLocalization.Build", () => AddTranslations(batch, prefix, found));

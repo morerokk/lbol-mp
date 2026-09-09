@@ -56,6 +56,7 @@ namespace LBOLMP
         public static ConfigEntry<bool> VerboseLogging;
         public static ConfigEntry<bool> ForceCombatEvents;
         public static ConfigEntry<bool> ForceDoremyEvent;
+        public static ConfigEntry<bool> ForcePerformanceLessonEvent;
 
         private void Awake()
         {
@@ -80,6 +81,7 @@ namespace LBOLMP
                 MessageRegistry.RegisterAll(Assembly.GetExecutingAssembly());
                 MpEffects.RegisterAll(Assembly.GetExecutingAssembly());
                 Session.MpCardAvailability.RegisterAll(Assembly.GetExecutingAssembly());
+                Entities.Adventures.MpAdventurePools.Register();
                 HarmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
                 Log.LogInfo("Harmony patches and sideloader status effects applied");
             }
@@ -139,6 +141,8 @@ namespace LBOLMP
                 "DEBUG: Force Yachie or Miyoi events at event nodes.");
             ForceDoremyEvent = Config.Bind("Debug", nameof(ForceDoremyEvent), false,
                 "DEBUG: Force Doremy event at event nodes.");
+            ForcePerformanceLessonEvent = Config.Bind("Debug", nameof(ForcePerformanceLessonEvent), false,
+                "DEBUG: Force the Performance Lesson event at event nodes.");
             VerboseLogging = Config.Bind("Debug", nameof(VerboseLogging), false,
                 "Log every network message. Very noisy, but useful when a desync happens.");
         }

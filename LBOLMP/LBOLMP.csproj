@@ -7,7 +7,7 @@
     <RootNamespace>LBOLMP</RootNamespace>
     <!-- The one real version. tools/Sync-Version.ps1 copies it into MpInfo.cs,
          manifest.json and modinfo.json, and the build runs it. -->
-    <Version>0.11.18</Version>
+    <Version>0.12.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <DebugType>none</DebugType>
@@ -101,6 +101,7 @@
     <Reference Include="UnityEngine.AnimationModule"><HintPath>$(ManagedFolder)\UnityEngine.AnimationModule.dll</HintPath><Private>False</Private></Reference>
     <Reference Include="UnityEngine.PhysicsModule"><HintPath>$(ManagedFolder)\UnityEngine.PhysicsModule.dll</HintPath><Private>False</Private></Reference>
     <Reference Include="UnityEngine.AssetBundleModule"><HintPath>$(ManagedFolder)\UnityEngine.AssetBundleModule.dll</HintPath><Private>False</Private></Reference>
+    <Reference Include="YarnSpinner"><HintPath>$(ManagedFolder)\YarnSpinner.dll</HintPath><Private>False</Private></Reference>
     <Reference Include="LBoL-Entity-Sideloader"><HintPath>C:\Program Files (x86)\Steam\steamapps\workshop\content\1140150\3572815053\LBoL-Entity-Sideloader.dll</HintPath><Private>False</Private></Reference>
   </ItemGroup>
 
@@ -115,6 +116,8 @@
     <!-- Thunderstore's package icon, and the preview the in-game mod loader shows. -->
     <None Update="icon.png"><CopyToOutputDirectory>Always</CopyToOutputDirectory></None>
     <None Update="Resources\**"><CopyToOutputDirectory>Always</CopyToOutputDirectory></None>
+    <!-- Yarn sources are compiled into Resources\yarnc at build time. Only the actual compiled output is put in, uh, output. -->
+    <None Update="Resources\yarn\*.yarn"><CopyToOutputDirectory>Never</CopyToOutputDirectory></None>
   </ItemGroup>
 
   <!--
@@ -129,6 +132,47 @@
           Inputs="$(MSBuildProjectFullPath)"
           Outputs="$(MSBuildThisFileDirectory)MpInfo.cs">
     <Exec Command="powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)..\tools\Sync-Version.ps1&quot;" />
+  </Target>
+
+  <!--
+    Custom event dialogue. YarnTools/ysc.exe turns Resources/yarn/*.yarn into
+    Resources/yarnc/*.yarnc, which ships loose alongside the rest of Resources.
+    Unzip YarnTools.zip from the Sideloader repo into LBOLMP/YarnTools to get ysc.exe.
+    Without it the target is skipped and the last compiled .yarnc is used as-is.
+  -->
+  <PropertyGroup>
+    <YarnSourceFolder Condition="'$(YarnSourceFolder)' == ''">Resources\yarn</YarnSourceFolder>
+    <YarnOutputFolder Condition="'$(YarnOutputFolder)' == ''">Resources\yarnc</YarnOutputFolder>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <YarnFiles Include="$(YarnSourceFolder)\*.yarn" />
+  </ItemGroup>
+
+  <Target Name="CompileYarn" BeforeTargets="BeforeBuild"
+          Condition="Exists('$(MSBuildThisFileDirectory)YarnTools\ysc.exe') And '@(YarnFiles)' != ''"
+          Inputs="@(YarnFiles)"
+          Outputs="@(YarnFiles->'$(MSBuildThisFileDirectory)$(YarnOutputFolder)\%(Filename).yarnc')">
+    <MakeDir Directories="$(MSBuildThisFileDirectory)$(YarnOutputFolder)" />
+    <!-- ysc is built against .NET Core 3.1, which is long out of support and nobody has installed. -->
+    <Exec Command="&quot;$(MSBuildThisFileDirectory)YarnTools\ysc.exe&quot; compile &quot;%(YarnFiles.Identity)&quot; -o &quot;$(MSBuildThisFileDirectory)$(YarnOutputFolder)&quot; -n &quot;%(YarnFiles.Filename).yarnc&quot;"
+          EnvironmentVariables="DOTNET_ROLL_FORWARD=LatestMajor" />
+    <!-- It also drops translation csvs next to the binary. Nothing reads them. -->
+    <ItemGroup>
+      <YarnLeftovers Include="$(MSBuildThisFileDirectory)$(YarnOutputFolder)\*.csv" />
+    </ItemGroup>
+    <Delete Files="@(YarnLeftovers)" ContinueOnError="true" />
+  </Target>
+
+  <!--
+    A .yarnc compiled during this build is not in the None glob yet, which is only evaluated
+    when the project loads. Copy it across by hand so a brand new event works on its first build.
+  -->
+  <Target Name="CopyCompiledYarn" AfterTargets="CompileYarn">
+    <ItemGroup>
+      <CompiledYarn Include="$(MSBuildThisFileDirectory)$(YarnOutputFolder)\*.yarnc" />
+    </ItemGroup>
+    <Copy SourceFiles="@(CompiledYarn)" DestinationFolder="$(OutputPath)$(YarnOutputFolder)" SkipUnchangedFiles="true" />
   </Target>
 
   <Target Name="CleanupDeps" AfterTargets="PostBuildEvent">

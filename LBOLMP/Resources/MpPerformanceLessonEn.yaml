@@ -1,0 +1,9 @@
+# Dialogue for the Performance Lesson event. Keys are the #line: tags in
+# Resources/yarn/MpPerformanceLesson.yarn.
+
+line:mpperf_001: "Hey, you guys are also looking for the branch! Right?"
+line:mpperf_002: "I see you're working together for once, but your coordination is a bit sloppy."
+line:mpperf_optaccept: "[Accept help] Choose 1 of 3 multiplayer cards to add to the deck."
+line:mpperf_003: "{0} feels more coordinated."
+line:mpperf_optrefuse: "[Refuse] Leave."
+line:mpperf_004: "I'm already carrying the team, thank you very much!"

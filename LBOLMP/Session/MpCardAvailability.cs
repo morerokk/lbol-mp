@@ -66,6 +66,12 @@ namespace LBOLMP.Session
         }
 
         /// <summary>
+        /// Whether this card can only show up in multiplayer. Usable as a card pool filter.
+        /// </summary>
+        public static bool IsMultiplayerOnly(string cardId) =>
+            !string.IsNullOrEmpty(cardId) && MultiplayerOnly.Contains(cardId);
+
+        /// <summary>
         /// Mark a *vanilla* card ID as unfindable in singleplayer.
         /// </summary>
         /// <remarks>

@@ -1,0 +1,22 @@
+title: Main
+---
+<<declare $card1 = "">>
+<<declare $card2 = "">>
+<<declare $card3 = "">>
+<<setAdventureImage "">>
+<<enemyTitle MpYatsuhashi>>
+<<lEnemyName MpYatsuhashi>>
+Hey, you guys are also looking for the branch! Right? #line:mpperf_001
+<<enemyTitle MpBenben>>
+<<lEnemyName MpBenben>>
+I see you're working together for once, but your coordination is a bit sloppy. #line:mpperf_002
+-> [Accept help] Choose 1 of 3 multiplayer cards to add to the deck. <<if $card1 != "">> #line:mpperf_optaccept
+    <<selectCards {$card1} {$card2} {$card3}>>
+    {getPlayerName()} feels more coordinated. #line:mpperf_003
+-> [Refuse] Leave. #line:mpperf_optrefuse
+    <<if getPlayerId() == "Cirno">>
+        <<lPlayerName>>
+        I'm already carrying the team, thank you very much! #line:mpperf_004
+    <<endif>>
+<<stop>>
+===
