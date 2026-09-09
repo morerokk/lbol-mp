@@ -6,4 +6,5 @@ line:mpperf_002: "I see you're working together for once, but your coordination 
 line:mpperf_optaccept: "[Accept help] Choose 1 of 3 multiplayer cards to add to the deck."
 line:mpperf_003: "{0} feels more coordinated."
 line:mpperf_optrefuse: "[Refuse] Leave."
+# Cirno-exclusive line
 line:mpperf_004: "I'm already carrying the team, thank you very much!"
