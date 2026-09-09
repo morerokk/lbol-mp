@@ -1,16 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using LBOLMP.Session;
 using LBoL.ConfigData;
 using LBoL.Core;
 using LBoL.Core.Adventures;
 using LBoL.Core.Cards;
 using LBoL.Core.Randoms;
+using LBoL.EntityLib.Adventures.Stage1;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
 using LBoLEntitySideloader.Resource;
+using LBOLMP.Session;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Yarn;
 
 namespace LBOLMP.Entities.Adventures
@@ -27,6 +28,20 @@ namespace LBOLMP.Entities.Adventures
             _source ?? (_source = new DirectorySource(MpInfo.Guid, ""));
 
         public override IdContainer GetId() => nameof(MpPerformanceLesson);
+
+        /// <summary>
+        /// Which Adventure track to play. This borrows the TewiThreat music.
+        /// </summary>
+        private static int BorrowedMusic()
+        {
+            var borrowed = AdventureConfig.FromId(nameof(TewiThreat));
+            if (borrowed == null || borrowed.Music == 0)
+            {
+                return 1;
+            }
+
+            return borrowed.Music;
+        }
 
         public override LocalizationOption LoadLocalization() => MpLocalization.Adventures.AddEntity(this);
 
@@ -50,6 +65,7 @@ namespace LBOLMP.Entities.Adventures
 
             config.HostId = nameof(EnemyUnits.MpYatsuhashi);
             config.HostId2 = nameof(EnemyUnits.MpBenben);
+            config.Music = BorrowedMusic();
 
             return config;
         }
@@ -77,7 +93,8 @@ namespace LBOLMP.Entities.Adventures
 
             for (int i = 0; i < Offers; i++)
             {
-                // An empty id turns the option off rather than crashing the picker.
+                // Trailing empty ids just mean a shorter pick. All three empty, and the yarn
+                // hides the option rather than opening an empty picker.
                 // TODO: Should we make it unavailable instead?
                 storage.SetValue("$card" + (i + 1), i < offers.Count ? offers[i] : string.Empty);
             }
@@ -91,18 +108,8 @@ namespace LBOLMP.Entities.Adventures
             var weights = new CardWeightTable(
                 RarityWeightTable.AllOnes, OwnerWeightTable.Valid, CardTypeWeightTable.CanBeLoot, false);
 
-            var rolled = Ids(GameRun.RollCards(
+            return Ids(GameRun.RollCards(
                 GameRun.AdventureRng, weights, Offers, false, false, IsMultiplayerCard));
-
-            // The colour limit can come up short against a pool this size. Rather an off-colour
-            // card than a missing option.
-            if (rolled.Count < Offers)
-            {
-                rolled = Ids(GameRun.RollCardsWithoutManaLimit(
-                    GameRun.AdventureRng, weights, Offers, false, false, IsMultiplayerCard));
-            }
-
-            return rolled;
         }
 
         private static bool IsMultiplayerCard(CardConfig config) =>

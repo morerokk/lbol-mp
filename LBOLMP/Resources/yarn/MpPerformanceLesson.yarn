@@ -11,7 +11,13 @@ Hey, you guys are also looking for the branch! Right? #line:mpperf_001
 <<lEnemyName MpBenben>>
 I see you're working together for once, but your coordination is a bit sloppy. #line:mpperf_002
 -> [Accept help] Choose 1 of 3 multiplayer cards to add to the deck. <<if $card1 != "">> #line:mpperf_optaccept
-    <<selectCards {$card1} {$card2} {$card3}>>
+    <<if $card3 != "">>
+        <<selectCards {$card1} {$card2} {$card3}>>
+    <<elseif $card2 != "">>
+        <<selectCards {$card1} {$card2}>>
+    <<else>>
+        <<selectCards {$card1}>>
+    <<endif>>
     {getPlayerName()} feels more coordinated. #line:mpperf_003
 -> [Refuse] Leave. #line:mpperf_optrefuse
     <<if getPlayerId() == "Cirno">>
