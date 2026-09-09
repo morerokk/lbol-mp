@@ -159,3 +159,9 @@ MpOvercharge:
   Description: |-
     Gain {Value1} |Temporary Firepower|.
     |Overdrive| {Value2}: all |Partners| gain {Value1} Temporary Firepower.
+
+MpWrenchToss:
+  Name: Wrench Toss
+  Description: |-
+    Deal {Damage} damage.
+    Increase this card's damage by {Value1} this combat, and add it to the top of a random |Partner|'s draw pile. Mana of any color can be spent to pay its cost.
