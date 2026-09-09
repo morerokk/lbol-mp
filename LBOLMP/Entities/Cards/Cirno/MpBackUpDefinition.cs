@@ -37,8 +37,10 @@ namespace LBOLMP.Entities.Cards.Cirno
             config.Rarity = Rarity.Uncommon;
             config.Owner = VanillaCharNames.Cirno;
             config.Colors = new List<ManaColor> { ManaColor.Green };
-            config.Cost = new ManaGroup { Green = 1 };
+            config.Cost = new ManaGroup { Any = 1, Green = 1 };
             config.UpgradedCost = new ManaGroup { Any = 1 };
+            config.Keywords = Keyword.Exile;
+            config.UpgradedKeywords = Keyword.Exile;
 
             // The mana tooltip
             config.Mana = PassedCost;
@@ -52,7 +54,6 @@ namespace LBOLMP.Entities.Cards.Cirno
             config.RelativeKeyword = Keyword.FriendCard | Keyword.TempMorph | Keyword.Ethereal;
             config.UpgradedRelativeKeyword = config.RelativeKeyword;
 
-            config.DebugLevel = 3;
             config.Illustrator = "";
 
             return config;
@@ -124,12 +125,12 @@ namespace LBOLMP.Entities.Cards.Cirno
                 yield break;
             }
 
-            var payload = new MpBackUpPayload { CardId = chosen.Id, Upgraded = chosen.IsUpgraded };
+            chosen.NotifyActivating();
 
-            yield return new ExileCardAction(chosen);
-
-            MpEffects.Send(Id, payload, MpEffectTarget.Partner, _partner);
+            MpEffects.Send(Id, new MpBackUpPayload { CardId = chosen.Id, Upgraded = chosen.IsUpgraded },
+                MpEffectTarget.Partner, _partner);
             _partner = MpConstants.InvalidPlayerId;
+            yield break;
         }
     }
 }

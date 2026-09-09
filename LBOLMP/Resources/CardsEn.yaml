@@ -189,7 +189,7 @@ MpBackUp:
   Name: Back Up
   Description: |-
     Choose a |Partner|.
-    Exile a |Teammate| card in the hand. Add that card to their hand. It |temporarily costs| {Mana} and has |Exile| and |Ethereal|.
+    Choose a |Teammate| card in the hand. Add that card to their hand. It |temporarily costs| {Mana} and has |Ethereal|.
 
 MpIceWall:
   Name: Ice Wall
@@ -203,3 +203,4 @@ MpInspiredBonds:
   Name: Inspired Bonds
   Description: |-
     When a |Teammate|'s |a:Active Skill| or |u:Ultimate Skill| is used, a random |Teammate| in each |Partner|'s hand gains {Value1} |Unity|.
+    Add a random |e:Fairy of Light| to each |Partner|'s hand. It |temporarily costs| {Mana} and has |Ethereal|.
