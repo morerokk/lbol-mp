@@ -29,6 +29,37 @@ namespace LBOLMP.Session.Messages
     }
 
     /// <summary>
+    /// Somebody has been handed an extra turn by another player's card, such as Time Dilation.
+    /// Everybody should know about this so that they can mark the other player as not actually completed.
+    /// </summary>
+    [NetMessage(66)]
+    public sealed class ExtraTurnGrantedMessage : NetMessage
+    {
+        /// <summary>The fight this belongs to, from <c>MpBattleSync.BattleSeed</c>.</summary>
+        public ulong BattleSeed;
+
+        /// <summary>The round the extra turn belongs to.</summary>
+        public int Round;
+
+        /// <summary>Who is getting the turn.</summary>
+        public int TargetPlayerId;
+
+        public override void Write(NetWriter w)
+        {
+            w.ULong(BattleSeed);
+            w.Int(Round);
+            w.Int(TargetPlayerId);
+        }
+
+        public override void Read(NetReader r)
+        {
+            BattleSeed = r.ULong();
+            Round = r.Int();
+            TargetPlayerId = r.Int();
+        }
+    }
+
+    /// <summary>
     /// A player has finished their whole player phase for a round and is waiting before the enemy turn.
     /// Note: this gate is only reached if the player is fully done with their round, right when the enemy would attack instead.
     /// Extra turns (including End of Imperishable Night) do not trigger this message, to let players take their extra turns at the same time as other players' turns.

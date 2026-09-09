@@ -225,6 +225,40 @@ namespace LBOLMP.Patches
     }
 
     /// <summary>
+    /// Put a "waiting for other players" gate at the end of the player round (right before the extra turn check).
+    /// This lets extra turns still get granted even if the player is already waiting for other players to end their turn.
+    /// </summary>
+    [HarmonyPatch(typeof(BattleController), "ResolveAction")]
+    public static class PlayerRoundEndBarrierPatch
+    {
+        [HarmonyPostfix]
+        private static void Postfix(BattleController __instance, BattleAction battleAction,
+                                    ref IEnumerator<object> __result)
+        {
+            var original = __result;
+            if (original == null || !(battleAction is EndPlayerTurnAction) || !MpSession.IsActive)
+            {
+                return;
+            }
+
+            __result = Gated(__instance, original);
+        }
+
+        private static IEnumerator<object> Gated(BattleController battle, IEnumerator<object> endTurn)
+        {
+            yield return endTurn;
+
+            // Another turn already in hand, so the game is about to start a new turn on its own.
+            if (battle.Player != null && battle.Player.HasStatusEffect<ExtraTurn>())
+            {
+                yield break;
+            }
+
+            yield return MpBattleSync.WaitForPlayerRoundEnd(battle);
+        }
+    }
+
+    /// <summary>
     /// Handles the "waiting for other players to finish their turn" gate, effectively pausing the enemy's turn until every player is confirmed done.
     /// This gate is put directly before the enemy's round starts, so that each player can take their normal turns and extra turns in tandem with each other.
     /// It also resolves end-of-turn effects whenever that player ends their turn, even if other players are still playing. This is intended.

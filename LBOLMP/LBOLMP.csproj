@@ -7,7 +7,7 @@
     <RootNamespace>LBOLMP</RootNamespace>
     <!-- The one real version. tools/Sync-Version.ps1 copies it into MpInfo.cs,
          manifest.json and modinfo.json, and the build runs it. -->
-    <Version>0.12.0</Version>
+    <Version>0.12.1</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <DebugType>none</DebugType>
@@ -128,9 +128,7 @@
     newer than MpInfo.cs, which is to say when the version was just changed. Run
     tools/Sync-Version.ps1 by hand if one of the other files is ever edited directly.
   -->
-  <Target Name="SyncVersion" BeforeTargets="BeforeCompile"
-          Inputs="$(MSBuildProjectFullPath)"
-          Outputs="$(MSBuildThisFileDirectory)MpInfo.cs">
+  <Target Name="SyncVersion" BeforeTargets="BeforeCompile" Inputs="$(MSBuildProjectFullPath)" Outputs="$(MSBuildThisFileDirectory)MpInfo.cs">
     <Exec Command="powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)..\tools\Sync-Version.ps1&quot;" />
   </Target>
 
@@ -149,14 +147,10 @@
     <YarnFiles Include="$(YarnSourceFolder)\*.yarn" />
   </ItemGroup>
 
-  <Target Name="CompileYarn" BeforeTargets="BeforeBuild"
-          Condition="Exists('$(MSBuildThisFileDirectory)YarnTools\ysc.exe') And '@(YarnFiles)' != ''"
-          Inputs="@(YarnFiles)"
-          Outputs="@(YarnFiles->'$(MSBuildThisFileDirectory)$(YarnOutputFolder)\%(Filename).yarnc')">
+  <Target Name="CompileYarn" BeforeTargets="BeforeBuild" Condition="Exists('$(MSBuildThisFileDirectory)YarnTools\ysc.exe') And '@(YarnFiles)' != ''" Inputs="@(YarnFiles)" Outputs="@(YarnFiles->'$(MSBuildThisFileDirectory)$(YarnOutputFolder)\%(Filename).yarnc')">
     <MakeDir Directories="$(MSBuildThisFileDirectory)$(YarnOutputFolder)" />
     <!-- ysc is built against .NET Core 3.1, which is long out of support and nobody has installed. -->
-    <Exec Command="&quot;$(MSBuildThisFileDirectory)YarnTools\ysc.exe&quot; compile &quot;%(YarnFiles.Identity)&quot; -o &quot;$(MSBuildThisFileDirectory)$(YarnOutputFolder)&quot; -n &quot;%(YarnFiles.Filename).yarnc&quot;"
-          EnvironmentVariables="DOTNET_ROLL_FORWARD=LatestMajor" />
+    <Exec Command="&quot;$(MSBuildThisFileDirectory)YarnTools\ysc.exe&quot; compile &quot;%(YarnFiles.Identity)&quot; -o &quot;$(MSBuildThisFileDirectory)$(YarnOutputFolder)&quot; -n &quot;%(YarnFiles.Filename).yarnc&quot;" EnvironmentVariables="DOTNET_ROLL_FORWARD=LatestMajor" />
     <!-- It also drops translation csvs next to the binary. Nothing reads them. -->
     <ItemGroup>
       <YarnLeftovers Include="$(MSBuildThisFileDirectory)$(YarnOutputFolder)\*.csv" />

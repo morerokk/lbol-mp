@@ -3,6 +3,8 @@
   "Description": "Coop mod for LBoL. Press F2 in the main menu to open the network menu. Host a session over Steam or over a direct IP connection, have other players join, then everyone start a new run, pick a character and click Confirm. The host sets the difficulty for everyone.",
   "Brief": "Co-op mod. Press F2 to open the multiplayer menu.",
   "Changelog": [
+    "0.12.1: \nFixed Defibrillator not having Replenish.\nFixed Time Dilation not immediately awarding an extra turn if the other player has already ended their turn.",
+    "0.12.0: \nAdded another batch of multiplayer-exclusive cards!\nAdded Tsukumo Sisters event, which guarantees a card reward of only multiplayer-exclusive cards.",
     "0.11.18: \nFixed hand preview and Diverging Time Peek card showing outdated information about another player's hand/piles/deck sometimes.",
     "0.11.17: \nFixed Seija's damage cap being broken if her damage cap was above 999.\nThe damage cap is still visually capped out at 999, but internally it now correctly goes higher than that for clients too.\nFixed potential rare desync in Tenshi's spellcard power.",
     "0.11.16: \nFixed enemies not dying under certain scenarios.\nFixed host HP sync not always applying during an enemy turn.\nThe mod now waits at the start of combat for everyone to load in, after a Restart or Continue.",
@@ -59,7 +61,7 @@
     "0.2.0: \nFixed map voting getting stuck in many cases. Tweaked extra turn and end-of-turn behaviors.",
     "0.1.0: \nInitial development build."
   ],
-  "Version": "0.12.0",
+  "Version": "0.12.1",
   "Author": "Rokk",
   "Tags": [
     "Mod",

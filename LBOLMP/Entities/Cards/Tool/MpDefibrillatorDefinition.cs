@@ -14,7 +14,7 @@ using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
 using LBoLEntitySideloader.Entities;
 
-namespace LBOLMP.Entities.Cards.Neutral
+namespace LBOLMP.Entities.Cards.Tool
 {
     public sealed class MpDefibrillatorPayload : MpEffectPayload
     {
@@ -42,6 +42,8 @@ namespace LBOLMP.Entities.Cards.Neutral
             config.Colors = new List<ManaColor>();
 
             config.ToolPlayableTimes = 1;
+            config.Keywords = Keyword.Exile | Keyword.Replenish;
+            config.UpgradedKeywords = Keyword.Exile | Keyword.Replenish;
 
             config.Value1 = 50; // Revival HP in percentage
             config.Value2 = 1; // How many turns they're immune for

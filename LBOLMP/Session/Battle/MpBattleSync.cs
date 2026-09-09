@@ -273,6 +273,7 @@ namespace LBOLMP.Session.Battle
         {
             MpNet.On<BattleStartMessage>(OnBattleStart);
             MpNet.On<TurnCompleteMessage>(OnTurnComplete);
+            MpNet.On<ExtraTurnGrantedMessage>(OnExtraTurnGranted);
             MpNet.On<EnemyDamageMessage>(OnEnemyDamage);
             MpNet.On<EnemyStatusMessage>(OnEnemyStatus);
             MpNet.On<EnemyBlockShieldLossMessage>(OnEnemyBlockShieldLoss);
@@ -463,6 +464,51 @@ namespace LBOLMP.Session.Battle
             local.CompletedRound = round;
             MpNet.Send(new TurnCompleteMessage { BattleSeed = BattleSeed, Round = round });
             MpPlugin.Log.LogInfo($"Player phase complete for round {round}; waiting at the enemy-turn gate");
+        }
+
+        /// <summary>
+        /// Tell everyone that a player is going to take an extra turn, so that nobody accidentally proceeds early.
+        /// </summary>
+        public static void AnnounceExtraTurn(int targetPlayerId)
+        {
+            if (!MpSession.IsActive || !InBattle || targetPlayerId == MpConstants.InvalidPlayerId)
+            {
+                return;
+            }
+
+            int round = CurrentRound;
+            Unfinish(targetPlayerId, round);
+
+            MpNet.Send(new ExtraTurnGrantedMessage
+            {
+                BattleSeed = BattleSeed,
+                Round = round,
+                TargetPlayerId = targetPlayerId
+            });
+        }
+
+        private static void OnExtraTurnGranted(ExtraTurnGrantedMessage message)
+        {
+            if (!IsAboutThisFight(message.BattleSeed))
+            {
+                return;
+            }
+
+            Unfinish(message.TargetPlayerId, message.Round);
+        }
+
+        /// <summary>
+        /// Put a seat back to unfinished for a round, so the party waits for them again.
+        /// </summary>
+        private static void Unfinish(int playerId, int round)
+        {
+            var seat = GetSeat(playerId);
+            if (seat == null || seat.CompletedRound < round)
+            {
+                return;
+            }
+
+            seat.CompletedRound = round - 1;
         }
 
         private static void OnTurnComplete(TurnCompleteMessage message)
@@ -674,17 +720,24 @@ namespace LBOLMP.Session.Battle
 
         public static IEnumerable<string> SeatsStillLoading => StillLoading.Select(s => s.Name);
 
-        /// <summary>
-        /// Longest the party holds a fight for someone who is still loading. Well past any honest
-        /// load; a client that has genuinely dropped goes quiet and is written off long before this.
-        /// </summary>
         private const float LoadInGateMaxSeconds = 90f;
 
+        public static IEnumerator<object> WaitForPlayerRoundEnd(BattleController battle) =>
+            Gate(battle, () => ShouldTakeAnotherExtraTurn(battle));
+
         /// <summary>
-        /// The waiting gate every player waits at between their own turn and the enemies'.
-        /// Tip: if you want to stim while the Sakuya player takes their 5th extra turn, try right-clicking them
+        /// The wait before the enemies move. By now the round-end gate has normally already let
+        /// everyone through, so this is the backstop that keeps player cards out of the enemy round.
         /// </summary>
-        public static IEnumerator<object> WaitForEnemyTurn(BattleController battle)
+        public static IEnumerator<object> WaitForEnemyTurn(BattleController battle) => Gate(battle, null);
+
+        /// <summary>
+        /// True if somebody has given this player a turn they have not taken yet.
+        /// </summary>
+        private static bool ShouldTakeAnotherExtraTurn(BattleController battle) =>
+            battle?.Player != null && battle.Player.HasStatusEffect<ExtraTurn>();
+
+        private static IEnumerator<object> Gate(BattleController battle, Func<bool> releaseEarly)
         {
             if (!MpSession.IsActive || !InBattle || battle == null)
             {
@@ -703,6 +756,7 @@ namespace LBOLMP.Session.Battle
             {
                 while (!MpSafe.Run("TurnGate",
                            () => battle.BattleShouldEnd
+                                 || (releaseEarly != null && releaseEarly())
                                  || (AllSeatsCompleted(round) && battle._debugActionQueue.Count == 0),
                            true))
                 {
@@ -730,6 +784,13 @@ namespace LBOLMP.Session.Battle
             finally
             {
                 _atEnemyTurnGate = false;
+            }
+
+            // Going back for another turn, so the party has to keep waiting on us. The caster told
+            // them as much already; this is our own copy of that bookkeeping.
+            if (releaseEarly != null && MpSafe.Run("TurnGateOwed", releaseEarly, false))
+            {
+                MpSafe.Run("RetractTurnComplete", () => Unfinish(MpNet.LocalPlayerId, round));
             }
         }
 

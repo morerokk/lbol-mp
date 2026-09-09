@@ -94,7 +94,12 @@ namespace LBOLMP.Entities.Cards.Sakuya
         protected override IEnumerable<BattleAction> Actions(
             UnitSelector selector, ManaGroup consumingMana, Interaction precondition)
         {
-            MpEffects.Send(Id, new MpTimeDilationPayload { Turns = Value1 }, MpEffectTarget.Partner, MpPartyTargeting.Consume());
+            int partner = MpPartyTargeting.Consume();
+            MpEffects.Send(Id, new MpTimeDilationPayload { Turns = Value1 }, MpEffectTarget.Partner, partner);
+
+            // Everyone hears that they are owed a turn, so nobody starts the enemy round without
+            // them. This has to go out before our own turn ends, which is the line below.
+            MpBattleSync.AnnounceExtraTurn(partner);
 
             yield return new RequestEndPlayerTurnAction();
         }
