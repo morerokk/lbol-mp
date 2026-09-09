@@ -184,3 +184,22 @@ MpSharedTechnique:
   Name: Shared Technique
   Description: |-
     In this turn, the next {Value1:plural one='% attack card is' other='% attack cards are'} also played for all |Partners|.
+
+MpBackUp:
+  Name: Back Up
+  Description: |-
+    Choose a |Partner|.
+    Exile a |Teammate| card in the hand. Add that card to their hand. It |temporarily costs| {Mana} and has |Exile| and |Ethereal|.
+
+MpIceWall:
+  Name: Ice Wall
+  Description: |-
+    All |Partners| gain |Frost Armor| equal to the current |Frost Armor|.
+  UpgradedDescription: |-
+    All |Partners| gain |Frost Armor| equal to the current |Frost Armor|.
+    Gain |Block| equal to the current |Frost Armor|.
+
+MpInspiredBonds:
+  Name: Inspired Bonds
+  Description: |-
+    When a |Teammate|'s |a:Active Skill| or |u:Ultimate Skill| is used, a random |Teammate| in each |Partner|'s hand gains {Value1} |Unity|.

@@ -63,3 +63,10 @@ MpSharedTechniqueSe:
     The next {Level:plural one='attack card' other='% attack cards'} {PlayerName} plays this turn will also be played for all |Partners|.
   Brief: |-
     Your next {Level:plural one='attack card' other='% attack cards'} this turn will also be played for your |Partners|.
+
+MpInspiredBondsSe:
+  Name: Inspired Bonds
+  Description: |-
+    When a |Teammate|'s |a:Active Skill| or |u:Ultimate Skill| is used, a random |Teammate| in each |Partner|'s hand gains {Level} |Unity|.
+  Brief: |-
+    Teammate skills also give a random |Teammate| in each |Partner|'s hand {Level} |Unity|.
