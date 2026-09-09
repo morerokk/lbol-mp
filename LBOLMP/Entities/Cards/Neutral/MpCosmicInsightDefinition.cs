@@ -26,7 +26,7 @@ namespace LBOLMP.Entities.Cards.Neutral
         {
             var config = DefaultConfig();
             config.Type = CardType.Skill;
-            config.Rarity = Rarity.Uncommon;
+            config.Rarity = Rarity.Common;
             config.Colors = new List<ManaColor> { ManaColor.Black };
             config.Cost = new ManaGroup { Any = 1, Black = 1 };
             config.TargetType = TargetType.Nobody;

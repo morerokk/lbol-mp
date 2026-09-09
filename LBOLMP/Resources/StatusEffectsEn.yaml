@@ -56,3 +56,10 @@ MpCatalystSe:
     Whenever {PlayerName} creates an |Unstable Potion|, add an |Unstable Potion| to a random |Partner|'s draw pile {Level:plural one='1 time' other='% times'}.
   Brief: |-
     Created Unstable Potions are also added to a random |Partner|'s draw pile, {Level:plural one='once' other='% times'}.
+
+MpSharedTechniqueSe:
+  Name: Shared Technique
+  Description: |-
+    The next {Level:plural one='attack card' other='% attack cards'} {PlayerName} plays this turn will also be played for all |Partners|.
+  Brief: |-
+    Your next {Level:plural one='attack card' other='% attack cards'} this turn will also be played for your |Partners|.

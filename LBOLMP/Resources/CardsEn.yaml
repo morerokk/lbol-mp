@@ -179,3 +179,8 @@ MpCosmicInsight:
     Add an |Astrology| to each player's hand.
   UpgradedDescription: |-
     Add an |Astrology+| to each player's hand.
+
+MpSharedTechnique:
+  Name: Shared Technique
+  Description: |-
+    In this turn, the next {Value1:plural one='% attack card is' other='% attack cards are'} also played for all |Partners|.
