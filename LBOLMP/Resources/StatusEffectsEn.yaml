@@ -70,3 +70,10 @@ MpInspiredBondsSe:
     When a |Teammate|'s |a:Active Skill| or |u:Ultimate Skill| is used, a random |Teammate| in each |Partner|'s hand gains {Level} |Unity|.
   Brief: |-
     Teammate skills also give a random |Teammate| in each |Partner|'s hand {Level} |Unity|.
+
+MpDeepFreezeSe:
+  Name: Deep Freeze
+  Description: |-
+    Whenever {PlayerName} applies |Cold| to an enemy that already has |Cold|, apply {Level} |Vulnerable|.
+  Brief: |-
+    Stacking |Cold| on an enemy also applies {Level} |Vulnerable|.

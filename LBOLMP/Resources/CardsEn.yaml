@@ -204,3 +204,11 @@ MpInspiredBonds:
   Description: |-
     When a |Teammate|'s |a:Active Skill| or |u:Ultimate Skill| is used, a random |Teammate| in each |Partner|'s hand gains {Value1} |Unity|.
     Add a random |e:Fairy of Light| to each |Partner|'s hand. It |temporarily costs| {Mana} and has |Ethereal|.
+
+MpDeepFreeze:
+  Name: Deep Freeze
+  Description: |-
+    Whenever {PlayerName} applies |Cold| to an enemy that already has |Cold|, apply {Value1} |Vulnerable|.
+  UpgradedDescription: |-
+    Whenever {PlayerName} applies |Cold| to an enemy that already has |Cold|, apply {Value1} |Vulnerable|.
+    Apply |Cold| to each enemy.
