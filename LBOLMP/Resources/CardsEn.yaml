@@ -164,6 +164,8 @@ MpWrenchToss:
   Description: |-
     Deal {Damage} damage.
     Increase this card's damage by {Value1} this combat, and add it to the top of a random |Partner|'s draw pile. Mana of any color can be spent to pay its cost.
+  FlavorText: |-
+    It hardens in response to physical trauma.
 
 MpAuraOfTranquility:
   Name: Aura of Tranquility
@@ -201,7 +203,7 @@ MpIceWall:
 MpInspiredBonds:
   Name: Inspired Bonds
   Description: |-
-    When a |Teammate|'s |a:Active Skill| or |u:Ultimate Skill| is used, a random |Teammate| in each |Partner|'s hand gains {Value1} |Unity|.
+    Whenever a |Teammate|'s |a:Active Skill| or |u:Ultimate Skill| is used, a random |Teammate| in each |Partner|'s hand gains {Value1} |Unity|.
     Add a random |e:Fairy of Light| to each |Partner|'s hand. It |temporarily costs| {Mana} and has |Ethereal|.
 
 MpDeepFreeze:
