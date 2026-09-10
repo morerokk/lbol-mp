@@ -13,14 +13,14 @@ using LBoL.EntityLib.Cards.Character.Koishi;
 namespace LBOLMP.Patches
 {
     /// <summary>
-    /// Send to other players what Perfect Crime took off the enemy (removes all Barrier/Graze/Flawless from the enemy, and some firepower/spirit).
+    /// Publish the Firepower and Spirit that Perfect Crime shaves off an enemy.
     /// </summary>
     [HarmonyPatch(typeof(PerfectCrime), "Actions")]
     public static class PerfectCrimeStealPatch
     {
-        private static readonly Type[] Stolen =
+        /// <summary>The status effects it reduces rather than removes.</summary>
+        private static readonly Type[] Reduced =
         {
-            typeof(Graze), typeof(GuangxueMicai), typeof(Invincible), typeof(InvincibleEternal),
             typeof(Firepower), typeof(TempFirepower), typeof(Spirit), typeof(TempSpirit)
         };
 
@@ -48,58 +48,37 @@ namespace LBOLMP.Patches
             MpSafe.Run("PerfectCrimeStealPatch", () => Publish(enemy, before));
         }
 
-        private sealed class Loot
+        private static Dictionary<string, int> Snapshot(EnemyUnit enemy)
         {
-            internal int Shield;
-
-            /// <summary>Level by effect id, or -1 for one that has no level.</summary>
-            internal readonly Dictionary<string, int> Effects = new Dictionary<string, int>();
-        }
-
-        private static Loot Snapshot(EnemyUnit enemy)
-        {
-            var loot = new Loot();
+            var levels = new Dictionary<string, int>();
             if (enemy == null)
             {
-                return loot;
+                return levels;
             }
 
-            loot.Shield = enemy.Shield;
-
-            foreach (var type in Stolen)
+            foreach (var type in Reduced)
             {
                 var effect = enemy.GetStatusEffect(type);
-                if (effect != null)
+                if (effect != null && effect.HasLevel)
                 {
-                    loot.Effects[effect.Id] = effect.HasLevel ? effect.Level : -1;
+                    levels[effect.Id] = effect.Level;
                 }
             }
 
-            return loot;
+            return levels;
         }
 
-        private static void Publish(EnemyUnit enemy, Loot before)
+        private static void Publish(EnemyUnit enemy, Dictionary<string, int> before)
         {
             if (enemy == null || before == null || !MpSession.IsActive || !MpBattleSync.InBattle)
             {
                 return;
             }
 
-            if (enemy.Shield < before.Shield)
+            foreach (var drained in before)
             {
-                MpBattleSync.ReportEnemyBlockShieldLoss(enemy, 0, before.Shield - enemy.Shield);
-            }
-
-            foreach (var stolen in before.Effects)
-            {
-                var effect = enemy.StatusEffects.FirstOrDefault(s => s.Id == stolen.Key);
-                if (effect == null)
-                {
-                    MpBattleSync.ReportEnemyStatusRemoved(enemy, stolen.Key);
-                    continue;
-                }
-
-                if (effect.HasLevel && effect.Level < stolen.Value)
+                var effect = enemy.StatusEffects.FirstOrDefault(s => s.Id == drained.Key);
+                if (effect != null && effect.HasLevel && effect.Level < drained.Value)
                 {
                     MpBattleSync.ReportEnemyStatusLevel(enemy, effect);
                 }

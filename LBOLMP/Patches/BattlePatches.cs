@@ -627,7 +627,7 @@ namespace LBOLMP.Patches
         /// a card in our hand, one of our exhibits. Anything enemy-side is simulated identically
         /// on every client and must not be replicated.
         /// </summary>
-        private static bool IsLocalPlayerSource(GameEntity source, BattleController battle)
+        internal static bool IsLocalPlayerSource(GameEntity source, BattleController battle)
         {
             switch (source)
             {
@@ -654,6 +654,91 @@ namespace LBOLMP.Patches
                 default:
                     return false;
             }
+        }
+    }
+
+    /// <summary>
+    /// Replicate status effects you take *off* an enemy, the mirror of <see cref="StatusReplicationPatch"/>.
+    /// Any card that strips something off a shared enemy is covered by this, modded ones included.
+    /// </summary>
+    [HarmonyPatch(typeof(RemoveStatusEffectAction), "MainPhase")]
+    public static class StatusRemovalReplicationPatch
+    {
+        [HarmonyPostfix]
+        private static void Postfix(RemoveStatusEffectAction __instance)
+        {
+            MpSafe.Run("StatusRemovalReplicationPatch", () =>
+            {
+                if (!MpSession.IsActive || !MpBattleSync.InBattle)
+                {
+                    return;
+                }
+
+                // Somebody else's removal, being replayed here. Publishing it again would cause a loop.
+                if (MpBattleSync.ConsumeInjected(__instance))
+                {
+                    return;
+                }
+
+                var args = __instance.Args;
+                if (args == null || args.IsCanceled || args.Effect == null
+                    || !(args.Unit is EnemyUnit enemy) || MpPrivateEnemies.IsPrivate(enemy))
+                {
+                    return;
+                }
+
+                var battle = __instance.Battle;
+                if (battle == null
+                    || !StatusReplicationPatch.IsLocalPlayerSource(__instance.Source, battle))
+                {
+                    return;
+                }
+
+                MpBattleSync.ReportEnemyStatusRemoved(enemy, args.Effect.Id);
+            });
+        }
+    }
+
+    /// <summary>
+    /// Replicate Block or Barrier you strip off an enemy outside of an attack.
+    /// (This is for cards that remove it directly)
+    /// </summary>
+    [HarmonyPatch(typeof(LoseBlockShieldAction), "MainPhase")]
+    public static class BlockShieldLossReplicationPatch
+    {
+        [HarmonyPostfix]
+        private static void Postfix(LoseBlockShieldAction __instance)
+        {
+            MpSafe.Run("BlockShieldLossReplicationPatch", () =>
+            {
+                if (!MpSession.IsActive || !MpBattleSync.InBattle)
+                {
+                    return;
+                }
+
+                if (MpBattleSync.ConsumeInjected(__instance))
+                {
+                    return;
+                }
+
+                var args = __instance.Args;
+                if (args == null || args.IsCanceled
+                    || !(args.Target is EnemyUnit enemy) || MpPrivateEnemies.IsPrivate(enemy))
+                {
+                    return;
+                }
+
+                var battle = __instance.Battle;
+                if (battle == null
+                    || !StatusReplicationPatch.IsLocalPlayerSource(__instance.Source, battle))
+                {
+                    return;
+                }
+
+                // MainPhase rewrites Args to what actually came off, so these are the real amounts.
+                MpBattleSync.ReportEnemyBlockShieldLoss(
+                    enemy, Mathf.RoundToInt(args.Block), Mathf.RoundToInt(args.Shield));
+            });
         }
     }
 
