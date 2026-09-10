@@ -99,15 +99,14 @@ MpEntrust:
   Name: Entrust
   Description: |-
     Choose a |Partner|.
-    Lose all |Firepower| and |Temporary Firepower|.
-    They gain that much |Firepower| and |Temporary Firepower|.
+    Gain {Value1} |Temporary Firepower|. Lose all |Firepower| and |Temporary Firepower|. They gain that much |Firepower| and |Temporary Firepower|.
 
 MpYinYangDistribution:
   Name: Yin-Yang Distribution
   Description: |-
-    Add a |Yin-Yang Orb| to each |Partner|'s hand.
+    Add a |Yin-Yang Orb| to each player's hand.
   UpgradedDescription: |-
-    Add a |Yin-Yang Orb+| to each |Partner|'s hand.
+    Add a |Yin-Yang Orb+| to each player's hand.
 
 MpTimeDilation:
   Name: Time Dilation

@@ -63,7 +63,9 @@ namespace LBOLMP.Entities.Cards.Reimu
         {
             MpEffects.Send(Id, new MpYinYangDistributionPayload { Upgraded = IsUpgraded },
                 MpEffectTarget.AllPartners);
-            yield break;
+
+            yield return new AddCardsToHandAction(
+                Library.CreateCards<YinyangCard>(1, IsUpgraded), AddCardsType.Normal, false);
         }
     }
 }

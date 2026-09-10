@@ -64,10 +64,10 @@ namespace LBOLMP.Entities.Cards.Neutral
         protected override IEnumerable<BattleAction> Actions(
             UnitSelector selector, ManaGroup consumingMana, Interaction precondition)
         {
-            yield return MpCosmicInsightDefinition.AddAstrology(IsUpgraded);
-
             MpEffects.Send(Id, new MpCosmicInsightPayload { Upgraded = IsUpgraded },
                 MpEffectTarget.AllPartners);
+
+            yield return MpCosmicInsightDefinition.AddAstrology(IsUpgraded);
         }
     }
 }

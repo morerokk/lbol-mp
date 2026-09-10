@@ -39,6 +39,10 @@ namespace LBOLMP.Entities.Cards.Reimu
             config.Keywords = Keyword.Exile | Keyword.Retain;
             config.UpgradedKeywords = Keyword.Retain;
 
+            // How much Temp FP to gain immediately
+            config.Value1 = 2;
+            config.UpgradedValue1 = 3;
+
             // Set to TargetType.SingleEnemy just so we can borrow the selector logic.
             // PartyTargetPatches points it at a partner instead of enemies.
             config.TargetType = TargetType.SingleEnemy;
@@ -103,6 +107,9 @@ namespace LBOLMP.Entities.Cards.Reimu
             UnitSelector selector, ManaGroup consumingMana, Interaction precondition)
         {
             int partner = MpPartyTargeting.Consume();
+
+            yield return new ApplyStatusEffectAction<TempFirepower>(
+                Battle.Player, Value1, occupationTime: 0.1f);
 
             var moving = new StatusEffect[]
             {
