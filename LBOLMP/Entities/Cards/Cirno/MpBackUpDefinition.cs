@@ -54,7 +54,7 @@ namespace LBOLMP.Entities.Cards.Cirno
             config.RelativeKeyword = Keyword.FriendCard | Keyword.TempMorph | Keyword.Ethereal;
             config.UpgradedRelativeKeyword = config.RelativeKeyword;
 
-            config.Illustrator = "";
+            config.Illustrator = "さるかな";
 
             return config;
         }

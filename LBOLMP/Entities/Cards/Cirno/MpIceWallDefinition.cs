@@ -43,7 +43,7 @@ namespace LBOLMP.Entities.Cards.Cirno
             config.UpgradedRelativeEffects = new List<string> { nameof(MpPartner), nameof(FrostArmor) };
             config.UpgradedRelativeKeyword = Keyword.Block;
 
-            config.Illustrator = "";
+            config.Illustrator = "たれみなみ";
 
             return config;
         }

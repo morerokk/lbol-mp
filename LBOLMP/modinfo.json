@@ -3,6 +3,7 @@
   "Description": "Coop mod for LBoL. Press F2 in the main menu to open the network menu. Host a session over Steam or over a direct IP connection, have other players join, then everyone start a new run, pick a character and click Confirm. The host sets the difficulty for everyone.",
   "Brief": "Co-op mod. Press F2 to open the multiplayer menu.",
   "Changelog": [
+    "0.12.2: \nFixed modded cards not being able to remove or steal Block/Barrier or status effects.",
     "0.12.1: \nFixed Defibrillator not having Replenish.\nFixed Time Dilation not immediately awarding an extra turn if the other player has already ended their turn.",
     "0.12.0: \nAdded another batch of multiplayer-exclusive cards!\nAdded Tsukumo Sisters event, which guarantees a card reward of only multiplayer-exclusive cards.",
     "0.11.18: \nFixed hand preview and Diverging Time Peek card showing outdated information about another player's hand/piles/deck sometimes.",
@@ -61,7 +62,7 @@
     "0.2.0: \nFixed map voting getting stuck in many cases. Tweaked extra turn and end-of-turn behaviors.",
     "0.1.0: \nInitial development build."
   ],
-  "Version": "0.12.1",
+  "Version": "0.12.2",
   "Author": "Rokk",
   "Tags": [
     "Mod",

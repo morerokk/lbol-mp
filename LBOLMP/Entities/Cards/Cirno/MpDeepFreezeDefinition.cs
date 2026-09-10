@@ -35,7 +35,7 @@ namespace LBOLMP.Entities.Cards.Cirno
             config.RelativeEffects = new List<string> { nameof(Cold), nameof(Vulnerable) };
             config.UpgradedRelativeEffects = new List<string> { nameof(Cold), nameof(Vulnerable) };
 
-            config.Illustrator = "";
+            config.Illustrator = "クシャビリア☆";
 
             return config;
         }

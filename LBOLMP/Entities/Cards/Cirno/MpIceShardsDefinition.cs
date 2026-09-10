@@ -47,7 +47,7 @@ namespace LBOLMP.Entities.Cards.Cirno
                 nameof(MpPartner), nameof(Cold), nameof(FrostArmor)
             };
 
-            config.Illustrator = "";
+            config.Illustrator = "国家飯";
 
             return config;
         }
