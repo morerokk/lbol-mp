@@ -212,3 +212,8 @@ MpDeepFreeze:
   UpgradedDescription: |-
     Whenever {PlayerName} applies |Cold| to an enemy that already has |Cold|, apply {Value1} |Vulnerable|.
     Apply |Cold| to each enemy.
+
+MpIceShards:
+  Name: Ice Shards
+  Description: |-
+    Whenever any player deals attack damage to an enemy with |Cold|, they gain {Value1} |Frost Armor|.

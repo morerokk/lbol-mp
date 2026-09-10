@@ -77,3 +77,10 @@ MpDeepFreezeSe:
     Whenever {PlayerName} applies |Cold| to an enemy that already has |Cold|, apply {Level} |Vulnerable|.
   Brief: |-
     Stacking |Cold| on an enemy also applies {Level} |Vulnerable|.
+
+MpIceShardsSe:
+  Name: Ice Shards
+  Description: |-
+    Whenever {PlayerName} deals attack damage to an enemy with |Cold|, they gain {Level} |Frost Armor|.
+  Brief: |-
+    Attacking an enemy with |Cold| gives {Level} |Frost Armor|.
