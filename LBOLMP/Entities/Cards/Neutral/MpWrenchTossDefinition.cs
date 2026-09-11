@@ -44,7 +44,7 @@ namespace LBOLMP.Entities.Cards.Neutral
         {
             var config = DefaultConfig();
             config.Type = CardType.Attack;
-            config.Rarity = Rarity.Common;
+            config.Rarity = Rarity.Uncommon;
             config.Colors = new List<ManaColor> { ManaColor.Blue };
             config.Cost = new ManaGroup { Any = 1, Blue = 1 };
             config.UpgradedCost = PassedCost;
