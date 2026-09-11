@@ -39,3 +39,43 @@ MpFrontalDefenseTalismanSe:
     所有|隊友|獲得一半的|格擋|。
   Brief: |-
     妳從卡牌獲得|護盾|時，所有|隊友|獲得一半的|格擋|。
+
+MpScaled:
+  Name: 背負
+  Description: 費用每有一名|隊友|增加一次。
+  Brief: 費用每有一名|隊友|增加一次。
+
+MpCatalystSe:
+  Name: 催化劑
+  Description: |-
+    每當{PlayerName}增加一張|不穩定魔藥|，將一張|不穩定魔藥|洗入一名隨機|隊友|的抽牌堆 {Level} 次。
+  Brief: |-
+    每當{PlayerName}增加一張|不穩定魔藥|，將一張|不穩定魔藥|洗入一名隨機|隊友|的抽牌堆。
+
+MpSharedTechniqueSe:
+  Name: 共享策略
+  Description: |-
+    這回合內，下 {Level} 張打出的攻擊牌也將被所有|隊友|打出。
+  Brief: |-
+    這回合內，下若干張打出的攻擊牌也將被所有|隊友|打出。
+
+MpInspiredBondsSe:
+  Name: 受啟發的羈絆
+  Description: |-
+    使用|同伴|的|a:主動技能|或|u:終結技|時，所有|隊友|手中的隨機一張|同伴|獲得 {Level} 點|支援度|。
+  Brief: |-
+    使用|同伴|的|a:主動技能|或|u:終結技|時，所有|隊友|手中的隨機一張|同伴|獲得若干點|支援度|。
+
+MpDeepFreezeSe:
+  Name: 深度凍結
+  Description: |-
+    每當{PlayerName}對擁有|寒冷|的敵人施加|寒冷|，施加 {Level} 回合的|易傷|。
+  Brief: |-
+    每當{PlayerName}對擁有|寒冷|的敵人施加|寒冷|，施加若干回合的|易傷|。
+
+MpIceShardsSe:
+  Name: 冰屑
+  Description: |-
+    任何玩家對擁有|寒冷|的敵人造成攻擊傷害時，她獲得 {Level} 層|寒冰甲|。
+  Brief: |-
+    任何玩家對擁有|寒冷|的敵人造成攻擊傷害時，她獲得若干層|寒冰甲|。

@@ -1,0 +1,11 @@
+# Dialogue for the Performance Lesson event. Keys are the #line: tags in
+# Resources/yarn/MpPerformanceLesson.yarn.
+
+line:mpperf_001: "唷！听说你们也在找玉枝，对吧？"
+line:mpperf_002: "我看你们终于肯结伴而行了，但你们的配合也太那啥了吧"
+line:mpperf_optaccept: "【拜托她】从三张联机牌中选择一张加入牌库。"
+line:mpperf_003: "{0}感觉更团队了"
+line:mpperf_optrefuse: "【拒绝】我们走"
+# Cirno-exclusive line
+# 啥子说
+line:mpperf_004: "这把我已经在C了，不用了谢谢！"

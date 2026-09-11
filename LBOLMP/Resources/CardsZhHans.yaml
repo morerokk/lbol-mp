@@ -94,15 +94,14 @@ MpEntrust:
   Name: 相信着你
   Description: |-
     选择一名|队友|。
-    失去所有|火力|和|暂得火力|。
-    她获得等量的|火力|和|暂得火力|。
+    获得 {Value1} 点|暂得火力|。失去所有|火力|和|暂得火力|。她获得等量的|火力|和|暂得火力|。
 
 MpYinYangDistribution:
   Name: 阴阳调和
   Description: |-
-    将一张|阴阳玉|加入每个|队友|的手中。
+    将一张|阴阳玉|加入每名玩家的手中。
   UpgradedDescription: |-
-    将一张|阴阳玉+|加入每个|队友|的手中。
+    将一张|阴阳玉+|加入每名玩家的手中。
 
 MpTimeDilation:
   Name: 时间膨胀
@@ -119,3 +118,104 @@ MpDivergingTimePeek:
     |复制|牌不能被选中。
     加入你手中的牌为|复制|。
     如果该牌是能力牌或有|放逐|，她的副本也将获得|复制|。
+
+MpDefibrillator:
+  Name: 除颤器
+  Description: |-
+    复活所有阵亡的|队友|至最大生命值的 {Value1}%。
+    {Value2} 回合内她们不能失去生命。
+    |消耗品【{DeckCounter}】|
+
+MpCleanse:
+  Name: 净化
+  Description: |-
+    移除所有|队友|身上的所有负面状态。
+    |背负|{Mana}
+  UpgradedDescription: |-
+    移除所有玩家身上的所有负面状态。
+    |背负|{Mana}
+
+MpChemistryLesson:
+  Name: 化学课
+  Description: |-
+    抽牌堆和弃牌堆每有一张|不稳定魔药|，将一张|不稳定魔药|洗入一名随机|队友|的抽牌堆。
+  UpgradedDescription: |-
+    将一张|不稳定魔药|洗入抽牌堆。
+    抽牌堆和弃牌堆每有一张|不稳定魔药|，将一张|不稳定魔药|洗入一名随机|队友|的抽牌堆。
+  FlavorText: |-
+    最后再加入硝化甘油。
+    如果开始冒泡就赶快跑吧。
+
+MpCatalyst:
+  Name: 催化剂
+  Description: |-
+    每当{PlayerName}增加一张|不稳定魔药|，将一张|不稳定魔药|洗入一名随机|队友|的抽牌堆。
+  UpgradedDescription: |-
+    每当{PlayerName}增加一张|不稳定魔药|，将一张|不稳定魔药|洗入一名随机|队友|的抽牌堆。
+    将两张|不稳定魔药|洗入抽牌堆。
+
+MpOvercharge:
+  Name: 过充
+  Description: |-
+    获得 {Value1} 点|暂得火力|。
+    |过载| {Value2}：所有|队友|获得 {Value1} 点|暂得火力|。
+
+MpWrenchToss:
+  Name: 扳手投掷
+  Description: |-
+    造成 {Damage} 点伤害。
+    此牌提高 {Value1} 点效果，将此牌加入一名随机|队友|的抽牌堆顶。{SelfName}的费用可以用任意颜色支付。
+  FlavorText: |-
+    它会因应物理冲击而硬化。
+
+MpAuraOfTranquility:
+  Name: 清静的气质
+  Description: |-
+    |每支付<sprite="ManaSprite" name="2">|：将一张|纯粹|加入每名|队友|的手中。
+  UpgradedDescription: |-
+    |每支付<sprite="ManaSprite" name="2">|：将一张|纯粹+|加入每名|队友|的手中。
+
+MpCosmicInsight:
+  Name: 星际洞见
+  Description: |-
+    将一张|占星|加入每名玩家的手中。
+  UpgradedDescription: |-
+    将一张|占星+|加入每名玩家的手中。
+
+MpSharedTechnique:
+  Name: 共享策略
+  Description: |-
+    这回合内，下 {Value1} 张打出的攻击牌也将被所有|队友|打出。
+
+MpBackUp:
+  Name: 支援
+  Description: |-
+    选择一名|队友|。
+    选择一张|同伴|手牌。将该牌加入她的手牌。它|暂塑|为{Mana}，具有|虚无|。
+
+MpIceWall:
+  Name: 冰墙
+  Description: |-
+    所有|队友|获得现有|寒冰甲|等量的|寒冰甲|。
+  UpgradedDescription: |-
+    所有|队友|获得现有|寒冰甲|等量的|寒冰甲|。
+    获得现有|寒冰甲|等量的|格挡|。
+
+MpInspiredBonds:
+  Name: 受启发的羁绊
+  Description: |-
+    使用|同伴|的|a:主动技能|或|u:终结技|时，所有|队友|手中的随机一张|同伴|获得 {Value1} 点|支援度|。
+    将随机一张|e:三月精|加入每名|队友|手中。它|暂塑|为{Mana}，具有|虚无|。
+
+MpDeepFreeze:
+  Name: 深度冻结
+  Description: |-
+    每当{PlayerName}对拥有|寒冷|的敌人施加|寒冷|，施加 {Value1} 回合的|易伤|。
+  UpgradedDescription: |-
+    每当{PlayerName}对拥有|寒冷|的敌人施加|寒冷|，施加 {Value1} 回合的|易伤|。
+    对所有敌人施加|寒冷|。
+
+MpIceShards:
+  Name: 冰屑
+  Description: |-
+    任何玩家对拥有|寒冷|的敌人造成攻击伤害时，她获得 {Value1} 层|寒冰甲|。

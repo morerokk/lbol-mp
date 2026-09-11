@@ -110,7 +110,7 @@ MpEntrust:
   Name: エントラスト
   Description: |-
     |仲間|を選択する。
-    すべての|火力|と|臨時火力|を失う。
+    |臨時火力|{Value1}を得る。すべての|火力|と|臨時火力|を失う。
     その仲間はそれに等しい|火力|と|臨時火力|を得る。
 
 
@@ -138,3 +138,100 @@ MpDivergingTimePeek:
     あなたの手札に加えられるカードは|複製|となる。
     もしカードが能力又は|廃棄|を持つ場合、そのカードは|複製|となる。
 
+MpCleanse:
+  Name: 浄化
+  Description: |-
+    すべての|仲間|からデバフをすべて解除する。
+    |代償|{Mana}
+  UpgradedDescription: |-
+    すべての|仲間|からデバフをすべて解除する。
+    |代償|{Mana}
+
+MpChemistryLesson:
+  Name: 化学の授業
+  Description: |-
+    山札と捨て札にある|ポーション|1枚につき、ランダムな|仲間|の山札に|ポーション|を1枚加える。
+  UpgradedDescription: |-
+    山札に|ポーション|を1枚加える。
+    山札と捨て札にある|ポーション|1枚につき、ランダムな|仲間|の山札に|ポーション|を1枚加える。
+  FlavorText: |-
+    最後にニトログリセリンを加えること。
+    泡立ち始めたら、逃げろ。
+
+MpCatalyst:
+  Name: 触媒
+  Description: |-
+    {PlayerName}が|ポーション|を生成する度に、ランダムな|仲間|の山札に|ポーション|を1枚加える。
+  UpgradedDescription: |-
+    {PlayerName}が|ポーション|を生成する度に、ランダムな|仲間|の山札に|ポーション|を1枚加える。
+    山札に|ポーション|を2枚加える。
+
+MpOvercharge:
+  Name: 過充電
+  Description: |-
+    |臨時火力|{Value1}を得る。
+    |オーバードライブ|{Value2}：すべての|仲間|が|臨時火力|{Value1}を得る。
+
+MpWrenchToss:
+  Name: レンチ投げ
+  Description: |-
+    {Damage}ダメージを与える。
+    この戦闘中、このカードのダメージを{Value1}増加させ、ランダムな|仲間|の山札の一番上にこのカードを加える。
+    コストの支払いには任意の色のマナを使用できる。
+  FlavorText: |-
+    物理的な衝撃を受けると硬化する。
+
+MpAuraOfTranquility:
+  Name: 静穏のオーラ
+  Description: |-
+    |<sprite="ManaSprite" name="2">を1マナ消費するたび|：すべての|仲間|の手札に|純粋|を1枚加える。
+  UpgradedDescription: |-
+    |<sprite="ManaSprite" name="2">を1マナ消費するたび|：すべての|仲間|の手札に|純粋+|を1枚加える。
+
+MpCosmicInsight:
+  Name: 宇宙の叡智
+  Description: |-
+    すべての仲間の手札に|星占い|を1枚加える。
+  UpgradedDescription: |-
+    すべての仲間の手札に|星占い+|を1枚加える。
+
+MpSharedTechnique:
+  Name: 連携技
+  Description: |-
+    このターン、次の{Value1}枚の攻撃カードは、すべての|仲間|にもプレイされる。
+
+
+MpBackUp:
+  Name: 援護
+  Description: |-
+    |仲間|を1人選ぶ。
+    手札から|パートナー|カードを1枚選ぶ。そのカードを相手の手札に加える。
+    そのカードは|臨時コスト|が{Mana}になり、|虚無|を持つ。
+
+
+MpIceWall:
+  Name: 氷壁
+  Description: |-
+    すべての|仲間|は、現在の|フロストアーマー|と同じ値の|フロストアーマー|を得る。
+  UpgradedDescription: |-
+    すべての|仲間|は、現在の|フロストアーマー|と同じ値の|フロストアーマー|を得る。
+    |フロストアーマー|の値に等しい|ブロック|を得る。
+
+MpInspiredBonds:
+  Name: 絆の触発
+  Description: |-
+    |パートナー|の|a:起動スキル|または|u:奥義スキル|が使用されるたび、各|仲間|の手札にあるランダムな|パートナー|が|支援度|{Value1}を得る。 各|仲間|の手札にランダムな|e:光の妖精|を1枚加える。そのカードは|一時的にコスト|が{Mana}になり、|虚無|を持つ。
+
+MpDeepFreeze:
+  Name: 極寒
+  Description: |-
+    {PlayerName}がすでに|冷気|を持つ敵に|冷気|を付与するたび、|弱体|{Value1}を与える。
+  UpgradedDescription: |-
+    {PlayerName}がすでに|冷気|を持つ敵に|冷気|を付与するたび、|弱体|{Value1}を与える。
+    敵全体に|冷気|を与える。
+
+
+MpIceShards:
+  Name: 氷の欠片
+  Description: |-
+    いずれかの仲間が|冷気|を持つ敵に攻撃ダメージを与えるたび、その仲間は|フロストアーマー|{Value1}を得る。

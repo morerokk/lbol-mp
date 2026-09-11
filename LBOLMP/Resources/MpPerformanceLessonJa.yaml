@@ -1,0 +1,10 @@
+# Dialogue for the Performance Lesson event. Keys are the #line: tags in
+# Resources/yarn/MpPerformanceLesson.yarn.
+
+line:mpperf_001: "お前たちも枝を探してるんだろ？　そうだろ？" 
+line:mpperf_002: "珍しく協力してるみたいだけど、連携がちょっと雑だな。" 
+line:mpperf_optaccept: "[助けを借りる] マルチプレイヤー用カード3枚の中から1枚を選び、デッキに加える。"
+line:mpperf_003: "{0}の連携が良くなったようだ。" 
+line:mpperf_optrefuse: "[断る] 立ち去る。"
+# Cirno-exclusive line
+line:mpperf_004: "あたいがもうチームを支えてるんだから、余計な手助けなんていらないよ！"

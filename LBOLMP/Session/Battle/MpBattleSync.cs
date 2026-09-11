@@ -737,7 +737,7 @@ namespace LBOLMP.Session.Battle
         /// </summary>
         /// <remarks>
         /// Mirrors the exit check at the bottom of vanilla's PlayerTurnFlow loop. SuperExtraTurn never
-        /// adds an ExtraTurn; the loop goes round again because its Limit is still 1 after a natural turn.
+        /// adds an ExtraTurn, so the loop goes round again because its Limit is still 1 after a natural turn.
         /// </remarks>
         internal static bool ShouldTakeAnotherExtraTurn(BattleController battle)
         {

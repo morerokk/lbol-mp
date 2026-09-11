@@ -39,3 +39,45 @@ MpFrontalDefenseTalismanSe:
     あなたがカードから|バリア|を得るとき、すべての|仲間|はその半分に等しい|ブロック|を得る。
   Brief: |-
     あなたがカードから|バリア|を得るとき、すべての|仲間|はその半分に等しい|ブロック|を得る。
+
+MpScaled:
+  Name: 代償
+  Description: "|仲間|が1人いるごとに、必要なマナが増加する。"
+  Brief: "|仲間|が1人いるごとに、必要なマナが増加する。"
+
+MpCatalystSe:
+  Name: 触媒
+  Description: |-
+    {PlayerName}が|ポーション|を生成するたび、ランダムな|仲間|の山札に|ポーション|を{Level}回追加する。
+  Brief: |-
+    生成した|ポーション|は、ランダムな|仲間|の山札にも追加される。
+
+MpSharedTechniqueSe:
+  Name: 連携技
+  Description: |-
+    このターン、{PlayerName}が次にプレイする{Level}枚の攻撃カードは、すべての|仲間|にもプレイされる。
+  Brief: |-
+    このターン、次にプレイする何枚かの攻撃カードは、|仲間|にもプレイされる。
+
+
+MpInspiredBondsSe:
+  Name: 絆の触発
+  Description: |-
+    |パートナー|の|a:起動スキル|または|u:奥義スキル|が使用されるたび、各|仲間|の手札にあるランダムな|パートナー|が|支援値|{Level}を得る。 
+
+  Brief: |-
+    |パートナー|のスキルは、各|仲間|の手札にあるランダムな|パートナー|にも|支援度|を与える。
+
+MpDeepFreezeSe:
+  Name: 極寒
+  Description: |-
+    {PlayerName}がすでに|冷気|を持つ敵に|冷気|を付与するたび、|弱体|{Level} を与える。
+  Brief: |-
+    敵の|冷気|を重ねると、|弱体|を与える。
+
+MpIceShardsSe:
+  Name: 氷の欠片
+  Description: |-
+    {PlayerName}が|冷気|を持つ敵に攻撃ダメージを与える度、その仲間は|フロストアーマー|{Level}を得る。
+  Brief: |-
+    |冷気|を持つ敵に攻撃ダメージを与える度、その仲間は|フロストアーマー|を得る。

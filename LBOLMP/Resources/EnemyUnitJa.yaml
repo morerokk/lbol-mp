@@ -1,0 +1,12 @@
+# The entries below are event-only characters that we need for some spurious reason.
+MpBenben:
+  Name: '九十九 弁々'
+  Title: '古びた琵琶の付喪神'
+  Default: 九十九 弁々
+  Short: 弁々
+
+MpYatsuhashi:
+  Name: '九十九 八橋'
+  Title: '古びた琴の付喪神'
+  Default: 九十九 八橋
+  Short: 八橋
