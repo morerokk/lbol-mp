@@ -13,7 +13,7 @@ MpOfferingSe:
   Description: |-
     The next {Level:plural one='Ability card' other='% Ability cards'} played will also be played for all your |Partners|.
   Brief: |-
-    Your next {Level:plural one='Ability card' other='% Ability cards'} will also be played for your |Partners|.
+    The next Ability cards played will also be played for your |Partners|.
 
 MpAnattaSe:
   Name: Anatta
@@ -23,14 +23,14 @@ MpAnattaSe:
 MpAbilityPileSe:
   Name: Ability Pile
   Description: Ability cards cost {Mana} more.
-  Brief: Ability cards cost {Mana} more.
+  Brief: Ability cards cost more.
 
 MpSelfControlSe:
   Name: Self-Fulfillment
   Description: |-
     At the end of {PlayerName}'s turn, all players gain {Level} |Firepower| if she's in |Passion|, or {Count} |Block| if she's in |Serenity|.
   Brief: |-
-    At the end of your turn, all players gain {Level} |Firepower| in |Passion|, or {Count} |Block| in |Serenity|.
+    At the end of your turn, all players gain |Firepower| if you are in |Passion|, or |Block| if you are in |Serenity|.
 
 MpPartner:
   Name: Partner
@@ -55,32 +55,32 @@ MpCatalystSe:
   Description: |-
     Whenever {PlayerName} creates an |Unstable Potion|, add an |Unstable Potion| to a random |Partner|'s draw pile {Level:plural one='1 time' other='% times'}.
   Brief: |-
-    Created Unstable Potions are also added to a random |Partner|'s draw pile, {Level:plural one='once' other='% times'}.
+    Created Unstable Potions are also added to a random |Partner|'s draw pile.
 
 MpSharedTechniqueSe:
   Name: Shared Technique
   Description: |-
     The next {Level:plural one='attack card' other='% attack cards'} {PlayerName} plays this turn will also be played for all |Partners|.
   Brief: |-
-    Your next {Level:plural one='attack card' other='% attack cards'} this turn will also be played for your |Partners|.
+    Your next attack cards played this turn will also be played for your |Partners|.
 
 MpInspiredBondsSe:
   Name: Inspired Bonds
   Description: |-
     When a |Teammate|'s |a:Active Skill| or |u:Ultimate Skill| is used, a random |Teammate| in each |Partner|'s hand gains {Level} |Unity|.
   Brief: |-
-    Teammate skills also give a random |Teammate| in each |Partner|'s hand {Level} |Unity|.
+    Teammate skills also give a random |Teammate| in each |Partner|'s hand |Unity|.
 
 MpDeepFreezeSe:
   Name: Deep Freeze
   Description: |-
     Whenever {PlayerName} applies |Cold| to an enemy that already has |Cold|, apply {Level} |Vulnerable|.
   Brief: |-
-    Stacking |Cold| on an enemy also applies {Level} |Vulnerable|.
+    Stacking |Cold| on an enemy also applies |Vulnerable|.
 
 MpIceShardsSe:
   Name: Ice Shards
   Description: |-
     Whenever {PlayerName} deals attack damage to an enemy with |Cold|, they gain {Level} |Frost Armor|.
   Brief: |-
-    Attacking an enemy with |Cold| gives {Level} |Frost Armor|.
+    Attacking an enemy with |Cold| gives |Frost Armor|.
