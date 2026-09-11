@@ -732,10 +732,29 @@ namespace LBOLMP.Session.Battle
         public static IEnumerator<object> WaitForEnemyTurn(BattleController battle) => Gate(battle, null);
 
         /// <summary>
-        /// True if somebody has given this player a turn they have not taken yet.
+        /// True if the game is about to start another turn for this player: an ExtraTurn, or the
+        /// super extra turn End of Imperishable Night gives after every natural turn.
         /// </summary>
-        private static bool ShouldTakeAnotherExtraTurn(BattleController battle) =>
-            battle?.Player != null && battle.Player.HasStatusEffect<ExtraTurn>();
+        /// <remarks>
+        /// Mirrors the exit check at the bottom of vanilla's PlayerTurnFlow loop. SuperExtraTurn never
+        /// adds an ExtraTurn; the loop goes round again because its Limit is still 1 after a natural turn.
+        /// </remarks>
+        internal static bool ShouldTakeAnotherExtraTurn(BattleController battle)
+        {
+            var player = battle?.Player;
+            if (player == null)
+            {
+                return false;
+            }
+
+            if (player.HasStatusEffect<ExtraTurn>())
+            {
+                return true;
+            }
+
+            var superExtraTurn = player.GetStatusEffect<SuperExtraTurn>();
+            return superExtraTurn != null && superExtraTurn.Limit != 0;
+        }
 
         private static IEnumerator<object> Gate(BattleController battle, Func<bool> releaseEarly)
         {

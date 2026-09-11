@@ -248,8 +248,9 @@ namespace LBOLMP.Patches
         {
             yield return endTurn;
 
-            // Another turn already in hand, so the game is about to start a new turn on its own.
-            if (battle.Player != null && battle.Player.HasStatusEffect<ExtraTurn>())
+            // Another turn already in hand (an extra turn, or End of Imperishable Night's), so the game
+            // is about to start one on its own and we are not done with the round yet.
+            if (MpBattleSync.ShouldTakeAnotherExtraTurn(battle))
             {
                 yield break;
             }
