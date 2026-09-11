@@ -1472,6 +1472,11 @@ namespace LBOLMP.Session.Battle
 
         private static readonly HashSet<int> _forcedKills = new HashSet<int>();
 
+        /// <summary>
+        /// Kill an enemy the host says is dead, but only once at most.
+        /// </summary>
+        /// This used a deferred action that actually checks if the enemy is still alive right before applying the kill.
+        /// This prevents double deaths.
         private static void ForceKillOnce(BattleController battle, EnemyUnit enemy, string reason)
         {
             if (!_forcedKills.Add(enemy.Index))
@@ -1479,7 +1484,9 @@ namespace LBOLMP.Session.Battle
                 return;
             }
 
-            battle.RequestDebugAction(Inject(new ForceKillAction(battle.Player, enemy)), reason);
+            battle.RequestDebugAction(Inject(new Entities.MpDeferredAction(b => enemy.IsAlive
+                ? new BattleAction[] { new ForceKillAction(b.Player, enemy) }
+                : null)), reason);
         }
 
         /// <summary>
