@@ -47,7 +47,7 @@ MpBladeSymphony:
 MpOffering:
   Name: Offering to the Ownerless
   Description: |-
-    The next {Value1:plural one='Ability card' other='% Ability cards'} you play will also be played for all your |Partners|.
+    The next {Value1:plural one='Ability card' other='% Ability cards'} played will also be played for all |Partners|.
   FlavorText: |-
     What is given away freely is not, in fact, given at all. But losing gold would be sacrificing gameplay for lore.
 
@@ -184,7 +184,7 @@ MpCosmicInsight:
 MpSharedTechnique:
   Name: Shared Technique
   Description: |-
-    In this turn, the next {Value1:plural one='% attack card is' other='% attack cards are'} also played for all |Partners|.
+    In this turn, the next {Value1:plural one='% attack card' other='% attack cards'} played is also played for all |Partners|.
 
 MpBackUp:
   Name: Back Up
@@ -218,3 +218,4 @@ MpIceShards:
   Name: Ice Shards
   Description: |-
     Whenever any player deals attack damage to an enemy with |Cold|, they gain {Value1} |Frost Armor|.
+    Apply |Cold| to each enemy.

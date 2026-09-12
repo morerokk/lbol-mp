@@ -219,3 +219,4 @@ MpIceShards:
   Name: 冰屑
   Description: |-
     任何玩家对拥有|寒冷|的敌人造成攻击伤害时，她获得 {Value1} 层|寒冰甲|。
+    对所有敌人施加|寒冷|。

@@ -31,12 +31,12 @@ namespace LBOLMP.Entities.Cards.Cirno
             config.Rarity = Rarity.Rare;
             config.Owner = VanillaCharNames.Cirno;
             config.Colors = new List<ManaColor> { ManaColor.Blue, ManaColor.Green };
-            config.Cost = new ManaGroup { Any = 1, Blue = 1, Green = 1 };
-            config.UpgradedCost = ManaGroup.Hybrids(1, ManaColor.Blue, ManaColor.Green);
+            config.Cost = new ManaGroup { Any = 1 } + ManaGroup.Hybrids(1, ManaColor.Blue, ManaColor.Green);
             config.TargetType = TargetType.Self;
 
             // How much Frost Armor each hit is worth.
             config.Value1 = 1;
+            config.UpgradedValue1 = 2;
 
             config.RelativeEffects = new List<string>
             {
@@ -71,9 +71,14 @@ namespace LBOLMP.Entities.Cards.Cirno
         protected override IEnumerable<BattleAction> Actions(
             UnitSelector selector, ManaGroup consumingMana, Interaction precondition)
         {
+            MpEffects.Send(Id, new MpIceShardsPayload { Level = Value1 }, MpEffectTarget.AllPartners);
+
             yield return BuffAction<MpIceShardsSe>(Value1, 0, 0, 0, 0.2f);
 
-            MpEffects.Send(Id, new MpIceShardsPayload { Level = Value1 }, MpEffectTarget.AllPartners);
+            foreach (var action in DebuffAction<Cold>(Battle.AllAliveEnemies, 0, 0, 0, 0, true, 0.03f))
+            {
+                yield return action;
+            }
         }
     }
 }

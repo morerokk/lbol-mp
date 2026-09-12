@@ -184,9 +184,9 @@ MpWrenchToss:
 MpAuraOfTranquility:
   Name: 静穏のオーラ
   Description: |-
-    |<sprite="ManaSprite" name="2">を1マナ消費するたび|：すべての|仲間|の手札に|純粋|を1枚加える。
+    |<sprite="ManaSprite" name="2">を消費する度|：すべての|仲間|の手札に|純粋|を1枚加える。
   UpgradedDescription: |-
-    |<sprite="ManaSprite" name="2">を1マナ消費するたび|：すべての|仲間|の手札に|純粋+|を1枚加える。
+    |<sprite="ManaSprite" name="2">を消費する度|：すべての|仲間|の手札に|純粋+|を1枚加える。
 
 MpCosmicInsight:
   Name: 宇宙の叡智
@@ -220,18 +220,20 @@ MpIceWall:
 MpInspiredBonds:
   Name: 絆の触発
   Description: |-
-    |パートナー|の|a:起動スキル|または|u:奥義スキル|が使用されるたび、各|仲間|の手札にあるランダムな|パートナー|が|支援度|{Value1}を得る。 各|仲間|の手札にランダムな|e:光の妖精|を1枚加える。そのカードは|一時的にコスト|が{Mana}になり、|虚無|を持つ。
+    |パートナー|の|a:起動能力|か|u:奥義|を使用する度、すべての|仲間|の手札にあるランダムな|パートナー|は|支援度|{Value1}を得る。
+    すべての|仲間|は4種の|e:三月精|からランダムな1枚を手札に加える。それは|臨時コスト|{Mana}となり、召喚されるまで|虚無|を持つ。
 
 MpDeepFreeze:
   Name: 極寒
   Description: |-
-    {PlayerName}がすでに|冷気|を持つ敵に|冷気|を付与するたび、|弱体|{Value1}を与える。
+    {PlayerName}がすでに|冷気|を持つ敵に|冷気|を付与する度、|弱体|{Value1}を与える。
   UpgradedDescription: |-
-    {PlayerName}がすでに|冷気|を持つ敵に|冷気|を付与するたび、|弱体|{Value1}を与える。
+    {PlayerName}がすでに|冷気|を持つ敵に|冷気|を付与する度、|弱体|{Value1}を与える。
     敵全体に|冷気|を与える。
 
 
 MpIceShards:
   Name: 氷の欠片
   Description: |-
-    いずれかの仲間が|冷気|を持つ敵に攻撃ダメージを与えるたび、その仲間は|フロストアーマー|{Value1}を得る。
+    いずれかの仲間が|冷気|を持つ敵に攻撃ダメージを与える度、その仲間は|フロストアーマー|{Value1}を得る。
+    敵全体に|冷気|を与える。
