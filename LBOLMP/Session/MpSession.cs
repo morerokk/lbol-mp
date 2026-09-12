@@ -498,8 +498,8 @@ namespace LBOLMP.Session
                 return;
             }
 
-            // The lobby is full
-            if (PlayersById.Count >= MpInfo.MaxPlayers)
+            // The lobby is full.
+            if (ConnectedCount >= MpInfo.MaxPlayers)
             {
                 string reason = L10n.Encode(MpText.ReasonSessionFull);
                 MpNet.SendToConnection(connection, new JoinRejectedMessage { Reason = reason });
@@ -1159,6 +1159,21 @@ namespace LBOLMP.Session
             Battle.MpBattleSync.Reset();
 
             ForgetLastRun();
+
+            // Somebody who dropped mid-run is kept in the list so the UI can say who left. Back in
+            // the lobby that is just a ghost, and it would sit there for the rest of the session.
+            if (MpNet.IsHost)
+            {
+                foreach (var id in PlayersById
+                             .Where(entry => entry.Value.State == MpPlayerState.Disconnected)
+                             .Select(entry => entry.Key)
+                             .ToList())
+                {
+                    PlayersById.Remove(id);
+                }
+
+                BroadcastPlayerList();
+            }
 
             if (!wasPlaying)
             {
