@@ -173,6 +173,23 @@ namespace LBOLMP.Patches
         }
     }
 
+    // Make ally gun hits actually work properly and wait for the gun to hit
+    [HarmonyPatch(typeof(LBoL.Presentation.Units.GameDirector), "DamageActionViewer")]
+    public static class AllyDamageTimingPatch
+    {
+        [HarmonyPrefix]
+        private static bool Prefix(DamageAction action, ref System.Collections.IEnumerator __result)
+        {
+            if (!MpSafe.Run("AllyDamageTimingPatch", () => UI.MpAllyUnits.TryDeferRemoteHit(action), false))
+            {
+                return true;
+            }
+
+            __result = null;
+            return false;
+        }
+    }
+
     /// <summary>Opens and closes the shared-fight bookkeeping.</summary>
     [HarmonyPatch(typeof(GameRunController))]
     public static class BattleLifecyclePatch

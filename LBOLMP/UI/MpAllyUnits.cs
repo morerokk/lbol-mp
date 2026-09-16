@@ -9,6 +9,7 @@ using LBOLMP.Session.Battle;
 using LBoL.Base;
 using LBoL.ConfigData;
 using LBoL.Core;
+using LBoL.Core.Battle.BattleActions;
 using LBoL.Core.Cards;
 using LBoL.Core.StatusEffects;
 using LBoL.Core.Units;
@@ -475,6 +476,10 @@ namespace LBOLMP.UI
         /// </summary>
         public static void TickViews()
         {
+            // Last resort for a hit whose bullets are stuck
+            float now = Time.unscaledTime;
+            MpSafe.Run("MpAllyUnits.ExpireHits", () => FlushPendingHits(hit => hit.Expires <= now));
+
             if (Allies.Count == 0)
             {
                 return;
@@ -497,6 +502,8 @@ namespace LBOLMP.UI
         /// </summary>
         public static void ClearCombatState()
         {
+            PendingHits.Clear();
+
             foreach (var ally in Allies.Values.ToList())
             {
                 SyncOutOfBattle(MpSession.Get(ally.PlayerId));
@@ -1136,7 +1143,7 @@ namespace LBOLMP.UI
         /// <summary>
         /// Play an ally's gun visually-only.
         /// </summary>
-        public static void PlayShoot(int playerId, string gunName, int targetEnemyIndex)
+        public static void PlayShoot(int playerId, string gunName, int targetEnemyIndex, DamageInfo info)
         {
             if (string.IsNullOrEmpty(gunName) || gunName == "Instant" || gunName == "Empty")
             {
@@ -1156,7 +1163,7 @@ namespace LBOLMP.UI
                     return;
                 }
 
-                StageGunHit(targetView, gunName);
+                StageGunHit(targetView, gunName, info);
 
                 ally.Shooting = true;
                 MpPlugin.Instance.StartCoroutine(ShootRoutine(ally, gunName));
@@ -1190,6 +1197,11 @@ namespace LBOLMP.UI
 
             MpSafe.Run("MpAllyUnits.EndShoot", () => ForceIdle(ally));
             ally.Shooting = false;
+
+            // Anything this shot was carrying that never got an impact of its own, such as the
+            // later hits of a burst that only animated once.
+            MpSafe.Run("MpAllyUnits.FlushShot",
+                () => FlushPendingHits(hit => hit.PlayerId == ally.PlayerId));
         }
 
         /// <summary>
@@ -1216,12 +1228,15 @@ namespace LBOLMP.UI
         private static GunHitArgs _allyGunHit;
         private static GunHitArgs _displacedGunHit;
 
-        private static void StageGunHit(UnitView targetView, string gunName)
+        private static void StageGunHit(UnitView targetView, string gunName, DamageInfo info)
         {
+            var measured = targetView.Unit != null ? targetView.Unit.MeasureDamage(info) : info;
+            targetView.ComingDamage = measured;
+
             _displacedGunHit = GameDirector._gunHitArgs;
             _allyGunHit = new GunHitArgs(
                 false,
-                new List<(UnitView, DamageInfo)> { (targetView, DamageInfo.Attack(0f)) },
+                new List<(UnitView, DamageInfo)> { (targetView, measured) },
                 gunName);
             GameDirector._gunHitArgs = _allyGunHit;
         }
@@ -1254,10 +1269,106 @@ namespace LBOLMP.UI
                 if (pair.Item1 != null)
                 {
                     pair.Item1.HitEnd();
+                    FlushPendingHits(hit => ReferenceEquals(hit.View, pair.Item1));
                 }
             }
 
             return true;
+        }
+
+        //--
+        // Remote hit timing
+        //--
+
+        /// <summary>A remote hit, waiting for the bullets to hit.</summary>
+        private sealed class PendingHit
+        {
+            public int PlayerId;
+            public UnitView View;
+            public DamageInfo Info;
+            public float Expires;
+        }
+
+        private static readonly List<PendingHit> PendingHits = new List<PendingHit>();
+
+        private const float PendingHitTimeout = 6f;
+
+        /// <summary>
+        /// True if this damage belongs to an ally's shot that is still in the air.
+        /// </remarks>
+        internal static bool TryDeferRemoteHit(DamageAction action)
+        {
+            var args = action?.DamageArgs;
+            if (!MpSession.IsActive || args == null || args.Length != 1)
+            {
+                return false;
+            }
+
+            var hit = args[0];
+            if (!(hit.Target is EnemyUnit enemy))
+            {
+                return false;
+            }
+
+            // An enemy that just died should fall over now rather than politely wait for the bullets.
+            if (enemy.Hp <= 0 || enemy.Status != UnitStatus.Alive)
+            {
+                return false;
+            }
+
+            var ally = Allies.Values.FirstOrDefault(a => a.Unit == hit.Source);
+            if (ally == null || !ally.Shooting)
+            {
+                return false;
+            }
+
+            var view = GameDirector.GetUnit(enemy);
+            if (view == null)
+            {
+                return false;
+            }
+
+            PendingHits.Add(new PendingHit
+            {
+                PlayerId = ally.PlayerId,
+                View = view,
+                Info = hit.DamageInfo,
+                Expires = Time.unscaledTime + PendingHitTimeout
+            });
+
+            return true;
+        }
+
+        /// <summary>Show what an ally's bullets did, now that they have actually landed.</summary>
+        private static void FlushPendingHits(Func<PendingHit, bool> due)
+        {
+            if (PendingHits.Count == 0)
+            {
+                return;
+            }
+
+            var landed = PendingHits.Where(due).ToList();
+            foreach (var hit in landed)
+            {
+                PendingHits.Remove(hit);
+                MpSafe.Run("MpAllyUnits.ShowPendingHit", () => ShowHit(hit));
+            }
+        }
+
+        private static void ShowHit(PendingHit hit)
+        {
+            if (hit.View == null)
+            {
+                return;
+            }
+
+            hit.View.OnDamageReceived(hit.Info);
+
+            var popups = PopupHud.Instance;
+            if (popups != null)
+            {
+                popups.DamagePopupFromScene(hit.Info, hit.View.transform.position, true);
+            }
         }
 
         /// <summary>

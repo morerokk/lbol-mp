@@ -975,7 +975,7 @@ namespace LBOLMP.Session.Battle
                 Inject(new StatisticalTotalDamageAction(new[] { damage })),
                 "MP remote damage stats");
 
-            UI.MpAllyUnits.PlayShoot(message.SenderId, message.GunName, message.EnemyIndex);
+            UI.MpAllyUnits.PlayShoot(message.SenderId, message.GunName, message.EnemyIndex, info);
         }
 
         /// <summary>Publish a status effect the local player just put on an enemy.</summary>
