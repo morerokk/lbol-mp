@@ -292,6 +292,7 @@ namespace LBOLMP.Session.Battle
             MpDownedPlayers.RegisterHandlers();
             MpEventBattle.RegisterHandlers();
             MpEnemyEscape.RegisterHandlers();
+            MpPartyEscape.RegisterHandlers();
             MpStatusTriggers.RegisterHandlers();
             MpVampire.RegisterHandlers();
             MpJunko.RegisterHandlers();
@@ -327,6 +328,7 @@ namespace LBOLMP.Session.Battle
             MpDownedPlayers.Reset();
             MpEventBattle.Reset();
             MpEnemyEscape.Reset();
+            MpPartyEscape.Reset();
             MpJunko.Reset();
         }
 

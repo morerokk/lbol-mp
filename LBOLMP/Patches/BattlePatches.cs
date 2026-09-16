@@ -592,6 +592,31 @@ namespace LBOLMP.Patches
     }
 
     /// <summary>
+    /// Take the other players with us when we run away from a combat
+    /// </summary>
+    [HarmonyPatch(typeof(PlayerEscapeAction), "ResolvePhase")]
+    public static class PlayerEscapeReplicationPatch
+    {
+        [HarmonyPrefix]
+        private static void Prefix(PlayerEscapeAction __instance, out bool __state)
+        {
+            __state = !MpBattleSync.ConsumeInjected(__instance)
+                      && __instance.Battle != null && !__instance.Battle._escape;
+        }
+
+        [HarmonyPostfix]
+        private static void Postfix(PlayerEscapeAction __instance, bool __state)
+        {
+            if (!__state)
+            {
+                return;
+            }
+
+            MpSafe.Run("PlayerEscapeReplicationPatch", () => MpPartyEscape.Report(__instance._money));
+        }
+    }
+
+    /// <summary>
     /// Replicate debuffs you apply to enemies to everyone else.
     /// Same idea as damage, for debuffs a player lands on a shared enemy.
     /// Patched on the action rather than on <c>TryAddStatusEffect</c> because we need to know what

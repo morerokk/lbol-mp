@@ -539,6 +539,31 @@ namespace LBOLMP.Session.Messages
     }
 
     /// <summary>
+    /// The sender escaped from the combat, so everyone else should too. See <c>MpPartyEscape</c>.
+    /// </summary>
+    [NetMessage(69)]
+    public sealed class PartyEscapedMessage : NetMessage
+    {
+        /// <summary>The fight this belongs to, from <c>MpBattleSync.BattleSeed</c>.</summary>
+        public ulong BattleSeed;
+
+        /// <summary>The money the rewards are replaced with.</summary>
+        public int Money;
+
+        public override void Write(NetWriter w)
+        {
+            w.ULong(BattleSeed);
+            w.Int(Money);
+        }
+
+        public override void Read(NetReader r)
+        {
+            BattleSeed = r.ULong();
+            Money = r.Int();
+        }
+    }
+
+    /// <summary>
     /// A player made one of a shared enemy's status effects go off early, as Larva's ultimate does
     /// to Poison. See <c>MpStatusTriggers</c>.
     /// </summary>

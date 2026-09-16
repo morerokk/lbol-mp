@@ -3,6 +3,7 @@
   "Description": "Coop mod for LBoL. Press F2 in the main menu to open the network menu. Host a session over Steam or over a direct IP connection, have other players join, then start or continue a run.",
   "Brief": "Co-op mod. Press F2 to open the multiplayer menu.",
   "Changelog": [
+    "0.12.7: \nImproved syncing for new 'Modern Duper' card. Everyone now runs away, rather than 1 player ditching their partners.\nImproved compatibility with More Map Options (StS Map). The host's choice for map is now applied to everyone.\nAdded custom networking API for other mods to use.",
     "0.12.6: \nSignificant improvements to player attack effects. This fixes damage being applied too early visually, gun impact sometimes playing a 'Graze' sound effect, missing damage numbers, and more.\nMoved the hand preview text down a little bit so it doesn't cover the exhibit bar.\nAdded 'Waiting for player' messages to the main menu when starting or continuing a run.\nFixed spellcard breaking when trying to use it while previewing another player.\nPlayer preview now shows the other player's spellcard and power.\nFixed start-of-combat exhibits like Anesthesia Gun Watch not always being synced properly.",
     "0.12.5: \nMinor tweak to Chinese localizations (for Tsukumo Sisters event) by Lvalon.",
     "0.12.4: \nMinor tweaks to JP localization by neff.\nTweaked Ice Shards. It now always costs 1+(GU), its effect is doubled on upgrade, and immediately applies cold to all enemies.",
