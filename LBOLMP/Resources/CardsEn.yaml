@@ -219,3 +219,12 @@ MpIceShards:
   Description: |-
     Whenever any player deals attack damage to an enemy with |Cold|, they gain {Value1} |Frost Armor|.
     Apply |Cold| to each enemy.
+
+MpHatefulOrbs:
+  Name: Hateful Orbs
+  Description: |-
+    |Yin-Yang Orbs| apply {Value1} |Weak| and |Vulnerable|.
+    Add a |Yin-Yang Orb| to the hand.
+  UpgradedDescription: |-
+    |Yin-Yang Orbs| apply {Value1} |Weak| and |Vulnerable|.
+    Add a |Yin-Yang Orb+| to the hand.

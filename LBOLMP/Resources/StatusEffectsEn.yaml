@@ -84,3 +84,10 @@ MpIceShardsSe:
     Whenever {PlayerName} deals attack damage to an enemy with |Cold|, they gain {Level} |Frost Armor|.
   Brief: |-
     Attacking an enemy with |Cold| gives |Frost Armor|.
+
+MpHatefulOrbsSe:
+  Name: Hateful Orbs
+  Description: |-
+    |Yin-Yang Orbs| apply {Level} |Weak| and |Vulnerable|.
+  Brief: |-
+    |Yin-Yang Orbs| apply |Weak| and |Vulnerable|.
