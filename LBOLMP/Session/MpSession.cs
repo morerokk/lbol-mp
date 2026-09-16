@@ -408,7 +408,6 @@ namespace LBOLMP.Session
 
             MapSync.Reset();
             MpRestart.Reset();
-            Battle.MpLoadGate.Reset();
             MpHandInspect.Reset();
             MpExilePeek.Reset();
             MpBorderSensor.Reset();
@@ -927,7 +926,11 @@ namespace LBOLMP.Session
 
         public static string DescribeRunWait()
         {
+            // Only ever asked once we have locked in ourselves. On a client our own ready message
+            // has to go to the host and back before our entry says so, and until then we would be
+            // listed as somebody we are waiting on.
             var missing = ConnectedPlayers
+                .Where(p => !p.IsLocal)
                 .Where(p => p.State != MpPlayerState.Ready && p.State != MpPlayerState.Resuming)
                 .Select(p => p.Name)
                 .ToList();
@@ -1052,7 +1055,6 @@ namespace LBOLMP.Session
         {
             MapSync.Reset();
             MpRestart.Reset();
-            Battle.MpLoadGate.Reset();
             MpHandInspect.Reset();
             MpExilePeek.Reset();
             MpBorderSensor.Reset();
@@ -1328,7 +1330,6 @@ namespace LBOLMP.Session
             HostJadeBoxes = new List<string>();
             MapSync.Reset();
             MpRestart.Reset();
-            Battle.MpLoadGate.Reset();
             MpHandInspect.Reset();
             MpExilePeek.Reset();
             MpBorderSensor.Reset();

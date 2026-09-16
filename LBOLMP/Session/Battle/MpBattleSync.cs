@@ -378,7 +378,7 @@ namespace LBOLMP.Session.Battle
             _reportedFinished = false;
             _pendingInjections = 0;
 
-            _waitForLoadIn = MpLoadGate.Consume();
+            _waitForLoadIn = true;
 
             MpHandInspect.ForgetBattleZones();
             MpExilePeek.Reset();
@@ -665,7 +665,7 @@ namespace LBOLMP.Session.Battle
                 yield break;
             }
 
-            MpPlugin.Log.LogInfo("This combat opened from a loading screen. Waiting for the party to get here...");
+            MpPlugin.Log.LogInfo("Waiting for the party to get into this combat...");
 
             float waited = 0f;
             float reportInterval = GateFirstReportSeconds;
