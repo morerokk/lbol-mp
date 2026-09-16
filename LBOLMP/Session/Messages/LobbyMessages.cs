@@ -199,6 +199,9 @@ namespace LBOLMP.Session.Messages
         /// The booster packs the host has switched on, which decide the card pool for everyone.
         public List<string> Packs = new List<string>();
 
+        /// Whether the StsMap mod's map generator is on for the party.
+        public bool StsMap;
+
         public override void Write(NetWriter w)
         {
             w.ULong(Seed);
@@ -213,6 +216,7 @@ namespace LBOLMP.Session.Messages
             w.Bool(MultiplayerCards);
             w.StringList(JadeBoxes);
             w.StringList(Packs);
+            w.Bool(StsMap);
         }
 
         public override void Read(NetReader r)
@@ -230,6 +234,7 @@ namespace LBOLMP.Session.Messages
             MultiplayerCards = r.Bool();
             JadeBoxes = new List<string>(r.StringArray());
             Packs = new List<string>(r.StringArray());
+            StsMap = r.Bool();
         }
     }
 
@@ -415,6 +420,19 @@ namespace LBOLMP.Session.Messages
 
         public override void Write(NetWriter w) => w.StringList(JadeBoxes);
         public override void Read(NetReader r) => JadeBoxes = new List<string>(r.StringArray());
+    }
+
+    /// <summary>
+    /// Whether the host has the StsMap mod's map generator switched on right now.
+    /// Sent like <see cref="LobbyJadeBoxMessage"/>.
+    /// </summary>
+    [NetMessage(67)]
+    public sealed class LobbyStsMapMessage : NetMessage
+    {
+        public bool Enabled;
+
+        public override void Write(NetWriter w) => w.Bool(Enabled);
+        public override void Read(NetReader r) => Enabled = r.Bool();
     }
 
     /// <summary>Periodic mirror of a player's out-of-combat vitals, for the HUD.</summary>

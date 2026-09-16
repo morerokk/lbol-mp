@@ -174,6 +174,10 @@ namespace LBOLMP.Patches
 
             RepairUsOwner(pending.Player);
 
+            // Sts Map stuff
+            var stages = MpSafe.Run("StsMapStages",
+                () => LobbyStsMapPatch.StagesFor(MpSession.RunStsMap, pending.Stages), pending.Stages);
+
             var money = MpSafe.Run("PooledStartingMoney",
                 () => PooledStartingMoney(pending, jadeBoxes), pending.InitMoneyOverride);
 
@@ -181,7 +185,7 @@ namespace LBOLMP.Patches
             try
             {
                 GameMaster.StartGame(seed, difficulty, pending.Puzzles, pending.Player, pending.PlayerType,
-                    pending.InitExhibit, money, pending.Deck, pending.Stages,
+                    pending.InitExhibit, money, pending.Deck, stages,
                     pending.DebutAdventureType, jadeBoxes, pending.GameMode,
                     pending.ShowRandomResult);
             }

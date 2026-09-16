@@ -128,6 +128,14 @@ namespace LBOLMP.Session
         /// </summary>
         public static IReadOnlyList<string> RunJadeBoxes => _runJadeBoxes ?? HostJadeBoxes;
 
+        /// <summary>Whether the host has the StsMap mod's map toggle on in the lobby.</summary>
+        public static bool HostStsMap { get; private set; }
+
+        private static bool? _runStsMap;
+
+        /// <summary>The StsMap setting the new run starts with, delivered with the seed.</summary>
+        public static bool RunStsMap => _runStsMap ?? HostStsMap;
+
         /// <summary>
         /// Our name in the party.
         /// </summary>
@@ -240,6 +248,7 @@ namespace LBOLMP.Session
             MpNet.On<BackToLobbyMessage>(OnBackToLobby);
             MpNet.On<LobbyDifficultyMessage>(OnLobbyDifficulty);
             MpNet.On<LobbyJadeBoxMessage>(OnLobbyJadeBoxes);
+            MpNet.On<LobbyStsMapMessage>(OnLobbyStsMap);
             MpNet.On<PlayerStatusMessage>(OnPlayerStatus);
             MpNet.On<PlayerLeftMessage>(OnPlayerLeft);
 
@@ -400,6 +409,8 @@ namespace LBOLMP.Session
             _runJadeBoxes = null;
             _runPacks = null;
             HostJadeBoxes = new List<string>();
+            _runStsMap = null;
+            HostStsMap = false;
             StatusLine = statusLine;
 
             // Anything this client was holding for a start that is now never going to happen.
@@ -527,6 +538,8 @@ namespace LBOLMP.Session
             MpSafe.Run("PublishHostJadeBoxes", Patches.LobbyJadeBoxPatch.PublishLocalSelection);
             MpNet.SendToConnection(connection,
                 new LobbyJadeBoxMessage { JadeBoxes = new List<string>(HostJadeBoxes) });
+            HostStsMap = StsMapInterop.Enabled;
+            MpNet.SendToConnection(connection, new LobbyStsMapMessage { Enabled = HostStsMap });
 
             MpPlugin.Log.LogInfo($"{PlayersById[playerId]} joined from {connection.RemoteEndPoint}");
         }
@@ -689,6 +702,37 @@ namespace LBOLMP.Session
             HostJadeBoxes = message.JadeBoxes ?? new List<string>();
             MpPlugin.Log.LogInfo($"The host set the jade boxes to {DescribeJadeBoxes(HostJadeBoxes)}");
             MpSafe.Run("ApplyHostJadeBoxes", Patches.LobbyJadeBoxPatch.ApplyHostChoice);
+        }
+
+        /// <summary>
+        /// The host has flipped StsMap's map toggle. Tell the rest of the lobby.
+        /// </summary>
+        public static void PublishHostStsMap(bool enabled)
+        {
+            if (!MpNet.IsOnline || !MpNet.IsHost || enabled == HostStsMap)
+            {
+                return;
+            }
+
+            HostStsMap = enabled;
+            MpPlugin.Log.LogInfo($"StsMap's map is now {(enabled ? "on" : "off")} for the party");
+            MpNet.Send(new LobbyStsMapMessage { Enabled = enabled });
+        }
+
+        private static void OnLobbyStsMap(LobbyStsMapMessage message)
+        {
+            if (message.SenderId != MpConstants.HostPlayerId || MpNet.IsHost)
+            {
+                return;
+            }
+
+            HostStsMap = message.Enabled;
+            MpPlugin.Log.LogInfo($"The host turned StsMap's map {(HostStsMap ? "on" : "off")}");
+            if (HostStsMap && !StsMapInterop.Installed)
+            {
+                MpPlugin.Log.LogWarning("StsMap is not installed here, so the map will not match the host's");
+            }
+            MpSafe.Run("ApplyHostStsMap", Patches.LobbyStsMapPatch.ApplyHostChoice);
         }
 
         public static string DescribeJadeBoxes(IEnumerable<string> jadeBoxes)
@@ -870,7 +914,8 @@ namespace LBOLMP.Session
                 ReviveHpFraction = MpPlugin.ReviveHpFraction.Value,
                 EnemyResilience = MpPlugin.EnableEnemyResilience.Value,
                 MultiplayerCards = MpPlugin.MultiplayerCardsEnabled.Value,
-                Packs = MpPacks.Local()
+                Packs = MpPacks.Local(),
+                StsMap = StsMapInterop.Enabled
             });
         }
 
@@ -1002,6 +1047,7 @@ namespace LBOLMP.Session
             // Only a new run carries these; a resumed one already has its jade boxes in the save.
             _runJadeBoxes = message.JadeBoxes ?? new List<string>();
             _runPacks = message.Packs ?? new List<string>();
+            _runStsMap = message.StsMap;
 
             foreach (var player in PlayersById.Values)
             {
@@ -1328,6 +1374,8 @@ namespace LBOLMP.Session
             _runJadeBoxes = null;
             _runPacks = null;
             HostJadeBoxes = new List<string>();
+            _runStsMap = null;
+            HostStsMap = false;
             MapSync.Reset();
             MpRestart.Reset();
             MpHandInspect.Reset();
