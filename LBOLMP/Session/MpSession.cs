@@ -262,6 +262,7 @@ namespace LBOLMP.Session
             MpSharedMoney.RegisterHandlers();
             MpRestart.RegisterHandlers();
             Battle.MpBattleSync.RegisterHandlers();
+            Api.MpApi.RegisterHandlers();
         }
 
         public static bool Host(int port)
