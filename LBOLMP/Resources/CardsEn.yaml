@@ -228,3 +228,9 @@ MpHatefulOrbs:
   UpgradedDescription: |-
     |Yin-Yang Orbs| apply {Value1} |Weak| and |Vulnerable|.
     Add a |Yin-Yang Orb+| to the hand.
+
+MpProtect:
+  Name: Protect
+  Description: |-
+    Choose a |Partner|.
+    You both gain {Shield} |Barrier|.
