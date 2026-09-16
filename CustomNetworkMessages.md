@@ -31,7 +31,7 @@ MpApi.Subscribe<SomethingHappenedMessage>("MyMod.SomethingHappenedMessage", (mes
 	bool isHost = senderId == MpApi.HostId;
 });
 
-// Wherever you need to send a message (as a host or client, doesn't matter).
+// Wherever you need to send a message (as a host or client, doesn't matter, this example is for something host-decided).
 if (MpApi.IsHost)
 {
     MpApi.Send("MyMod.SomethingHappenedMessage", new SomethingHappenedMessage { InCombat = true });
@@ -44,5 +44,5 @@ if (MpApi.IsHost)
 - Handlers run on the main thread. A handler that throws is logged, and doesn't affect other handlers.
 - Messages with an unrecognized key are logged *once*, and then ignored. You are allowed to send custom network messages even if you're unsure whether other players also have said mod installed.
 - You *should* prefix your keys with your mod's name so they don't conflict with other mods. Prefer `MyMod.SomethingHappenedMessage` over `SomethingHappenedMessage`.
-- You can get LBOL MP's GUID for use with `BepInDependency` by accessing `MpApi.PluginGuid`.
+- LBOL MP's GUID is `rokk.lbol.multiplayer.LBOLMP` (for BepInDependency purposes). This GUID will not change.
 - If your mod does not hard-require LBOL MP, you have to double-triple make sure that no code in the LBOL MP API is called if LBOL MP is not installed. Ideally, make a separate class in-between that is never touched otherwise, and make sure the compiler doesn't inline it. How you do this is left as an exercise to the reader (because I don't know). The game will not crash or error over the missing dependency as long as you never try to actually touch said dependency.
