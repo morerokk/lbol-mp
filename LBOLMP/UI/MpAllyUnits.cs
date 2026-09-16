@@ -1163,7 +1163,7 @@ namespace LBOLMP.UI
                     return;
                 }
 
-                StageGunHit(targetView, gunName, info);
+                StageGunHit(targetView, gunName, info, ally.PlayerId);
 
                 ally.Shooting = true;
                 MpPlugin.Instance.StartCoroutine(ShootRoutine(ally, gunName));
@@ -1197,11 +1197,6 @@ namespace LBOLMP.UI
 
             MpSafe.Run("MpAllyUnits.EndShoot", () => ForceIdle(ally));
             ally.Shooting = false;
-
-            // Anything this shot was carrying that never got an impact of its own, such as the
-            // later hits of a burst that only animated once.
-            MpSafe.Run("MpAllyUnits.FlushShot",
-                () => FlushPendingHits(hit => hit.PlayerId == ally.PlayerId));
         }
 
         /// <summary>
@@ -1228,10 +1223,24 @@ namespace LBOLMP.UI
         private static GunHitArgs _allyGunHit;
         private static GunHitArgs _displacedGunHit;
 
-        private static void StageGunHit(UnitView targetView, string gunName, DamageInfo info)
+        /// <summary>Whose cosmetic shot is staged, and since when.</summary>
+        private static int _allyGunShooter = MpConstants.InvalidPlayerId;
+        private static float _allyGunStagedAt;
+
+        /// <summary>
+        /// True while this ally has bullets on their way to something.
+        /// </summary>
+        private static bool ShotInFlight(int playerId) =>
+            _allyGunHit != null
+            && _allyGunShooter == playerId
+            && Time.unscaledTime - _allyGunStagedAt < PendingHitTimeout;
+
+        private static void StageGunHit(UnitView targetView, string gunName, DamageInfo info, int playerId)
         {
             var measured = targetView.Unit != null ? targetView.Unit.MeasureDamage(info) : info;
             targetView.ComingDamage = measured;
+
+            FlushPendingHits(hit => ReferenceEquals(hit.View, targetView));
 
             _displacedGunHit = GameDirector._gunHitArgs;
             _allyGunHit = new GunHitArgs(
@@ -1239,6 +1248,9 @@ namespace LBOLMP.UI
                 new List<(UnitView, DamageInfo)> { (targetView, measured) },
                 gunName);
             GameDirector._gunHitArgs = _allyGunHit;
+
+            _allyGunShooter = playerId;
+            _allyGunStagedAt = Time.unscaledTime;
         }
 
         /// <summary>
@@ -1262,6 +1274,7 @@ namespace LBOLMP.UI
             GameDirector._gunHitArgs = _displacedGunHit;
             _allyGunHit = null;
             _displacedGunHit = null;
+            _allyGunShooter = MpConstants.InvalidPlayerId;
 
             foreach (var pair in staged.Pairs)
             {
@@ -1283,7 +1296,6 @@ namespace LBOLMP.UI
         /// <summary>A remote hit, waiting for the bullets to hit.</summary>
         private sealed class PendingHit
         {
-            public int PlayerId;
             public UnitView View;
             public DamageInfo Info;
             public float Expires;
@@ -1317,7 +1329,7 @@ namespace LBOLMP.UI
             }
 
             var ally = Allies.Values.FirstOrDefault(a => a.Unit == hit.Source);
-            if (ally == null || !ally.Shooting)
+            if (ally == null || !ShotInFlight(ally.PlayerId))
             {
                 return false;
             }
@@ -1330,7 +1342,6 @@ namespace LBOLMP.UI
 
             PendingHits.Add(new PendingHit
             {
-                PlayerId = ally.PlayerId,
                 View = view,
                 Info = hit.DamageInfo,
                 Expires = Time.unscaledTime + PendingHitTimeout
