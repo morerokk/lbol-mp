@@ -25,7 +25,7 @@ public class SomethingHappenedMessage
 // Somewhere else
 
 // You should call this once (such as in your Bepinex plugin, or in a component with `Awake`). Keep the returned object and dispose it to unsubscribe.
-MpApi.Subscribe<MapChoice>("MyMod.SomethingHappenedMessage", (message, senderId) =>
+MpApi.Subscribe<SomethingHappenedMessage>("MyMod.SomethingHappenedMessage", (message, senderId) =>
 {
     bool inCombat = message.InCombat;
 	bool isHost = senderId == MpApi.HostId;
