@@ -2,6 +2,7 @@ using HarmonyLib;
 using LBOLMP.Net;
 using LBOLMP.Session;
 using LBOLMP.UI;
+using LBoL.Presentation;
 using LBoL.Presentation.UI.Panels;
 using LBoL.Presentation.Units;
 
@@ -110,6 +111,31 @@ namespace LBOLMP.Patches
     {
         [HarmonyPrefix]
         private static bool Prefix() => !InspectRedirect.Took(MpInspectedPiles.ShowDeck);
+    }
+
+    // Prevent spellcard from being used while previewing
+    [HarmonyPatch(typeof(UltimateSkillPanel), "StartUsingUltimateSkill")]
+    public static class UsWhilePreviewingPatch
+    {
+        [HarmonyPrefix]
+        private static bool Prefix()
+        {
+            if (!MpSafe.Run("UsWhilePreviewingPatch", () => MpHandView.Active, false))
+            {
+                return true;
+            }
+
+            AudioManager.PlayUi("UltCantUse", false);
+            return false;
+        }
+    }
+
+    /// And no pointing out targets for a spell card that cannot be used
+    [HarmonyPatch(typeof(UltimateSkillPanel), nameof(UltimateSkillPanel.OnPointerEnter))]
+    public static class UsHoverWhilePreviewingPatch
+    {
+        [HarmonyPrefix]
+        private static bool Prefix() => !MpSafe.Run("UsHoverWhilePreviewingPatch", () => MpHandView.Active, false);
     }
 
     /// <summary>

@@ -42,6 +42,7 @@ namespace LBOLMP.UI
             {
                 Waiting.Hide();
                 Standing.Hide();
+                Inspecting.Hide();
             });
 
             if (_instance == this)
@@ -80,7 +81,6 @@ namespace LBOLMP.UI
 
             EnsureStyles();
             DrawSeatPanels();
-            DrawInspectBanner();
             DrawDiagnostics();
         }
 
@@ -95,10 +95,12 @@ namespace LBOLMP.UI
                 {
                     Waiting.Hide();
                     Standing.Hide();
+                    Inspecting.Hide();
                     return;
                 }
 
                 Waiting.Show(WaitingText());
+                ShowInspectBanner();
 
                 if (!MpDownedPlayers.OutOfFight)
                 {
@@ -114,25 +116,17 @@ namespace LBOLMP.UI
         private static readonly MpBanner Standing =
             new MpBanner("MpStandingBanner", new Vector2(0.5f, 0.30f), 0.5f, 2.3f);
 
+        private static readonly MpBanner Inspecting =
+            new MpBanner("MpInspectBanner", new Vector2(0.5f, 0.9f), 0.5f, 2.3f);
+
         /// <summary>
         /// Say whose hand is on the board, and how to get your own back.
         /// </summary>
-        private void DrawInspectBanner()
+        private void ShowInspectBanner()
         {
-            if (!MpHandView.Active)
-            {
-                return;
-            }
-
-            string text = L10n.Get(MpText.InspectBanner, MpHandInspect.TargetName);
-            var size = MpGui.Measure(_nameStyle, text);
-            var rect = new Rect((Screen.width - size.x) * 0.5f - 16f, 24f, size.x + 32f, size.y + 14f);
-
-            GUI.color = new Color(0f, 0f, 0f, 0.75f);
-            GUI.DrawTexture(rect, _white);
-            GUI.color = new Color(1f, 0.85f, 0.4f);
-            GUI.Label(new Rect(rect.x + 16f, rect.y + 7f, size.x, size.y), text, _nameStyle);
-            GUI.color = Color.white;
+            Inspecting.Show(MpHandView.Active
+                ? L10n.Get(MpText.InspectBanner, MpHandInspect.TargetName)
+                : null);
         }
 
         private void DrawDiagnostics()

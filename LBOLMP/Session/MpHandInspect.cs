@@ -33,6 +33,11 @@ namespace LBOLMP.Session
             public ManaGroup Mana;
             public bool HideDrawOrder;
 
+            /// <summary>Their spell card and its Power gauge</summary>
+            public string UsId = string.Empty;
+            public int Power;
+            public int PowerPerLevel;
+
             /// <summary>Bumped whenever anything above changes, so the view knows to redraw.</summary>
             public int Revision;
         }
@@ -64,6 +69,11 @@ namespace LBOLMP.Session
 
         public static ManaGroup Mana => Find(Target)?.Mana ?? ManaGroup.Empty;
         public static bool HideDrawOrder => Find(Target)?.HideDrawOrder ?? true;
+
+        /// <summary>The watched player's spell card, or empty while we have not heard from them yet.</summary>
+        public static string UsId => Find(Target)?.UsId ?? string.Empty;
+        public static int Power => Find(Target)?.Power ?? 0;
+        public static int PowerPerLevel => Find(Target)?.PowerPerLevel ?? 0;
 
         private static readonly List<Card> Empty = new List<Card>();
 
@@ -204,6 +214,14 @@ namespace LBOLMP.Session
                 Cards = new List<MpCardState>()
             };
 
+            var player = gameRun.Player;
+            if (player != null && player.HasUs)
+            {
+                cards.UsId = player.Us.Id;
+                cards.Power = player.Power;
+                cards.PowerPerLevel = player.PowerPerLevel;
+            }
+
             if (battle != null)
             {
                 cards.Cards.AddRange(MpCardMirror.Capture(battle.HandZone));
@@ -262,6 +280,9 @@ namespace LBOLMP.Session
                 var mirror = MirrorFor(message.SenderId);
                 mirror.Mana = message.Mana;
                 mirror.HideDrawOrder = message.HideDrawOrder;
+                mirror.UsId = message.UsId;
+                mirror.Power = message.Power;
+                mirror.PowerPerLevel = message.PowerPerLevel;
 
                 mirror.Hand.Clear();
                 mirror.Draw.Clear();

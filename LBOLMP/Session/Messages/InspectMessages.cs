@@ -41,11 +41,21 @@ namespace LBOLMP.Session.Messages
         /// <summary>Hand, draw, discard and exile in one list; each card carries its own zone.</summary>
         public List<MpCardState> Cards = new List<MpCardState>();
 
+        /// <summary>The sender's spell card, empty if they somehow have none.</summary>
+        public string UsId = string.Empty;
+
+        /// <summary>The sender's Power.</summary>
+        public int Power;
+        public int PowerPerLevel;
+
         public override void Write(NetWriter w)
         {
             MpCardMirror.WriteMana(w, Mana);
             w.Bool(HideDrawOrder);
             MpCardMirror.Write(w, Cards);
+            w.String(UsId);
+            w.Int(Power);
+            w.Int(PowerPerLevel);
         }
 
         public override void Read(NetReader r)
@@ -53,6 +63,9 @@ namespace LBOLMP.Session.Messages
             Mana = MpCardMirror.ReadMana(r);
             HideDrawOrder = r.Bool();
             Cards = MpCardMirror.Read(r);
+            UsId = r.String();
+            Power = r.Int();
+            PowerPerLevel = r.Int();
         }
     }
 
