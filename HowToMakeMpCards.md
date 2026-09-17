@@ -193,3 +193,37 @@ Examples:
 ## Notes
 
 In all the above cases, the definition's `Receive()` is not run for defeated players. If you want this to happen anyway, implement the `IMpReachesDownedPlayers` interface on the card config. The MpDefibrillator tool card has an example of this.
+
+# How to make your mod a soft-dependency on LBOL MP
+
+The recommended approach is to make a new, separate BepInEx plugin DLL that's bundled with your mod. Mark LBOL MP as a hard-dependency so that this separate plugin is only ever loaded if LBOL MP is. Put all your multiplayer cards and card registration in there.
+
+The other approach if you just need to send/receive a network message and don't care about all this other stuff, is to use reflection. This way, you don't need a dependency on LBOL MP at all.
+
+Example code to put in your mod would be something like this:
+
+```csharp
+public static class MpReflectionBridge
+{
+    private static readonly Type Api = Type.GetType("LBOLMP.Api.MpApi, LBOLMP");
+
+    public static void Send<T>(string key, T payload)
+    {
+        Api?.GetMethods()
+            .First(m => m.Name == "Send")
+            .MakeGenericMethod(typeof(T))
+            .Invoke(null, new object[] { key, payload, false });
+    }
+
+    public static void Subscribe<T>(string key, Action<T> handler)
+    {
+        Api?.GetMethods()
+            .First(m => m.Name == "Subscribe"
+                && m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Action<>))
+            .MakeGenericMethod(typeof(T))
+            .Invoke(null, new object[] { key, handler });
+    }
+}
+```
+
+This gives you immediate access to the `Send` and `Subscribe` methods, letting you send arbitrary data. [Refer to the Custom Network Messages documentation](https://github.com/morerokk/lbol-mp/blob/master/CustomNetworkMessages.md) on how to use this.
