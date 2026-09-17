@@ -10,3 +10,7 @@ This is the source code for the repo. For downloading or installing the mod, see
 - [Thunderstore](https://thunderstore.io/c/touhou-lost-branch-of-legend/p/Rokk/LBOLMP/)
 
 [Technical writeup](https://github.com/morerokk/lbol-mp/blob/master/TechnicalWriteup.md)
+
+[Guide on sending custom network messages from your own mod](https://github.com/morerokk/lbol-mp/blob/master/CustomNetworkMessages.md)
+
+[Guide on making your own multiplayer cards](https://github.com/morerokk/lbol-mp/blob/master/HowToMakeMpCards.md)
