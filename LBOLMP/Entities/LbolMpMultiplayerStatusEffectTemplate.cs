@@ -6,7 +6,8 @@ using LBoL.Core.Battle.BattleActions;
 namespace LBOLMP.Entities
 {
     /// <summary>
-    /// Base for a status effect that does something to other players when it triggers.
+    /// Base for an LBOL MP status effect that does something to other players when it triggers.
+    /// Other mods implement <see cref="IMpEffect{TPayload}"/> on their own status effect definitions instead.
     /// To send something to other players, call <c>MpEffects.Send</c> in your status effect when it should trigger.
     /// </summary>
     /// <remarks>
@@ -16,27 +17,10 @@ namespace LBOLMP.Entities
     /// The limitation that I have accepted is therefore, we only ever listen to CardUsed.
     /// Hook into CardPlayed at your own risk. If you do, stay far away from "proxy cards" (like playing a card for all your partners)
     /// </remarks>
-    public abstract class LbolMpMultiplayerStatusEffectTemplate<TPayload> : LbolMpStatusEffectTemplate, IMpEffect
+    public abstract class LbolMpMultiplayerStatusEffectTemplate<TPayload> : LbolMpStatusEffectTemplate, IMpEffect<TPayload>
         where TPayload : MpEffectPayload, new()
     {
-        /// <summary>
-        /// Namespaced by assembly so two mods cannot collide. Override only if you have to keep a
-        /// key stable across a rename! Changing it breaks compatibility with older versions.
-        /// </summary>
-        public virtual string Key => GetType().Assembly.GetName().Name + "." + GetId();
-
-        MpEffectPayload IMpEffect.NewPayload() => new TPayload();
-
-        IEnumerable<BattleAction> IMpEffect.Receive(MpEffectPayload payload, BattleController battle, int senderId)
-            => Receive((TPayload)payload, battle, senderId);
-
-        /// <summary>
-        /// What this card does on the receiving player's client.
-        /// </summary>
-        /// <remarks>
-        /// Return the actions and let the LBOL MP framework queue them.
-        /// Never touch player state directly, because the receiver may be mid-action when this runs.
-        /// </remarks>
+        /// <inheritdoc />
         public abstract IEnumerable<BattleAction> Receive(TPayload payload, BattleController battle, int senderId);
     }
 }

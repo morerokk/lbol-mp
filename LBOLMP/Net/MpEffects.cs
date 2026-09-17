@@ -79,17 +79,51 @@ namespace LBOLMP.Net
         public override string ToString() => $"MpEffect({Key} from {SenderId})";
     }
 
-    /// <summary>What the registry stores. The template base classes implement this for you.</summary>
+    /// <summary>
+    /// Put this on a card or status effect definition (any Sideloader <c>CardTemplate</c> or <c>StatusEffectTemplate</c>)
+    /// to let it send <typeparamref name="TPayload"/> to other players, and receive it.
+    /// </summary>
+    /// <remarks>
+    /// Send from the card or status effect itself with <c>MpEffects.Send(Id, payload, target)</c>.
+    /// Receive runs on the other player's client.
+    /// Call <c>MpEffects.RegisterAll(Assembly.GetExecutingAssembly())</c> once from your plugin's Awake.
+    /// </remarks>
+    public interface IMpEffect<TPayload> where TPayload : MpEffectPayload, new()
+    {
+        /// <summary>
+        /// What this does on the receiving player's client.
+        /// </summary>
+        /// <remarks>
+        /// Return the actions and let LBOL MP queue them. Never touch player state directly, because the receiving player may be mid-action when this runs.
+        /// (For example, they might be choosing a card to discard. If you change their hand underneath them, the game does very bad things)
+        /// </remarks>
+        IEnumerable<BattleAction> Receive(TPayload payload, BattleController battle, int senderId);
+    }
+
+    /// <summary>
+    /// Optional, next to <see cref="IMpEffect{TPayload}"/>: pin the network key instead of using "AssemblyName.Id".
+    /// </summary>
+    /// <remarks>
+    /// Only needed to keep a key stable across a rename. Changing it breaks compatibility with older versions.
+    /// </remarks>
+    public interface IMpEffectKey
+    {
+        string Key { get; }
+    }
+
+    /// <summary>
+    /// Avoid using this, prefer <see cref="IMpEffect{TPayload}"/>.
+    /// </summary>
     public interface IMpEffect
     {
-        /// <summary>Namespaced and stable across versions. Two mods must never pick the same one.</summary>
+        /// <summary>Pick a unique key, to avoid mod conflicts.</summary>
         string Key { get; }
 
         MpEffectPayload NewPayload();
 
         /// <summary>
-        /// What this does on the receiving player's client. Return actions, do not perform them:
-        /// the receiver may be mid-action, mid-animation, or parked at a gate.
+        /// Return the actions and let LBOL MP queue them. Never touch player state directly, because the receiving player may be mid-action when this runs.
+        /// (For example, they might be choosing a card to discard. If you change their hand underneath them, the game does very bad things)
         /// </summary>
         IEnumerable<BattleAction> Receive(MpEffectPayload payload, BattleController battle, int senderId);
     }
@@ -152,21 +186,87 @@ namespace LBOLMP.Net
         {
             foreach (var type in assembly.GetTypes())
             {
-                if (type.IsAbstract || type.IsGenericTypeDefinition || !typeof(IMpEffect).IsAssignableFrom(type))
+                if (type.IsAbstract || type.IsGenericTypeDefinition
+                    || !typeof(EntityDefinition).IsAssignableFrom(type))
                 {
                     continue;
                 }
 
-                var effect = (IMpEffect)Activator.CreateInstance(type);
+                var payloadType = PayloadTypeOf(type);
+                bool untyped = typeof(IMpEffect).IsAssignableFrom(type);
+                if (payloadType == null && !untyped)
+                {
+                    continue;
+                }
+
+                var definition = (EntityDefinition)Activator.CreateInstance(type);
+                var effect = untyped
+                    ? (IMpEffect)definition
+                    : (IMpEffect)Activator.CreateInstance(
+                        typeof(TypedEffect<>).MakeGenericType(payloadType), definition);
 
                 // UniqueId rather than GetId: that is what Card.Id and StatusEffect.Id read back
                 // as at runtime, and Sideloader renames an entity if another mod already claimed
                 // the plain id. The wire key stays on GetId so it does not move with local renames.
-                var entityId = ((EntityDefinition)effect).UniqueId.ToString();
+                var entityId = definition.UniqueId.ToString();
 
                 MpPayloadSerializer.Validate(effect.NewPayload().GetType());
                 Register(effect, entityId);
             }
+        }
+
+        /// <summary>The payload type of a class's <see cref="IMpEffect{TPayload}"/>, or null.</summary>
+        private static Type PayloadTypeOf(Type type)
+        {
+            var found = type.GetInterfaces()
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IMpEffect<>))
+                .ToList();
+
+            if (found.Count > 1)
+            {
+                throw new InvalidOperationException(
+                    $"{type.FullName} implements IMpEffect<> more than once; one payload type per definition");
+            }
+
+            return found.Count == 1 ? found[0].GetGenericArguments()[0] : null;
+        }
+
+        /// <summary>The default key: "AssemblyName.Id".</summary>
+        internal static string DefaultKey(EntityDefinition definition) =>
+            definition.GetType().Assembly.GetName().Name + "." + definition.GetId();
+
+        /// <summary>What the definition behind a registered effect is, for marker interfaces.</summary>
+        private static object DefinitionOf(IMpEffect effect) =>
+            effect is ITypedEffect typed ? typed.Definition : effect;
+
+        private interface ITypedEffect
+        {
+            EntityDefinition Definition { get; }
+        }
+
+        /// <summary>Adapts an <see cref="IMpEffect{TPayload}"/> definition to what the registry stores.</summary>
+        private sealed class TypedEffect<TPayload> : IMpEffect, ITypedEffect
+            where TPayload : MpEffectPayload, new()
+        {
+            private readonly IMpEffect<TPayload> _effect;
+
+            public TypedEffect(EntityDefinition definition)
+            {
+                Definition = definition;
+                _effect = (IMpEffect<TPayload>)definition;
+                Key = definition is IMpEffectKey custom && !string.IsNullOrEmpty(custom.Key)
+                    ? custom.Key
+                    : DefaultKey(definition);
+            }
+
+            public EntityDefinition Definition { get; }
+
+            public string Key { get; }
+
+            public MpEffectPayload NewPayload() => new TPayload();
+
+            public IEnumerable<BattleAction> Receive(MpEffectPayload payload, BattleController battle, int senderId)
+                => _effect.Receive((TPayload)payload, battle, senderId);
         }
 
         public static void RegisterHandlers() => MpNet.On<MpEffectMessage>(OnEffect);
@@ -295,7 +395,7 @@ namespace LBOLMP.Net
 
             bool knockedOut = MpDownedPlayers.LocalDown || (seat != null && seat.Down);
 
-            return !knockedOut || handler is IMpReachesDownedPlayers;
+            return !knockedOut || DefinitionOf(handler) is IMpReachesDownedPlayers;
         }
 
         private static bool IsForUs(MpEffectMessage message)
