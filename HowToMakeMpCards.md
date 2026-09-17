@@ -23,7 +23,9 @@ public sealed class MyPlugin : BaseUnityPlugin
 	{
 		// ...
 		
-		// NOTE: You should probably do this in a separate class unless your mod hard-depends on LBOL MP.
+		// NOTE: You should probably do this in a separate assembly, unless your mod already hard-depends on LBOL MP.
+		// Make the separate assembly hard-depend on LBOL MP, and it will only be loaded if LBOL MP is loaded.
+		// Put your multiplayer cards and custom network messages in there.
 		
 		// Register network effects
 		MpEffects.RegisterAll(Assembly.GetExecutingAssembly());
@@ -45,7 +47,7 @@ The actual card class does not need to implement an interface if it targets all 
 - Set the `TargetType` on the card config to `SingleEnemy`
 - Have your card implement `IMpPartnerTargeted` (this lets the mod hijack the targeting arrow to target other players)
 
-If you need to target any player including yourself, implement `IMpAnyPlayerTargeted` instead.
+If you need to target any player including yourself, implement `IMpAnyPlayerTargeted` instead. `MpPartyTargeting.Consume()` can also return yourself. If you end up doing something to just yourself, it's better to just immediately perform the action rather than sending it over the network.
 
 ```csharp
 public sealed class MyPayload : MpEffectPayload
@@ -142,13 +144,12 @@ public sealed class MySharedDrawSe : StatusEffect
 
 Examples:
 - [Offering to the Ownerless](https://github.com/morerokk/lbol-mp/blob/master/LBOLMP/Entities/StatusEffects/MpOfferingSeDefinition.cs): replicates the next Ability Card you play to all other players.
-- [Mimic](https://github.com/morerokk/lbol-mp/blob/master/LBOLMP/Entities/StatusEffects/MpMimicSeDefinition.cs): listens to card plays from a specific partner. This example is provided for a card/status that can "remember" a player if needed.
 
 ## Cards that add a status effect which will react to another player playing a card
 
 You can react to other players' card plays in a status effect.
 
-The following example gives you 1 Block whenever another player plays an Attack card:
+The following example gives you Block whenever another player plays an Attack card:
 
 ```csharp
 public sealed class MyBackupSeDefinition : StatusEffectTemplate
@@ -188,17 +189,17 @@ public sealed class MyBackupSe : StatusEffect
 ```
 
 Examples:
-- [Mimic](https://github.com/morerokk/lbol-mp/blob/master/LBOLMP/Entities/StatusEffects/MpMimicSeDefinition.cs): listens to card plays from a specific partner and copies it locally.
+- [Mimic](https://github.com/morerokk/lbol-mp/blob/master/LBOLMP/Entities/StatusEffects/MpMimicSeDefinition.cs): listens to card plays from a specific partner and copies it locally. This also remembers a specific player.
 
 ## Notes
 
-In all the above cases, the definition's `Receive()` is not run for defeated players. If you want this to happen anyway, implement the `IMpReachesDownedPlayers` interface on the card config. The MpDefibrillator tool card has an example of this.
+In all the above cases, the definition's `Receive()` is not run for defeated players. If you want this to happen anyway for defeated players, implement the `IMpReachesDownedPlayers` interface on the card definition. The MpDefibrillator tool card has an example of this. Spectating players will never call Receive().
 
-# How to make your mod a soft-dependency on LBOL MP
+# How to make your mod soft-depend on LBOL MP
 
-The recommended approach is to make a new, separate BepInEx plugin DLL that's bundled with your mod. Mark LBOL MP as a hard-dependency so that this separate plugin is only ever loaded if LBOL MP is. Put all your multiplayer cards and card registration in there.
+The recommended approach is to make a new, separate BepInEx plugin DLL that's bundled with your mod. Mark LBOL MP and your main mod as a hard-dependency, so that this separate plugin is only ever loaded if LBOL MP is. Put all your multiplayer cards and card registration (`MpCardAvailability.RegisterAll()` and `MpEffects.RegisterAll()`) in this separate plugin's Awake.
 
-The other approach if you just need to send/receive a network message and don't care about all this other stuff, is to use reflection. This way, you don't need a dependency on LBOL MP at all.
+The other approach if you just need to send/receive a network message and don't care about all this other stuff, is to use reflection. This way, you don't need a hard-dependency on LBOL MP at all. You *should* still add a soft dependency on LBOL MP just to ensure that your mod loads after LBOL MP does.
 
 Example code to put in your mod would be something like this:
 

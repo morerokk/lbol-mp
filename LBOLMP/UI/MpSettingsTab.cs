@@ -70,7 +70,7 @@ namespace LBOLMP.UI
             }
 
             var sliderTemplate = Find(main, "RightPanel/Master");
-            var switchTemplate = Find(preference, "LeftPanel/TurboMode");
+            var switchTemplate = Find(preference, "LeftPanel/TooltipWide");
             var buttonTemplate = Find(keyMapping, "ResetDefault");
 
             if (sliderTemplate == null || switchTemplate == null || buttonTemplate == null)
