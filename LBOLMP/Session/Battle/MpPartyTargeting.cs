@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using LBOLMP.Entities;
 using LBOLMP.Net;
 using LBoL.Base;
@@ -59,6 +60,19 @@ namespace LBOLMP.Session.Battle
         /// </summary>
         internal static void PickMissingRandomTarget(Card card, RandomGen rng)
         {
+            if (Preferred.TryGetValue(card, out var preferred))
+            {
+                Preferred.Remove(card);
+                foreach (int id in preferred.Value)
+                {
+                    if (IsValidTarget(card, id))
+                    {
+                        _pending = id;
+                        return;
+                    }
+                }
+            }
+
             if (IsValidTarget(card, _pending))
             {
                 return;
@@ -69,6 +83,31 @@ namespace LBOLMP.Session.Battle
                 ? MpConstants.InvalidPlayerId
                 : targets.SampleOrDefault(rng);
         }
+
+        /// <summary>
+        /// Who an auto-played copy of a card should aim at, in order of preference.
+        /// </summary>
+        private static readonly ConditionalWeakTable<Card, StrongBox<int[]>> Preferred =
+            new ConditionalWeakTable<Card, StrongBox<int[]>>();
+
+        /// <summary>
+        /// Aim this card at the first valid player of <paramref name="playerIds"/> when it's auto-played, rather than a random one.
+        /// </summary>
+        public static void Prefer(Card card, params int[] playerIds)
+        {
+            if (card == null)
+            {
+                return;
+            }
+
+            Preferred.Remove(card);
+            Preferred.Add(card, new StrongBox<int[]>(playerIds ?? new int[0]));
+        }
+
+        /// <summary>
+        /// Peek at the current partner being targeted without consuming it. Can be InvalidPlayerId if no one is being targeted.
+        /// </summary>
+        public static int Peek() => _pending;
 
         internal static void Set(int playerId) => _pending = playerId;
 

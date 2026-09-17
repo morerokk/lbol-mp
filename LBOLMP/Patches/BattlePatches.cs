@@ -412,7 +412,13 @@ namespace LBOLMP.Patches
                     targetIndex = selector.SelectedEnemy?.Index ?? -1;
                 }
 
-                MpBattleSync.ReportCardPlayed(args.Card.Id, args.Card.IsUpgraded, targetIndex);
+                // We peek instead of consume here, because the card's Actions also read it later.
+                int targetPlayer = MpPartyTargeting.WantsPartner(args.Card)
+                    ? MpPartyTargeting.Peek()
+                    : MpConstants.InvalidPlayerId;
+
+                MpBattleSync.ReportCardPlayed(args.Card.Id, args.Card.IsUpgraded, targetIndex,
+                    targetPlayer, args.Card.IsPlayTwiceToken);
             });
 
             // Lowest, so anything that means to cancel the play has already said so by the time we

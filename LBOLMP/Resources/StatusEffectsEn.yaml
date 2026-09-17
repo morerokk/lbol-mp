@@ -91,3 +91,10 @@ MpHatefulOrbsSe:
     |Yin-Yang Orbs| apply {Level} |Weak| and |Vulnerable|.
   Brief: |-
     |Yin-Yang Orbs| apply |Weak| and |Vulnerable|.
+
+MpMimicSe:
+  Name: Mimic
+  Description: |-
+    The next {Level:plural one='card' other='% cards'} played by {PartnerName} are also played by {PlayerName}.
+  Brief: |-
+    Play the next cards a |Partner| plays.

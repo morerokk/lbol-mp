@@ -1217,7 +1217,7 @@ namespace LBOLMP.Session.Battle
         // Cosmetic card plays and status stuff
         //--
 
-        public static void ReportCardPlayed(string cardId, bool upgraded, int targetEnemyIndex)
+        public static void ReportCardPlayed(string cardId, bool upgraded, int targetEnemyIndex, int targetPlayerId, bool isToken)
         {
             if (!InBattle || !MpSession.IsActive)
             {
@@ -1226,9 +1226,12 @@ namespace LBOLMP.Session.Battle
 
             MpNet.Send(new RemoteCardPlayMessage
             {
+                BattleSeed = BattleSeed,
                 CardId = cardId,
                 Upgraded = upgraded,
-                TargetEnemyIndex = targetEnemyIndex
+                TargetEnemyIndex = targetEnemyIndex,
+                TargetPlayerId = targetPlayerId,
+                IsToken = isToken
             });
         }
 
@@ -1252,6 +1255,29 @@ namespace LBOLMP.Session.Battle
 
             UI.AllyCardPopup.Show(seat.PlayerId, message.CardId, message.Upgraded);
             UI.MpAllyUnits.AimAt(seat.PlayerId, message.TargetEnemyIndex);
+
+            if (!InBattle || message.BattleSeed == 0 || message.BattleSeed != BattleSeed)
+            {
+                return;
+            }
+
+            var battle = GameMaster.Instance?.CurrentGameRun?.Battle;
+            var enemy = FindEnemy(battle, message.TargetEnemyIndex);
+            if (enemy != null && (!enemy.IsAlive || MpPrivateEnemies.IsPrivate(enemy)))
+            {
+                enemy = null;
+            }
+
+            Api.MpBattleEvents.RaisePartnerCardPlayed(battle, new Api.MpPartnerCardEventArgs
+            {
+                PlayerId = message.SenderId,
+                PlayerName = MpSession.Get(message.SenderId)?.Name ?? string.Empty,
+                CardId = message.CardId ?? string.Empty,
+                IsUpgraded = message.Upgraded,
+                IsToken = message.IsToken,
+                TargetEnemy = enemy,
+                TargetPlayerId = message.TargetPlayerId
+            });
         }
 
         /// <summary>

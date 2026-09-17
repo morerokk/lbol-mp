@@ -38,6 +38,17 @@ namespace LBOLMP.Session
             "SelfControl"
         };
 
+        /// <summary>
+        /// Cards whose debug level is intentionally ignored, for any reason.
+        /// (Usually debug/testing cards that aren't ready for gameplay yet)
+        /// </summary>
+        private static readonly HashSet<string> Ignored = new HashSet<string>
+        {
+            nameof(Entities.Cards.Reimu.MpProtect),
+            nameof(Entities.Cards.Reimu.MpHatefulOrbs),
+            nameof(Entities.Cards.Neutral.MpMimic)
+        };
+
         private static bool _inMultiplayerRun;
         private static bool _applied;
 
@@ -120,17 +131,22 @@ namespace LBOLMP.Session
             _applied = false;
             SetLevel(MultiplayerOnly, 0);
             SetLevel(SingleplayerOnly, 0);
-            MpPlugin.Log.LogInfo("Every card is on display again");
+            MpPlugin.Log.LogInfo("Every card is reset back to default debug level");
         }
 
         private static void SetLevel(List<string> ids, int level)
         {
             foreach (var id in ids)
             {
+                if (Ignored.Contains(id))
+                {
+                    continue;
+                }
+
                 var config = CardConfig.FromId(id);
                 if (config == null)
                 {
-                    MpPlugin.Log.LogWarning($"No card config for '{id}'; cannot change its availability");
+                    MpPlugin.Log.LogWarning($"No card config for '{id}', cannot change its availability");
                     continue;
                 }
 

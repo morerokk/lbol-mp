@@ -234,3 +234,9 @@ MpProtect:
   Description: |-
     Choose a |Partner|.
     You both gain {Shield} |Barrier|.
+
+MpMimic:
+  Name: Mimic
+  Description: |-
+    Choose a |Partner|.
+    Play the next {Value1:plural one='card' other='% cards'} they play.

@@ -192,28 +192,44 @@ namespace LBOLMP.Session.Messages
     }
 
     /// <summary>
-    /// Purely cosmetic. Tells the other clients which card a player just played, to show a card popup.
-    /// Note: this currently does not show the card's "pure" status or other cost reductions.
+    /// Tells the other clients which card a player just played.
+    /// Shows a card popup, and raises <c>MpBattleEvents.PartnerCardPlayed</c>.
+    /// Note: the popup currently does not show the card's "pure" status or other cost reductions.
     /// </summary>
     [NetMessage(34)]
     public sealed class RemoteCardPlayMessage : NetMessage
     {
+        /// <summary>The fight this is in, to avoid excessively late plays from laggy connections.</summary>
+        public ulong BattleSeed;
+
         public string CardId;
         public bool Upgraded;
         public int TargetEnemyIndex;
 
+        /// <summary>The partner a partner-targeted card is aimed at, or -1.</summary>
+        public int TargetPlayerId = MpConstants.InvalidPlayerId;
+
+        /// <summary>Whether this card is a follow-up/double-play token.</summary>
+        public bool IsToken;
+
         public override void Write(NetWriter w)
         {
+            w.ULong(BattleSeed);
             w.String(CardId);
             w.Bool(Upgraded);
             w.Int(TargetEnemyIndex);
+            w.Int(TargetPlayerId);
+            w.Bool(IsToken);
         }
 
         public override void Read(NetReader r)
         {
+            BattleSeed = r.ULong();
             CardId = r.String();
             Upgraded = r.Bool();
             TargetEnemyIndex = r.Int();
+            TargetPlayerId = r.Int();
+            IsToken = r.Bool();
         }
     }
 

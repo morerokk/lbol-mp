@@ -45,6 +45,8 @@ namespace LBOLMP.Entities.Cards.Reimu
             config.RelativeEffects = new List<string> { nameof(MpPartner) };
             config.UpgradedRelativeEffects = new List<string> { nameof(MpPartner) };
 
+            // TODO: Temp disabled
+            config.DebugLevel = 3;
             config.Illustrator = "";
 
             return config;
