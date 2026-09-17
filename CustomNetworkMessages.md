@@ -13,6 +13,8 @@ Every message has a key and a payload (body). The payload is sent as JSON with U
 
 Properties and dictionaries are *not* supported.
 
+The payload does not have to be a class. An `int`, `string`, Enum or `List<T>` works too.
+
 ```csharp
 // SomethingHappenedMessage.cs
 [Serializable]
@@ -68,11 +70,12 @@ public static class MpReflectionBridge
             .Invoke(null, new object[] { key, payload, false });
     }
 
-    public static void Subscribe<T>(string key, Action<T> handler)
+    // Keep the returned object and dispose it to unsubscribe. Null if LBOL MP isn't installed.
+    public static IDisposable Subscribe<T>(string key, Action<T, int> handler)
     {
-        Api?.GetMethods()
+        return (IDisposable)Api?.GetMethods()
             .First(m => m.Name == "Subscribe"
-                && m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Action<>))
+                && m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Action<,>))
             .MakeGenericMethod(typeof(T))
             .Invoke(null, new object[] { key, handler });
     }

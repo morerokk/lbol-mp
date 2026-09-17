@@ -7,7 +7,7 @@ Basically, you just have to implement the right interfaces. Roughly speaking, th
 - Cards that don't send something over the network, but add a status effect that will
 - Cards that add a status effect which will react to another player playing a card
 
-In all 4 cases, implement the `LBOLMP.Entities.IMpOnlyCard` interface.
+In all 4 cases, implement the `LBOLMP.Entities.IMpOnlyCard` interface on the card *definition* (the `CardTemplate`), not on the card class itself. It's what hides the card outside of multiplayer runs, so you can leave it off if your card also makes sense in singleplayer.
 
 Call `LBOLMP.Session.MpCardAvailability.RegisterAll()` with your own mod's assembly, and LBOL MP will automatically take care of enabling/disabling the card in singleplayer/multiplayer runs, where appropriate.
 
@@ -18,26 +18,26 @@ You also need to register everything once from your mod's `Awake` for the follow
 ```csharp
 public sealed class MyPlugin : BaseUnityPlugin
 {
-	// ...
-	private void Awake()
-	{
-		// ...
-		
-		// NOTE: You should probably do this in a separate assembly, unless your mod already hard-depends on LBOL MP.
-		// Make the separate assembly hard-depend on LBOL MP, and it will only be loaded if LBOL MP is loaded.
-		// Put your multiplayer cards and custom network messages in there.
-		
-		// Register network effects
-		MpEffects.RegisterAll(Assembly.GetExecutingAssembly());
-		// Register card availability for multiplayer-only cards
-		MpCardAvailability.RegisterAll(Assembly.GetExecutingAssembly());
-	}
+    // ...
+    private void Awake()
+    {
+        // ...
+        
+        // NOTE: You should probably do this in a separate assembly, unless your mod already hard-depends on LBOL MP.
+        // Make the separate assembly hard-depend on LBOL MP, and it will only be loaded if LBOL MP is loaded.
+        // Put your multiplayer cards and custom network messages in there.
+        
+        // Register network effects
+        MpEffects.RegisterAll(Assembly.GetExecutingAssembly());
+        // Register card availability for multiplayer-only cards
+        MpCardAvailability.RegisterAll(Assembly.GetExecutingAssembly());
+    }
 }
 ```
 
 ## Regular cards that just happen to be multiplayer-exclusive
 
-See the [Hateful Orbs](https://github.com/morerokk/lbol-mp/blob/master/LBOLMP/Entities/Cards/Reimu/MpHatefulOrbsDefinition.cs) example. Basically, just implement `IMpOnlyCard`.
+See the [Hateful Orbs](https://github.com/morerokk/lbol-mp/blob/master/LBOLMP/Entities/Cards/Reimu/MpHatefulOrbsDefinition.cs) example. Basically, just implement `IMpOnlyCard` on the definition.
 
 ## Cards that immediately send something over the network when played
 
@@ -58,8 +58,8 @@ public sealed class MyPayload : MpEffectPayload
 public sealed class MyCardDefinition : CardTemplate, IMpEffect<MyPayload>, IMpOnlyCard
 {
     // ...your usual GetId, MakeConfig, LoadCardImages, LoadLocalization...
-	// If you want it to target a single partner, set the target type to SingleEnemy in MakeConfig() and have the actual card implement the `IMpPartnerTargeted` interface.
-	// config.TargetType = TargetType.SingleEnemy;
+    // If you want it to target a single partner, set the target type to SingleEnemy in MakeConfig() and have the actual card implement the `IMpPartnerTargeted` interface.
+    // config.TargetType = TargetType.SingleEnemy;
 
     // This runs on the receiving player's client.
     public IEnumerable<BattleAction> Receive(MyPayload payload, BattleController battle, int senderId)
@@ -75,7 +75,7 @@ public sealed class MyCard : Card, IMpPartnerTargeted
 
     protected override IEnumerable<BattleAction> Actions(UnitSelector selector, ManaGroup consumingMana, Interaction precondition)
     {
-		// This sends it to the selected partner.
+        // This sends it to the selected partner.
         MpEffects.Send(Id, new MyPayload { Block = 5 }, MpEffectTarget.Partner, MpPartyTargeting.Consume());
         yield break;
     }
@@ -84,7 +84,7 @@ public sealed class MyCard : Card, IMpPartnerTargeted
 
 Examples:
 - [Yin-Yang Distribution](https://github.com/morerokk/lbol-mp/blob/master/LBOLMP/Entities/Cards/Reimu/MpYinYangDistributionDefinition.cs): adds a Yin-Yang Orb to each player's hand.
-- [Time Dilation](https://github.com/morerokk/lbol-mp/blob/master/LBOLMP/Entities/Cards/Sakuya/MpTimeDilationDefinition.cs): chooses 1 other player, takes an extra turn.
+- [Time Dilation](https://github.com/morerokk/lbol-mp/blob/master/LBOLMP/Entities/Cards/Sakuya/MpTimeDilationDefinition.cs): chooses 1 other player, who then gets an extra turn. The player that plays the card ends their own turn, too.
 - [Ice Block](https://github.com/morerokk/lbol-mp/blob/master/LBOLMP/Entities/Cards/Cirno/MpIceBlockDefinition.cs): plays the vanilla Ice Block on the chosen player (including yourself).
 
 ## Cards that don't send something over the network, but add a status effect that will
@@ -169,7 +169,7 @@ public sealed class MyBackupSe : StatusEffect
     private IEnumerable<BattleAction> OnPartnerCardPlayed(MpPartnerCardEventArgs args)
     {
         // Skip free copies (double plays, follow-ups, cards played on someone's behalf).
-		// This is necessary if your status effect might send a card play itself! Or if you just don't feel like follow-ups or partner-copy-plays should count.
+        // This is necessary if your status effect might send a card play itself! Or if you just don't feel like follow-ups or partner-copy-plays should count.
         if (args.IsToken || Battle.BattleShouldEnd)
         {
             yield break;
@@ -193,11 +193,13 @@ Examples:
 
 ## Notes
 
-In all the above cases, the definition's `Receive()` is not run for defeated players. If you want this to happen anyway for defeated players, implement the `IMpReachesDownedPlayers` interface on the card definition. The MpDefibrillator tool card has an example of this. Spectating players will never call Receive().
+In all the above cases, the definition's `Receive()` is not run for defeated players. If you want this to happen anyway for defeated players, implement the `IMpReachesDownedPlayers` interface on the card definition. The MpDefibrillator tool card has an example of this. Spectating players will never call `Receive()` (same for players who have already finished the combat, in the case of Eiki Shiki).
 
 # How to make your mod soft-depend on LBOL MP
 
 The recommended approach is to make a new, separate BepInEx plugin DLL that's bundled with your mod. Mark LBOL MP and your main mod as a hard-dependency, so that this separate plugin is only ever loaded if LBOL MP is. Put all your multiplayer cards and card registration (`MpCardAvailability.RegisterAll()` and `MpEffects.RegisterAll()`) in this separate plugin's Awake.
+
+Sideloader registers entities per assembly, so this plugin also has to call `EntityManager.RegisterSelf()` in its own `Awake`.
 
 The other approach if you just need to send/receive a network message and don't care about all this other stuff, is to use reflection. This way, you don't need a hard-dependency on LBOL MP at all. You *should* still add a soft dependency on LBOL MP just to ensure that your mod loads after LBOL MP does.
 
@@ -216,11 +218,12 @@ public static class MpReflectionBridge
             .Invoke(null, new object[] { key, payload, false });
     }
 
-    public static void Subscribe<T>(string key, Action<T> handler)
+    // Keep the returned object and dispose it to unsubscribe. Null if LBOL MP isn't installed.
+    public static IDisposable Subscribe<T>(string key, Action<T, int> handler)
     {
-        Api?.GetMethods()
+        return (IDisposable)Api?.GetMethods()
             .First(m => m.Name == "Subscribe"
-                && m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Action<>))
+                && m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Action<,>))
             .MakeGenericMethod(typeof(T))
             .Invoke(null, new object[] { key, handler });
     }
