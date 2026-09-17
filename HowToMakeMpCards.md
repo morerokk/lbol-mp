@@ -16,10 +16,21 @@ If your card replaces an existing singleplayer card, call `MpCardAvailability.Se
 You also need to register everything once from your mod's `Awake` for the following to work:
 
 ```csharp
-// Register network effects
-MpEffects.RegisterAll(Assembly.GetExecutingAssembly());
-// Register card availability for multiplayer-only cards
-MpCardAvailability.RegisterAll(Assembly.GetExecutingAssembly());
+public sealed class MyPlugin : BaseUnityPlugin
+{
+	// ...
+	private void Awake()
+	{
+		// ...
+		
+		// NOTE: You should probably do this in a separate class unless your mod hard-depends on LBOL MP.
+		
+		// Register network effects
+		MpEffects.RegisterAll(Assembly.GetExecutingAssembly());
+		// Register card availability for multiplayer-only cards
+		MpCardAvailability.RegisterAll(Assembly.GetExecutingAssembly());
+	}
+}
 ```
 
 ## Regular cards that just happen to be multiplayer-exclusive
