@@ -46,3 +46,35 @@ if (MpApi.IsHost)
 - You *should* prefix your keys with your mod's name so they don't conflict with other mods. Prefer `MyMod.SomethingHappenedMessage` over `SomethingHappenedMessage`.
 - LBOL MP's GUID is `rokk.lbol.multiplayer.LBOLMP` (for BepInDependency purposes). This GUID will not change.
 - If your mod does not hard-require LBOL MP, you have to double-triple make sure that no code in the LBOL MP API is called if LBOL MP is not installed. Ideally, make a separate class in-between that is never touched otherwise, and make sure the compiler doesn't inline it. How you do this is left as an exercise to the reader (because I don't know). The game will not crash or error over the missing dependency as long as you never try to actually touch said dependency.
+
+## Reflection alternative
+
+The other approach if you just need to send/receive a network message and don't want to put a dependency on LBOL MP in your mod, is to use reflection.
+
+Example code to put in your mod would be something like this:
+
+```csharp
+public static class MpReflectionBridge
+{
+    private static readonly Type Api = Type.GetType("LBOLMP.Api.MpApi, LBOLMP");
+
+    public static void Send<T>(string key, T payload)
+    {
+        Api?.GetMethods()
+            .First(m => m.Name == "Send")
+            .MakeGenericMethod(typeof(T))
+            .Invoke(null, new object[] { key, payload, false });
+    }
+
+    public static void Subscribe<T>(string key, Action<T> handler)
+    {
+        Api?.GetMethods()
+            .First(m => m.Name == "Subscribe"
+                && m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Action<>))
+            .MakeGenericMethod(typeof(T))
+            .Invoke(null, new object[] { key, handler });
+    }
+}
+```
+
+This gives you immediate access to the `Send` and `Subscribe` methods, letting you send arbitrary data.
