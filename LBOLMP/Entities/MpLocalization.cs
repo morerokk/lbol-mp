@@ -25,6 +25,11 @@ namespace LBOLMP.Entities
         private static BatchLocalization _packs;
         private static BatchLocalization _adventures;
         private static BatchLocalization _enemyUnits;
+        private static BatchLocalization _exhibits;
+
+        /// <summary>Resources/Exhibits&lt;Locale&gt;.yaml</summary>
+        internal static BatchLocalization Exhibits =>
+            _exhibits ?? (_exhibits = Build(typeof(ExhibitTemplate), "Resources/Exhibits"));
 
         /// <summary>Resources/Cards&lt;Locale&gt;.yaml</summary>
         internal static BatchLocalization Cards =>

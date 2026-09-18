@@ -256,6 +256,7 @@ namespace LBOLMP.Session
             MpHandInspect.RegisterHandlers();
             MpExilePeek.RegisterHandlers();
             MpBorderSensor.RegisterHandlers();
+            MpCrowTenguWing.RegisterHandlers();
             MpRunFlags.RegisterHandlers();
             MpModContent.RegisterHandlers();
             MpPlayerExhibits.RegisterHandlers();
@@ -423,6 +424,7 @@ namespace LBOLMP.Session
             MpHandInspect.Reset();
             MpExilePeek.Reset();
             MpBorderSensor.Reset();
+            MpCrowTenguWing.Reset();
             MpPersonalRng.Reset();
             MpRunFlags.Reset();
             MpRunCredit.Reset();
@@ -460,6 +462,7 @@ namespace LBOLMP.Session
             MpHandInspect.Update();
             MpExilePeek.Update();
             MpBorderSensor.Tick();
+            MpCrowTenguWing.Tick();
             MpPersonalRng.Tick();
             MpRunFlags.Tick();
             MpRunCredit.Tick();
@@ -1105,6 +1108,7 @@ namespace LBOLMP.Session
             MpHandInspect.Reset();
             MpExilePeek.Reset();
             MpBorderSensor.Reset();
+            MpCrowTenguWing.Reset();
             MpPersonalRng.Reset();
             MpRunFlags.Reset();
             MpRunCredit.Reset();
@@ -1382,6 +1386,7 @@ namespace LBOLMP.Session
             MpHandInspect.Reset();
             MpExilePeek.Reset();
             MpBorderSensor.Reset();
+            MpCrowTenguWing.Reset();
             MpPersonalRng.Reset();
             MpRunFlags.Reset();
             MpRunCredit.Reset();

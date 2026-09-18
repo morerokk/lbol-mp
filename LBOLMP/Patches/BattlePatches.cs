@@ -598,6 +598,35 @@ namespace LBOLMP.Patches
     }
 
     /// <summary>
+    /// Marks the battle as busy while it resolves queued actions (other players' cards, remote hits, corrections).
+    /// </summary>
+    [HarmonyPatch(typeof(BattleController), nameof(BattleController.ResolveDebugActions))]
+    public static class RemoteResolveTrackingPatch
+    {
+        [HarmonyPostfix]
+        private static void Postfix(ref IEnumerator<object> __result)
+        {
+            __result = Tracked(__result);
+        }
+
+        private static IEnumerator<object> Tracked(IEnumerator<object> inner)
+        {
+            MpBattleSync.ResolvingQueuedActions++;
+            try
+            {
+                while (inner.MoveNext())
+                {
+                    yield return inner.Current;
+                }
+            }
+            finally
+            {
+                MpBattleSync.ResolvingQueuedActions--;
+            }
+        }
+    }
+
+    /// <summary>
     /// Take the other players with us when we run away from a combat
     /// </summary>
     [HarmonyPatch(typeof(PlayerEscapeAction), "ResolvePhase")]

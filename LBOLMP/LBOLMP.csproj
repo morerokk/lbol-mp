@@ -51,6 +51,9 @@
     <!-- LBOLMP.Entities.MpResilient, LBOLMP.Entities.StatusEffects.MpAbilityPileSe -->
     <DoNotPublicize Include="LBoL.Core:LBoL.Core.StatusEffects.StatusEffect.OnAdded" />
     <DoNotPublicize Include="LBoL.Core:LBoL.Core.StatusEffects.StatusEffect.OnRemoved" />
+    <!-- LBOLMP.Entities.Exhibits.MpCrowTenguFeather -->
+    <DoNotPublicize Include="LBoL.Core:LBoL.Core.Exhibit.OnAdded" />
+    <DoNotPublicize Include="LBoL.Core:LBoL.Core.Exhibit.OnRemoved" />
     <!-- LBOLMP.Entities.JadeBoxes.MpAbilityPile -->
     <DoNotPublicize Include="LBoL.Core:LBoL.Core.JadeBox.OnEnterBattle" />
     <!-- LBOLMP.Entities.Cards.*. Left protected so our cards read like anybody else's. -->

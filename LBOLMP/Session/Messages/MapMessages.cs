@@ -142,6 +142,21 @@ namespace LBOLMP.Session.Messages
     }
 
     /// <summary>
+    /// Somebody picked up Crow Tengu's Wing, so everyone else gets a feather. See <c>MpCrowTenguWing</c>.
+    /// </summary>
+    [NetMessage(70)]
+    public sealed class CrowTenguWingMessage : NetMessage
+    {
+        public override void Write(NetWriter w)
+        {
+        }
+
+        public override void Read(NetReader r)
+        {
+        }
+    }
+
+    /// <summary>
     /// The host has restarted the level, so everybody restarts it.
     /// Has some rudimentary checks to prevent restarts if the party is out of sync.
     /// </summary>

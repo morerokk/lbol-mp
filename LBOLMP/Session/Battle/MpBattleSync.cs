@@ -233,6 +233,11 @@ namespace LBOLMP.Session.Battle
         /// </summary>
         public static bool EnemyTurnRunning { get; internal set; }
 
+        /// <summary>
+        /// How many of the battle's queued-action drains are running right now. See <c>RemoteResolveTrackingPatch</c>.
+        /// </summary>
+        internal static int ResolvingQueuedActions;
+
         public static bool InBattle { get; private set; }
 
         public static ulong BattleSeed { get; private set; }
@@ -314,6 +319,7 @@ namespace LBOLMP.Session.Battle
             EnemyTurnRunning = false;
             _atEndOfBattleGate = false;
             _atEnemyTurnGate = false;
+            ResolvingQueuedActions = 0;
             _waitForLoadIn = false;
             _reportedFinished = false;
             BattleSeed = 0;
@@ -377,6 +383,7 @@ namespace LBOLMP.Session.Battle
             InBattle = true;
             _atEndOfBattleGate = false;
             _atEnemyTurnGate = false;
+            ResolvingQueuedActions = 0;
             _reportedFinished = false;
             _pendingInjections = 0;
 
@@ -438,6 +445,7 @@ namespace LBOLMP.Session.Battle
             EnemyTurnRunning = false;
             _atEndOfBattleGate = false;
             _atEnemyTurnGate = false;
+            ResolvingQueuedActions = 0;
             _waitForLoadIn = false;
             _reportedFinished = false;
             Seats.Clear();
@@ -1541,7 +1549,8 @@ namespace LBOLMP.Session.Battle
         /// </summary>
         private static bool BattleIsSettled(BattleController battle)
         {
-            if (battle == null || battle._debugActionQueue.Count > 0 || EnemyTurnRunning)
+            if (battle == null || battle._debugActionQueue.Count > 0 || EnemyTurnRunning
+                || ResolvingQueuedActions > 0)
             {
                 return false;
             }
