@@ -1,0 +1,5 @@
+MpCrowTenguFeather:
+  Name: 鴉天狗的羽毛
+  Description: |-
+    {PlayerName}選擇下一關時可以無視路線，剩餘 {Counter} 次。
+    每當一名|隊友|獲得鴉天狗的羽翼時，額外獲得 {Value1} 次。

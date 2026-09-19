@@ -1,0 +1,5 @@
+MpCrowTenguFeather:
+  Name: 鴉天狗の抜け羽
+  Description: |-
+    次のフロアに移動する時、{PlayerName}は{Counter}回まで道を無視することができる。
+    |仲間|が鴉天狗の羽根を入手するたび、使用回数が{Value1}回増える。

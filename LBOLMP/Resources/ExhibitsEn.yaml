@@ -1,5 +1,5 @@
 MpCrowTenguFeather:
   Name: Crow Tengu's Feather
   Description: |-
-    The Player may ignore paths when choosing the next level, up to {Value1} times.
+    {PlayerName} may ignore paths when choosing the next level, up to {Counter} times.
     Gains {Value1} more charges whenever a |Partner| obtains Crow Tengu's Wing.
