@@ -15,6 +15,8 @@ Properties and dictionaries are *not* supported.
 
 The payload does not have to be a class. An `int`, `string`, Enum or `List<T>` works too.
 
+A payload is always required, but it is allowed to be empty. If you only want to send to other players that something happened, send an instance of a `[Serializable]` class with no fields at all. Due to technical limitations, you cannot send `null`, as it would be indistinguishable from a message that failed to serialize.
+
 ```csharp
 // SomethingHappenedMessage.cs
 [Serializable]

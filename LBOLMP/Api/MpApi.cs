@@ -227,6 +227,15 @@ namespace LBOLMP.Api
         {
             CheckKey(key);
 
+            // Nothing readable can be made of this, and the other end would only see a null, so error out. You cannot send null, period. You can only send empty classes at the least.
+            if (payload == null)
+            {
+                MpPlugin.Log.LogError(
+                    $"MpApi: '{key}' was sent without a payload. To only signal that something happened, "
+                    + "send an empty [Serializable] class instead.");
+                return false;
+            }
+
             string json;
             try
             {
