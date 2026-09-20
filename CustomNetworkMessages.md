@@ -66,7 +66,7 @@ public static class MpReflectionBridge
     {
         Api?.GetMethods()
             .First(m => m.Name == "Send")
-            .MakeGenericMethod(typeof(T))
+            .MakeGenericMethod(payload?.GetType() ?? typeof(T))
             .Invoke(null, new object[] { key, payload, false });
     }
 

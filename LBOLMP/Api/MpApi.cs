@@ -120,7 +120,13 @@ namespace LBOLMP.Api
                 throw new ArgumentNullException(nameof(handler));
             }
 
-            var subscription = new Subscription(key, json => handler(FromJson<T>(json), _currentSender));
+            var subscription = new Subscription(key, json =>
+            {
+                if (TryFromJson<T>(json, key, out var payload))
+                {
+                    handler(payload, _currentSender);
+                }
+            });
 
             if (!Subscribers.TryGetValue(key, out var list))
             {
@@ -180,12 +186,41 @@ namespace LBOLMP.Api
             }
         }
 
-        private static string ToJson<T>(T payload) => JsonUtility.ToJson(new CustomMessage<T> { Value = payload });
-
-        private static T FromJson<T>(string json)
+        private static string ToJson<T>(T payload)
         {
+            var type = payload == null ? typeof(T) : payload.GetType();
+            if (type == typeof(T))
+            {
+                return JsonUtility.ToJson(new CustomMessage<T> { Value = payload });
+            }
+
+            var envelopeType = typeof(CustomMessage<>).MakeGenericType(type);
+            var envelope = Activator.CreateInstance(envelopeType);
+            envelopeType.GetField(nameof(CustomMessage<object>.Value)).SetValue(envelope, payload);
+            return JsonUtility.ToJson(envelope);
+        }
+
+        private static bool TryFromJson<T>(string json, string key, out T payload)
+        {
+            payload = default;
+            if (string.IsNullOrEmpty(json))
+            {
+                MpPlugin.Log.LogError($"MpApi: '{key}' arrived without a payload.");
+                return false;
+            }
+
             var envelope = JsonUtility.FromJson<CustomMessage<T>>(json);
-            return envelope == null ? default : envelope.Value;
+            payload = envelope == null ? default : envelope.Value;
+
+            if (payload == null && !typeof(T).IsValueType)
+            {
+                MpPlugin.Log.LogError(
+                    $"MpApi: no {typeof(T).FullName} could be read out of '{key}' ({json}). The sender has to hand "
+                    + "Send<T> that same type, and it needs [Serializable] with public fields. Skipping the handler.");
+                return false;
+            }
+
+            return true;
         }
 
         private static bool SendCore<T>(string key, T payload, int target, bool includeSelf)
@@ -200,6 +235,15 @@ namespace LBOLMP.Api
             catch (Exception e)
             {
                 MpPlugin.Log.LogError($"MpApi: could not serialize the payload for '{key}': {e}");
+                return false;
+            }
+
+            // Unity leaves us an empty object for anything its serializer does not understand.
+            if (payload != null && json.Length <= 2)
+            {
+                MpPlugin.Log.LogError(
+                    $"MpApi: a {payload.GetType().FullName} payload for '{key}' serialized to nothing ({json}). It needs "
+                    + "[Serializable] with public fields ONLY. Properties, dictionaries and interfaces do not survive.");
                 return false;
             }
 
