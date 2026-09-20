@@ -706,4 +706,22 @@ namespace LBOLMP.Session.Messages
             Defibrillated = r.Bool();
         }
     }
+
+    /// <summary>Yuyuko's Law of Mortality triggered for somebody, so it's triggered here too.</summary>
+    [NetMessage(71)]
+    public sealed class LawOfMortalityMessage : NetMessage
+    {
+        /// <summary>How many times it triggers.</summary>
+        public int Amount;
+
+        public override void Write(NetWriter w)
+        {
+            w.Int(Amount);
+        }
+
+        public override void Read(NetReader r)
+        {
+            Amount = r.Int();
+        }
+    }
 }

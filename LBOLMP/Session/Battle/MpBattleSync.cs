@@ -299,6 +299,7 @@ namespace LBOLMP.Session.Battle
             MpEnemyEscape.RegisterHandlers();
             MpPartyEscape.RegisterHandlers();
             MpStatusTriggers.RegisterHandlers();
+            MpYuyuko.RegisterHandlers();
             MpVampire.RegisterHandlers();
             MpJunko.RegisterHandlers();
             MpEffects.RegisterHandlers();

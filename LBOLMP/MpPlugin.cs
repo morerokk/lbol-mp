@@ -14,6 +14,7 @@ namespace LBOLMP
     [BepInPlugin(MpInfo.Guid, MpInfo.Name, MpInfo.Version)]
     [BepInDependency(LBoLEntitySideloader.PluginInfo.GUID, BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency(StsMapInterop.Guid, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(YuyukoInterop.Guid, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInProcess("LBoL.exe")]
     public sealed class MpPlugin : BaseUnityPlugin
     {
