@@ -1,6 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using LBOLMP.Net;
 using LBOLMP.Session;
 using UnityEngine;
@@ -168,6 +171,15 @@ namespace LBOLMP.Api
             public T Value;
         }
 
+        /// <summary>
+        /// A payload that is a primitive, such as an int or a string.
+        /// </summary>
+        [Serializable]
+        private sealed class BareMessage
+        {
+            public string Value;
+        }
+
         private static readonly Dictionary<string, List<Subscription>> Subscribers =
             new Dictionary<string, List<Subscription>>(StringComparer.Ordinal);
 
@@ -188,16 +200,61 @@ namespace LBOLMP.Api
 
         private static string ToJson<T>(T payload)
         {
-            var type = payload == null ? typeof(T) : payload.GetType();
-            if (type == typeof(T))
+            var type = payload.GetType();
+            if (!IsBareValue(type))
             {
-                return JsonUtility.ToJson(new CustomMessage<T> { Value = payload });
+                return type.IsArray || typeof(IList).IsAssignableFrom(type)
+                    ? ListJson(payload, type)
+                    : JsonUtility.ToJson(payload);
             }
 
+            string text;
+            switch (payload)
+            {
+                case float f:
+                    text = f.ToString("R", CultureInfo.InvariantCulture);
+                    break;
+                case double d:
+                    text = d.ToString("R", CultureInfo.InvariantCulture);
+                    break;
+                default:
+                    text = Convert.ToString(payload, CultureInfo.InvariantCulture);
+                    break;
+            }
+
+            return JsonUtility.ToJson(new BareMessage { Value = text });
+        }
+
+        private static string ListJson(object payload, Type type)
+        {
             var envelopeType = typeof(CustomMessage<>).MakeGenericType(type);
             var envelope = Activator.CreateInstance(envelopeType);
             envelopeType.GetField(nameof(CustomMessage<object>.Value)).SetValue(envelope, payload);
             return JsonUtility.ToJson(envelope);
+        }
+
+        /// <summary>Something that has to be written out as text, because JSON has no object for it.</summary>
+        private static bool IsBareValue(Type type) =>
+            type.IsPrimitive || type.IsEnum || type == typeof(string) || type == typeof(decimal);
+
+        private static string WhyNotSerializable(Type type)
+        {
+            if (type.IsArray || typeof(IList).IsAssignableFrom(type))
+            {
+                return "Unity will not serialize a list or an array on its own. Put it in a [Serializable] class instead";
+            }
+
+            if (!type.IsDefined(typeof(SerializableAttribute), false))
+            {
+                return $"{type.Name} is not marked [Serializable]";
+            }
+
+            if (type.GetFields(BindingFlags.Instance | BindingFlags.Public).Length == 0)
+            {
+                return $"{type.Name} has no public fields (properties are not fields, and are never sent)";
+            }
+
+            return "Unity's serializer would not take it. Dictionaries, interfaces and generics do not survive";
         }
 
         private static bool TryFromJson<T>(string json, string key, out T payload)
@@ -209,10 +266,27 @@ namespace LBOLMP.Api
                 return false;
             }
 
-            var envelope = JsonUtility.FromJson<CustomMessage<T>>(json);
-            payload = envelope == null ? default : envelope.Value;
+            var type = typeof(T);
+            if (IsBareValue(type))
+            {
+                var text = JsonUtility.FromJson<BareMessage>(json)?.Value ?? string.Empty;
+                payload = (T)(type.IsEnum
+                    ? Enum.Parse(type, text)
+                    : Convert.ChangeType(text, type, CultureInfo.InvariantCulture));
+                return true;
+            }
 
-            if (payload == null && !typeof(T).IsValueType)
+            if (type.IsArray || typeof(IList).IsAssignableFrom(type))
+            {
+                var envelope = JsonUtility.FromJson<CustomMessage<T>>(json);
+                payload = envelope == null ? default : envelope.Value;
+            }
+            else
+            {
+                payload = JsonUtility.FromJson<T>(json);
+            }
+
+            if (payload == null && !type.IsValueType)
             {
                 MpPlugin.Log.LogError(
                     $"MpApi: no {typeof(T).FullName} could be read out of '{key}' ({json}). The sender has to hand "
@@ -251,8 +325,8 @@ namespace LBOLMP.Api
             if (payload != null && json.Length <= 2)
             {
                 MpPlugin.Log.LogError(
-                    $"MpApi: a {payload.GetType().FullName} payload for '{key}' serialized to nothing ({json}). It needs "
-                    + "[Serializable] with public fields ONLY. Properties, dictionaries and interfaces do not survive.");
+                    $"MpApi: a {payload.GetType().FullName} payload for '{key}' serialized to nothing ({json}), because "
+                    + WhyNotSerializable(payload.GetType()) + ".");
                 return false;
             }
 
