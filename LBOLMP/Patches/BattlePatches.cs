@@ -495,7 +495,8 @@ namespace LBOLMP.Patches
                         return;
                     }
 
-                    MpBattleSync.ReportEnemyDamage(enemy, args.DamageInfo, args.GunName);
+                    MpBattleSync.ReportEnemyDamage(enemy, args.DamageInfo, args.GunName,
+                        args.ActionSource);
                 });
 
             enemy.DamageReceiving.AddHandler(handler, GameEventPriority.Highest);

@@ -336,6 +336,7 @@ namespace LBOLMP.Session.Battle
             MpDownedPlayers.Reset();
             MpEventBattle.Reset();
             MpEnemyEscape.Reset();
+            MpDoremy.Reset();
             MpPartyEscape.Reset();
             MpJunko.Reset();
         }
@@ -923,7 +924,8 @@ namespace LBOLMP.Session.Battle
         /// <summary>
         /// Publish a hit the local player is about to land on a shared enemy.
         /// </summary>
-        public static void ReportEnemyDamage(EnemyUnit enemy, DamageInfo info, string gunName)
+        public static void ReportEnemyDamage(EnemyUnit enemy, DamageInfo info, string gunName,
+            GameEntity actionSource = null)
         {
             if (!InBattle || ApplyingRemoteEffect || !MpSession.IsActive || SpectatingOnly)
             {
@@ -941,7 +943,8 @@ namespace LBOLMP.Session.Battle
                 Amount = info.Amount,
                 DamageType = (int)info.DamageType,
                 IsAccuracy = info.IsAccuracy,
-                GunName = string.IsNullOrEmpty(gunName) ? "Instant" : gunName
+                GunName = string.IsNullOrEmpty(gunName) ? "Instant" : gunName,
+                ShouldNotRemoveSleepStatus = MpDoremy.ShouldNotRemoveSleep(actionSource)
             });
         }
 
@@ -976,6 +979,11 @@ namespace LBOLMP.Session.Battle
 
             // Deliberately left without a cause, it's already handled elsewhere.
             var damage = Inject(new DamageAction(source, enemy, info, message.GunName));
+
+            if (message.ShouldNotRemoveSleepStatus)
+            {
+                MpDoremy.MarkUndisturbed(damage);
+            }
 
             // Queued rather than applied directly to avoid incredibly insane desyncs or out-of-order attacks
             battle.RequestDebugAction(damage, "MP remote damage");

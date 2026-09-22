@@ -105,6 +105,9 @@ namespace LBOLMP.Session.Messages
         public bool IsAccuracy;
         public string GunName;
 
+        /// <summary>True for damage sources that an enemy with Sleep should not react to at all.</summary>
+        public bool ShouldNotRemoveSleepStatus;
+
         public override void Write(NetWriter w)
         {
             w.Int(EnemyIndex);
@@ -112,6 +115,7 @@ namespace LBOLMP.Session.Messages
             w.Int(DamageType);
             w.Bool(IsAccuracy);
             w.String(GunName);
+            w.Bool(ShouldNotRemoveSleepStatus);
         }
 
         public override void Read(NetReader r)
@@ -121,6 +125,7 @@ namespace LBOLMP.Session.Messages
             DamageType = r.Int();
             IsAccuracy = r.Bool();
             GunName = r.String();
+            ShouldNotRemoveSleepStatus = r.Bool();
         }
     }
 
