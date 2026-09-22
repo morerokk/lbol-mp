@@ -300,6 +300,7 @@ namespace LBOLMP.Session.Battle
             MpPartyEscape.RegisterHandlers();
             MpStatusTriggers.RegisterHandlers();
             MpYuyuko.RegisterHandlers();
+            MpDrones.RegisterHandlers();
             MpVampire.RegisterHandlers();
             MpJunko.RegisterHandlers();
             MpEffects.RegisterHandlers();
@@ -1543,6 +1544,33 @@ namespace LBOLMP.Session.Battle
             battle.RequestDebugAction(Inject(new Entities.MpDeferredAction(b => enemy.IsAlive
                 ? new BattleAction[] { new ForceKillAction(b.Player, enemy) }
                 : null)), reason);
+        }
+
+        /// <summary>
+        /// Publish an enemy the local player deleted outright, such as with Ritual of Exorcism or the Yukari card.
+        /// </summary>
+        internal static void ReportForceKill(Unit source, Unit target)
+        {
+            if (!InBattle || !MpSession.IsActive || SpectatingOnly)
+            {
+                return;
+            }
+
+            var battle = GameMaster.Instance?.CurrentGameRun?.Battle;
+            if (battle == null || source != battle.Player || !(target is EnemyUnit enemy))
+            {
+                return;
+            }
+
+            if (_forcedKills.Contains(enemy.Index) || MpPrivateEnemies.IsPrivate(enemy))
+            {
+                return;
+            }
+
+            // Noted so the host's own death sweep doesn't announce the same enemy a second time.
+            _announcedDeaths.Add(enemy.Index);
+
+            MpNet.Send(new EnemyDiedMessage { Seed = BattleSeed, EnemyIndex = enemy.Index });
         }
 
         /// <summary>

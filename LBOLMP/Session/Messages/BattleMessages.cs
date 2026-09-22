@@ -724,4 +724,23 @@ namespace LBOLMP.Session.Messages
             Amount = r.Int();
         }
     }
+
+    /// <summary>
+    /// An EMP Device stunned a drone on some other player's screen,
+    /// so stun it here too.</summary>
+    [NetMessage(72)]
+    public sealed class DroneStunMessage : NetMessage
+    {
+        public int EnemyIndex;
+
+        public override void Write(NetWriter w)
+        {
+            w.Int(EnemyIndex);
+        }
+
+        public override void Read(NetReader r)
+        {
+            EnemyIndex = r.Int();
+        }
+    }
 }

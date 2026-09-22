@@ -598,6 +598,19 @@ namespace LBOLMP.Patches
     }
 
     /// <summary>
+    /// Send a message when one of our cards deletes an enemy outright instead of damaging it to death.
+    /// </summary>
+    [HarmonyPatch(typeof(BattleController), "ForceKill")]
+    public static class ForceKillReplicationPatch
+    {
+        [HarmonyPostfix]
+        private static void Postfix(Unit source, Unit target)
+        {
+            MpSafe.Run("ForceKillReplicationPatch", () => MpBattleSync.ReportForceKill(source, target));
+        }
+    }
+
+    /// <summary>
     /// Marks the battle as busy while it resolves queued actions (other players' cards, remote hits, corrections).
     /// </summary>
     [HarmonyPatch(typeof(BattleController), nameof(BattleController.ResolveDebugActions))]

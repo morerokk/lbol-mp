@@ -7,8 +7,10 @@ using LBOLMP.Session.Battle;
 using LBoL.Core;
 using LBoL.Core.Battle;
 using LBoL.Core.Battle.BattleActions;
+using LBoL.Core.Cards;
 using LBoL.Core.StatusEffects;
 using LBoL.Core.Units;
+using LBoL.EntityLib.Cards.Neutral.Black;
 using LBoL.EntityLib.EnemyUnits.Character;
 using LBoL.EntityLib.EnemyUnits.Normal;
 using LBoL.EntityLib.StatusEffects.Enemy;
@@ -101,6 +103,36 @@ namespace LBOLMP.Patches
         /// Half of <see cref="MultiplierFor"/>, for buffs that should only scale half as fast to avoid frustrating players (Doremy barrier might be insane if it started at 200 and everyone draws badly).
         /// </summary>
         internal static float HalfMultiplierFor(Unit unit) => 1f + BonusFor(unit) * 0.5f;
+    }
+
+    /// <summary>
+    /// Ritual of Exorcism scales to enemy HP counts
+    /// </summary>
+    /// TODO: This patch runs for every card value on screen. Is that necessary?
+    [HarmonyPatch(typeof(Card), nameof(Card.Value1), MethodType.Getter)]
+    public static class ExorcismThresholdScalingPatch
+    {
+        [HarmonyPostfix]
+        private static void Postfix(Card __instance, ref int __result)
+        {
+            if (!(__instance is XiaodingKill))
+            {
+                return;
+            }
+
+            int threshold = __result;
+            __result = MpSafe.Run("ExorcismThresholdScalingPatch", () => Scaled(threshold), threshold);
+        }
+
+        private static int Scaled(int threshold)
+        {
+            if (MpEnemyScaling.ExtraFighters <= 0)
+            {
+                return threshold;
+            }
+
+            return Mathf.Max(1, Mathf.RoundToInt(threshold * MpEnemyScaling.MultiplierFor(null)));
+        }
     }
 
     /// <summary>
