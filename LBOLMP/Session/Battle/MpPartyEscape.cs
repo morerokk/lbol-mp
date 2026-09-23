@@ -15,7 +15,7 @@ namespace LBOLMP.Session.Battle
         /// </summary>
         private static ulong _announcedSeed;
 
-        internal static void RegisterHandlers() => MpNet.On<PartyEscapedMessage>(OnRemoteEscape);
+        internal static void RegisterHandlers() => MpNet.OnRemote<PartyEscapedMessage>(OnRemoteEscape);
 
         internal static void Reset() => _announcedSeed = 0;
 
@@ -34,7 +34,7 @@ namespace LBOLMP.Session.Battle
 
         private static void OnRemoteEscape(PartyEscapedMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId || !MpBattleSync.InBattle
+            if (!MpBattleSync.InBattle
                 || message.BattleSeed == 0 || message.BattleSeed != MpBattleSync.BattleSeed
                 || MpEventBattle.LocalSpectating)
             {

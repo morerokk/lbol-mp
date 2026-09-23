@@ -18,7 +18,7 @@ namespace LBOLMP.Session
 
         internal static void RegisterHandlers()
         {
-            MpNet.On<RunFlagsMessage>(OnRunFlags);
+            MpNet.OnRemote<RunFlagsMessage>(OnRunFlags);
         }
 
         internal static void Reset()
@@ -29,11 +29,6 @@ namespace LBOLMP.Session
 
         private static void OnRunFlags(RunFlagsMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             _fromHost = message;
         }
 

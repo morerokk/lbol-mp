@@ -33,22 +33,36 @@ namespace LBOLMP.Session
 
         public static MpSessionState State { get; private set; } = MpSessionState.Offline;
 
-        /// <summary>Seed shared by every participant, so all maps and stations line up.</summary>
-        public static ulong RunSeed { get; private set; }
-
         /// <summary>
-        /// The host's enemy health scaling, as sent with the seed. Null until a run has started.
+        /// Everything the host decided for the run in progress, delivered with the seed. Null outside a run,
+        /// so leaving one only ever has to clear this.
         /// </summary>
-        private static float? _runEnemyHpScale;
+        private sealed class RunRules
+        {
+            public ulong Seed;
+            public int Difficulty;
+            public float EnemyHpScale;
+            public float[] Escalation;
+            public float ReviveHpFraction;
+            public bool EnemyResilience;
+            public bool MultiplayerCards;
+
+            // Only a new run carries these, a resumed one already has them in its save.
+            public List<string> JadeBoxes;
+            public List<string> Packs;
+            public bool? StsMap;
+        }
+
+        private static RunRules _run;
+
+        /// <summary>Seed shared by every participant, so all maps and stations line up.</summary>
+        public static ulong RunSeed => _run?.Seed ?? 0;
 
         /// <summary>
         /// How much extra max HP each additional player gives an enemy, for the run in progress.
         /// </summary>
         public static float EnemyHpScalePerExtraPlayer =>
-            _runEnemyHpScale ?? MpPlugin.EnemyHpScalePerExtraPlayer.Value;
-
-        /// <summary>The host's per-act escalation, as sent with the seed. Null until a run starts.</summary>
-        private static float[] _runEnemyHpEscalation;
+            _run?.EnemyHpScale ?? MpPlugin.EnemyHpScalePerExtraPlayer.Value;
 
         /// <summary>
         /// How much a given act steepens the scaling above, for the run in progress.
@@ -60,81 +74,67 @@ namespace LBOLMP.Session
                 return 0f;
             }
 
-            return _runEnemyHpEscalation != null
-                ? _runEnemyHpEscalation[act - 1]
+            return _run != null
+                ? _run.Escalation[act - 1]
                 : MpPlugin.EnemyHpEscalationByAct[act - 1].Value;
         }
-
-        /// <summary>The host's revive fraction, as sent with the seed. Null until a run starts.</summary>
-        private static float? _runReviveHpFraction;
 
         /// <summary>
         /// How much of their max HP a knocked-out player comes back with, for the run in progress.
         /// </summary>
         public static float ReviveHpFraction =>
-            _runReviveHpFraction ?? MpPlugin.ReviveHpFraction.Value;
-
-        /// <summary>The host's Resilient toggle, as sent with the seed. Null until a run starts.</summary>
-        private static bool? _runEnemyResilience;
+            _run?.ReviveHpFraction ?? MpPlugin.ReviveHpFraction.Value;
 
         /// <summary>
         /// Whether enemies carry Resilient for the run in progress.
         /// </summary>
         public static bool EnemyResilience =>
-            _runEnemyResilience ?? MpPlugin.EnableEnemyResilience.Value;
-
-        /// <summary>The host's multiplayer card toggle, as sent with the seed. Null until a run starts.</summary>
-        private static bool? _runMultiplayerCards;
+            _run?.EnemyResilience ?? MpPlugin.EnableEnemyResilience.Value;
 
         /// <summary>
         /// Whether this mod's multiplayer cards can be found in the run in progress.
         /// </summary>
         public static bool MultiplayerCards =>
-            _runMultiplayerCards ?? MpPlugin.MultiplayerCardsEnabled.Value;
+            _run?.MultiplayerCards ?? MpPlugin.MultiplayerCardsEnabled.Value;
 
         /// <summary>
         /// The host's difficulty as it stands in the lobby, as a <c>GameDifficulty</c> ordinal.
         /// </summary>
         public static int HostDifficulty { get; private set; } = MpConstants.DefaultDifficulty;
 
-        /// <summary>The difficulty the run in progress actually started on. Null outside a run.</summary>
-        private static int? _runDifficulty;
-
         /// <summary>
         /// The difficulty every client must start with, decided by the host and delivered with the
         /// seed. Falls back to the lobby value, and then to Normal.
         /// </summary>
-        public static int RunDifficulty => _runDifficulty ?? HostDifficulty;
+        public static int RunDifficulty => _run?.Difficulty ?? HostDifficulty;
 
         /// <summary>
         /// Jadebox ID's that are enabled by the host.
         /// </summary>
         public static IReadOnlyList<string> HostJadeBoxes { get; private set; } = new List<string>();
 
-        /// <summary>The jade boxes the run in progress actually began with. Null outside a run.</summary>
-        private static List<string> _runJadeBoxes;
-
-        /// <summary>The host's booster packs for the run in progress. Null outside a new run.</summary>
-        private static List<string> _runPacks;
-
         /// <summary>
         /// The packs every client's card pool must use, decided by the host. Null when there is nothing to impose.
         /// </summary>
-        public static IReadOnlyList<string> RunPacks => _runPacks;
+        public static IReadOnlyList<string> RunPacks => _run?.Packs;
 
         /// <summary>
         /// The jade boxes every client must start with, decided by the host and delivered with the
         /// seed. Falls back to the lobby list, and then to none.
         /// </summary>
-        public static IReadOnlyList<string> RunJadeBoxes => _runJadeBoxes ?? HostJadeBoxes;
+        public static IReadOnlyList<string> RunJadeBoxes => _run?.JadeBoxes ?? HostJadeBoxes;
 
         /// <summary>Whether the host has the StsMap mod's map toggle on in the lobby.</summary>
         public static bool HostStsMap { get; private set; }
 
-        private static bool? _runStsMap;
-
         /// <summary>The StsMap setting the new run starts with, delivered with the seed.</summary>
-        public static bool RunStsMap => _runStsMap ?? HostStsMap;
+        public static bool RunStsMap => _run?.StsMap ?? HostStsMap;
+
+        /// <summary>
+        /// False until a client has had the host's lobby settings once. The first is applied whole,
+        /// since our panel may still show whatever we picked last time.
+        /// </summary>
+        private static bool _heardHostSettings;
 
         /// <summary>
         /// Our name in the party.
@@ -214,8 +214,6 @@ namespace LBOLMP.Session
             return -1;
         }
 
-        public static int LocalSeatIndex => SeatIndexOf(MpNet.LocalPlayerId);
-
         //--
         // setup
         //--
@@ -228,7 +226,6 @@ namespace LBOLMP.Session
             }
             _handlersRegistered = true;
 
-            MpNet.ClientConnected += OnClientConnected;
             MpNet.PeerDisconnected += OnPeerDisconnected;
             MpNet.Disconnected += OnDisconnectedFromHost;
             MpNet.ServerLinkReady += OnServerLinkReady;
@@ -246,9 +243,7 @@ namespace LBOLMP.Session
             MpNet.On<RunResumeMessage>(OnRunResume);
             MpNet.On<RunStartCancelledMessage>(OnRunStartCancelled);
             MpNet.On<BackToLobbyMessage>(OnBackToLobby);
-            MpNet.On<LobbyDifficultyMessage>(OnLobbyDifficulty);
-            MpNet.On<LobbyJadeBoxMessage>(OnLobbyJadeBoxes);
-            MpNet.On<LobbyStsMapMessage>(OnLobbyStsMap);
+            MpNet.On<LobbySettingsMessage>(OnLobbySettings);
             MpNet.On<PlayerStatusMessage>(OnPlayerStatus);
             MpNet.On<PlayerLeftMessage>(OnPlayerLeft);
 
@@ -401,35 +396,18 @@ namespace LBOLMP.Session
 
             PlayersById.Clear();
             State = MpSessionState.Offline;
-            RunSeed = 0;
-            _runEnemyHpScale = null;
-            _runEnemyHpEscalation = null;
-            _runReviveHpFraction = null;
-            _runEnemyResilience = null;
-            _runDifficulty = null;
+            _run = null;
             HostDifficulty = MpConstants.DefaultDifficulty;
-            _runJadeBoxes = null;
-            _runPacks = null;
             HostJadeBoxes = new List<string>();
-            _runStsMap = null;
             HostStsMap = false;
+            _heardHostSettings = false;
             StatusLine = statusLine;
 
             // Anything this client was holding for a start that is now never going to happen.
             Patches.StartGameInterceptPatch.Cancel();
             Patches.RestoreGameInterceptPatch.Cancel();
 
-            MapSync.Reset();
-            MpRestart.Reset();
-            MpHandInspect.Reset();
-            MpExilePeek.Reset();
-            MpBorderSensor.Reset();
-            MpCrowTenguWing.Reset();
-            MpPersonalRng.Reset();
-            MpRunFlags.Reset();
-            MpRunCredit.Reset();
-            MpModContent.Reset();
-            MpPlayerExhibits.Reset();
+            ForgetLastRun();
             MpCardOwner.Reset();
             MpEventDeaths.Reset();
             Battle.MpBattleSync.Reset();
@@ -474,11 +452,6 @@ namespace LBOLMP.Session
         //--
         // host handshake
         //--
-
-        private static void OnClientConnected(NetConnection connection)
-        {
-            // Nothing to do until the client identifies itself with a JoinRequest.
-        }
 
         private static void OnJoinRequest(JoinRequestMessage message)
         {
@@ -535,15 +508,12 @@ namespace LBOLMP.Session
             MpNet.SendToConnection(connection, new JoinAcceptedMessage { AssignedPlayerId = playerId });
             BroadcastPlayerList();
 
-            // The difficulty and jade boxes are only broadcast when they change, so this client
-            // has to be told where they stand. The panel is asked first, in case the host ticked
-            // something before there was anybody to tell.
-            MpNet.SendToConnection(connection, new LobbyDifficultyMessage { Difficulty = HostDifficulty });
-            MpSafe.Run("PublishHostJadeBoxes", Patches.LobbyJadeBoxPatch.PublishLocalSelection);
-            MpNet.SendToConnection(connection,
-                new LobbyJadeBoxMessage { JadeBoxes = new List<string>(HostJadeBoxes) });
+            // Lobby settings are only broadcast when they change, so this client has to be told
+            // where they stand. The panel is asked first, in case the host ticked something
+            // before there was anybody to tell.
             HostStsMap = StsMapInterop.Enabled;
-            MpNet.SendToConnection(connection, new LobbyStsMapMessage { Enabled = HostStsMap });
+            MpSafe.Run("PublishHostJadeBoxes", Patches.LobbyJadeBoxPatch.PublishLocalSelection);
+            MpNet.SendToConnection(connection, LobbySettings());
 
             MpPlugin.Log.LogInfo($"{PlayersById[playerId]} joined from {connection.RemoteEndPoint}");
         }
@@ -619,7 +589,7 @@ namespace LBOLMP.Session
         }
 
         //--
-        // lobby difficulty
+        // lobby settings
         //--
 
         /// <summary>
@@ -628,51 +598,16 @@ namespace LBOLMP.Session
         /// </summary>
         public static void PublishHostDifficulty(int difficulty)
         {
-            if (!MpNet.IsOnline || !MpNet.IsHost)
-            {
-                return;
-            }
-
             difficulty = ClampDifficulty(difficulty);
-            if (difficulty == HostDifficulty)
+            if (!MpNet.IsOnline || !MpNet.IsHost || difficulty == HostDifficulty)
             {
                 return;
             }
 
             HostDifficulty = difficulty;
             MpPlugin.Log.LogInfo($"Difficulty for the party is now {DescribeDifficulty(difficulty)}");
-            MpNet.Send(new LobbyDifficultyMessage { Difficulty = difficulty });
+            MpNet.Send(LobbySettings());
         }
-
-        private static void OnLobbyDifficulty(LobbyDifficultyMessage message)
-        {
-            if (message.SenderId != MpConstants.HostPlayerId || MpNet.IsHost)
-            {
-                return;
-            }
-
-            HostDifficulty = ClampDifficulty(message.Difficulty);
-            MpPlugin.Log.LogInfo($"The host set the difficulty to {DescribeDifficulty(HostDifficulty)}");
-            MpSafe.Run("ApplyHostDifficulty", () => Patches.LobbyDifficultyPatch.ApplyHostChoice(HostDifficulty));
-        }
-
-        private static int ClampDifficulty(int difficulty) =>
-            Mathf.Clamp(difficulty, 0, MpConstants.DifficultyCount - 1);
-
-        public static string DescribeDifficulty(int difficulty)
-        {
-            switch (ClampDifficulty(difficulty))
-            {
-                case 0: return "Easy";
-                case 1: return "Normal";
-                case 2: return "Hard";
-                default: return "Lunatic";
-            }
-        }
-
-        //--
-        // lobby jade boxes
-        //--
 
         /// <summary>
         /// The host has ticked or unticked a jade box.
@@ -693,19 +628,7 @@ namespace LBOLMP.Session
 
             HostJadeBoxes = chosen;
             MpPlugin.Log.LogInfo($"Jade boxes for the party are now {DescribeJadeBoxes(chosen)}");
-            MpNet.Send(new LobbyJadeBoxMessage { JadeBoxes = new List<string>(chosen) });
-        }
-
-        private static void OnLobbyJadeBoxes(LobbyJadeBoxMessage message)
-        {
-            if (message.SenderId != MpConstants.HostPlayerId || MpNet.IsHost)
-            {
-                return;
-            }
-
-            HostJadeBoxes = message.JadeBoxes ?? new List<string>();
-            MpPlugin.Log.LogInfo($"The host set the jade boxes to {DescribeJadeBoxes(HostJadeBoxes)}");
-            MpSafe.Run("ApplyHostJadeBoxes", Patches.LobbyJadeBoxPatch.ApplyHostChoice);
+            MpNet.Send(LobbySettings());
         }
 
         /// <summary>
@@ -720,23 +643,69 @@ namespace LBOLMP.Session
 
             HostStsMap = enabled;
             MpPlugin.Log.LogInfo($"StsMap's map is now {(enabled ? "on" : "off")} for the party");
-            MpNet.Send(new LobbyStsMapMessage { Enabled = enabled });
+            MpNet.Send(LobbySettings());
         }
 
-        private static void OnLobbyStsMap(LobbyStsMapMessage message)
+        private static LobbySettingsMessage LobbySettings() => new LobbySettingsMessage
+        {
+            Difficulty = HostDifficulty,
+            JadeBoxes = new List<string>(HostJadeBoxes),
+            StsMap = HostStsMap
+        };
+
+        /// <summary>
+        /// Follow the host's lobby settings. Only what changed is applied, as applying StsMap's swaps the stage list out.
+        /// </summary>
+        private static void OnLobbySettings(LobbySettingsMessage message)
         {
             if (message.SenderId != MpConstants.HostPlayerId || MpNet.IsHost)
             {
                 return;
             }
 
-            HostStsMap = message.Enabled;
-            MpPlugin.Log.LogInfo($"The host turned StsMap's map {(HostStsMap ? "on" : "off")}");
-            if (HostStsMap && !StsMapInterop.Installed)
+            bool all = !_heardHostSettings;
+            _heardHostSettings = true;
+
+            int difficulty = ClampDifficulty(message.Difficulty);
+            if (all || difficulty != HostDifficulty)
             {
-                MpPlugin.Log.LogWarning("StsMap is not installed here, so the map will not match the host's");
+                HostDifficulty = difficulty;
+                MpPlugin.Log.LogInfo($"The host set the difficulty to {DescribeDifficulty(HostDifficulty)}");
+                MpSafe.Run("ApplyHostDifficulty", () => Patches.LobbyDifficultyPatch.ApplyHostChoice(HostDifficulty));
             }
-            MpSafe.Run("ApplyHostStsMap", Patches.LobbyStsMapPatch.ApplyHostChoice);
+
+            var jadeBoxes = message.JadeBoxes ?? new List<string>();
+            if (all || !jadeBoxes.SequenceEqual(HostJadeBoxes))
+            {
+                HostJadeBoxes = jadeBoxes;
+                MpPlugin.Log.LogInfo($"The host set the jade boxes to {DescribeJadeBoxes(HostJadeBoxes)}");
+                MpSafe.Run("ApplyHostJadeBoxes", Patches.LobbyJadeBoxPatch.ApplyHostChoice);
+            }
+
+            if (all || message.StsMap != HostStsMap)
+            {
+                HostStsMap = message.StsMap;
+                MpPlugin.Log.LogInfo($"The host turned StsMap's map {(HostStsMap ? "on" : "off")}");
+                if (HostStsMap && !StsMapInterop.Installed)
+                {
+                    MpPlugin.Log.LogWarning("StsMap is not installed here, so the map will not match the host's");
+                }
+                MpSafe.Run("ApplyHostStsMap", Patches.LobbyStsMapPatch.ApplyHostChoice);
+            }
+        }
+
+        private static int ClampDifficulty(int difficulty) =>
+            Mathf.Clamp(difficulty, 0, MpConstants.DifficultyCount - 1);
+
+        public static string DescribeDifficulty(int difficulty)
+        {
+            switch (ClampDifficulty(difficulty))
+            {
+                case 0: return "Easy";
+                case 1: return "Normal";
+                case 2: return "Hard";
+                default: return "Lunatic";
+            }
         }
 
         public static string DescribeJadeBoxes(IEnumerable<string> jadeBoxes)
@@ -1040,18 +1009,22 @@ namespace LBOLMP.Session
 
         private static void OnRunStart(RunStartMessage message)
         {
-            RunSeed = message.Seed;
             State = MpSessionState.InRun;
             StatusLine = L10n.Get(MpText.StatusRunStarted, message.Seed);
 
-            AdoptRunRules(message.Difficulty, message.EnemyHpScalePerExtraPlayer,
-                message.EnemyHpEscalationByAct, message.ReviveHpFraction, message.EnemyResilience,
-                message.MultiplayerCards);
-
-            // Only a new run carries these; a resumed one already has its jade boxes in the save.
-            _runJadeBoxes = message.JadeBoxes ?? new List<string>();
-            _runPacks = message.Packs ?? new List<string>();
-            _runStsMap = message.StsMap;
+            AdoptRunRules(new RunRules
+            {
+                Seed = message.Seed,
+                Difficulty = message.Difficulty,
+                EnemyHpScale = message.EnemyHpScalePerExtraPlayer,
+                Escalation = message.EnemyHpEscalationByAct,
+                ReviveHpFraction = message.ReviveHpFraction,
+                EnemyResilience = message.EnemyResilience,
+                MultiplayerCards = message.MultiplayerCards,
+                JadeBoxes = message.JadeBoxes ?? new List<string>(),
+                Packs = message.Packs ?? new List<string>(),
+                StsMap = message.StsMap
+            });
 
             foreach (var player in PlayersById.Values)
             {
@@ -1076,13 +1049,19 @@ namespace LBOLMP.Session
                 return;
             }
 
-            RunSeed = message.Seed;
             State = MpSessionState.InRun;
             StatusLine = L10n.Get(MpText.StatusRunResumed, message.Seed);
 
-            AdoptRunRules(message.Difficulty, message.EnemyHpScalePerExtraPlayer,
-                message.EnemyHpEscalationByAct, message.ReviveHpFraction, message.EnemyResilience,
-                message.MultiplayerCards);
+            AdoptRunRules(new RunRules
+            {
+                Seed = message.Seed,
+                Difficulty = message.Difficulty,
+                EnemyHpScale = message.EnemyHpScalePerExtraPlayer,
+                Escalation = message.EnemyHpEscalationByAct,
+                ReviveHpFraction = message.ReviveHpFraction,
+                EnemyResilience = message.EnemyResilience,
+                MultiplayerCards = message.MultiplayerCards
+            });
 
             foreach (var player in PlayersById.Values)
             {
@@ -1116,61 +1095,48 @@ namespace LBOLMP.Session
             MpPlayerExhibits.Reset();
         }
 
-        private static void AdoptRunRules(int difficulty, float enemyHpScale, float[] escalation,
-            float reviveHpFraction, bool enemyResilience, bool multiplayerCards)
+        private static void AdoptRunRules(RunRules rules)
         {
-            _runDifficulty = ClampDifficulty(difficulty);
-            _runEnemyHpScale = enemyHpScale;
-
-            _runEnemyHpEscalation = escalation != null && escalation.Length == MpConstants.ActCount
-                ? escalation
-                : new float[MpConstants.ActCount];
-
-            if (!MpNet.IsHost &&
-                !Mathf.Approximately(enemyHpScale, MpPlugin.EnemyHpScalePerExtraPlayer.Value))
+            rules.Difficulty = ClampDifficulty(rules.Difficulty);
+            if (rules.Escalation == null || rules.Escalation.Length != MpConstants.ActCount)
             {
-                MpPlugin.Log.LogInfo(
-                    $"Using the host's enemy health scaling ({enemyHpScale:0.##} per extra player) " +
-                    $"instead of this machine's ({MpPlugin.EnemyHpScalePerExtraPlayer.Value:0.##})");
+                rules.Escalation = new float[MpConstants.ActCount];
             }
 
-            _runReviveHpFraction = reviveHpFraction;
-            if (!MpNet.IsHost &&
-                !Mathf.Approximately(reviveHpFraction, MpPlugin.ReviveHpFraction.Value))
+            _run = rules;
+
+            if (MpNet.IsHost)
             {
-                MpPlugin.Log.LogInfo(
-                    $"Using the host's revive fraction ({reviveHpFraction:0.##}) " +
-                    $"instead of this machine's ({MpPlugin.ReviveHpFraction.Value:0.##})");
+                return;
             }
 
-            _runEnemyResilience = enemyResilience;
-            if (!MpNet.IsHost && enemyResilience != MpPlugin.EnableEnemyResilience.Value)
+            NoteHostSetting("enemy health scaling per extra player", rules.EnemyHpScale,
+                MpPlugin.EnemyHpScalePerExtraPlayer.Value);
+            NoteHostSetting("revive fraction", rules.ReviveHpFraction, MpPlugin.ReviveHpFraction.Value);
+            NoteHostSetting("Resilient setting", rules.EnemyResilience, MpPlugin.EnableEnemyResilience.Value);
+            NoteHostSetting("multiplayer card setting", rules.MultiplayerCards, MpPlugin.MultiplayerCardsEnabled.Value);
+
+            for (int act = 1; act <= MpConstants.ActCount; act++)
+            {
+                NoteHostSetting($"Act {act} escalation", rules.Escalation[act - 1],
+                    MpPlugin.EnemyHpEscalationByAct[act - 1].Value);
+            }
+        }
+
+        private static void NoteHostSetting(string setting, float host, float mine)
+        {
+            if (!Mathf.Approximately(host, mine))
+            {
+                MpPlugin.Log.LogInfo($"Using the host's {setting} ({host:0.##}) instead of this machine's ({mine:0.##})");
+            }
+        }
+
+        private static void NoteHostSetting(string setting, bool host, bool mine)
+        {
+            if (host != mine)
             {
                 MpPlugin.Log.LogInfo(
-                    $"Using the host's Resilient setting ({(enemyResilience ? "on" : "off")}) " +
-                    $"instead of this machine's ({(MpPlugin.EnableEnemyResilience.Value ? "on" : "off")})");
-            }
-
-            _runMultiplayerCards = multiplayerCards;
-            if (!MpNet.IsHost && multiplayerCards != MpPlugin.MultiplayerCardsEnabled.Value)
-            {
-                MpPlugin.Log.LogInfo(
-                    $"Using the host's multiplayer card setting ({(multiplayerCards ? "on" : "off")}) " +
-                    $"instead of this machine's ({(MpPlugin.MultiplayerCardsEnabled.Value ? "on" : "off")})");
-            }
-
-            if (!MpNet.IsHost)
-            {
-                for (int act = 1; act <= MpConstants.ActCount; act++)
-                {
-                    float host = _runEnemyHpEscalation[act - 1];
-                    float mine = MpPlugin.EnemyHpEscalationByAct[act - 1].Value;
-                    if (!Mathf.Approximately(host, mine))
-                    {
-                        MpPlugin.Log.LogInfo(
-                            $"Using the host's Act {act} escalation ({host:0.##}) instead of this machine's ({mine:0.##})");
-                    }
-                }
+                    $"Using the host's {setting} ({(host ? "on" : "off")}) instead of this machine's ({(mine ? "on" : "off")})");
             }
         }
 
@@ -1191,15 +1157,7 @@ namespace LBOLMP.Session
             bool wasPlaying = State != MpSessionState.Lobby;
 
             State = MpSessionState.Lobby;
-            RunSeed = 0;
-            _runDifficulty = null;
-            _runEnemyHpScale = null;
-            _runEnemyHpEscalation = null;
-            _runReviveHpFraction = null;
-            _runEnemyResilience = null;
-            _runMultiplayerCards = null;
-            _runJadeBoxes = null;
-            _runPacks = null;
+            _run = null;
 
             Patches.StartGameInterceptPatch.Cancel();
             Patches.RestoreGameInterceptPatch.Cancel();
@@ -1366,33 +1324,8 @@ namespace LBOLMP.Session
 
         private static void OnDisconnectedFromHost(string reason)
         {
-            StatusLine = L10n.Get(MpText.StatusDisconnected, L10n.Decode(reason));
             MpPlugin.Log.LogWarning(L10n.En(MpText.StatusDisconnected, L10n.DecodeEn(reason)));
-            PlayersById.Clear();
-            State = MpSessionState.Offline;
-            _runEnemyHpScale = null;
-            _runEnemyHpEscalation = null;
-            _runReviveHpFraction = null;
-            _runEnemyResilience = null;
-            _runDifficulty = null;
-            HostDifficulty = MpConstants.DefaultDifficulty;
-            _runJadeBoxes = null;
-            _runPacks = null;
-            HostJadeBoxes = new List<string>();
-            _runStsMap = null;
-            HostStsMap = false;
-            MapSync.Reset();
-            MpRestart.Reset();
-            MpHandInspect.Reset();
-            MpExilePeek.Reset();
-            MpBorderSensor.Reset();
-            MpCrowTenguWing.Reset();
-            MpPersonalRng.Reset();
-            MpRunFlags.Reset();
-            MpRunCredit.Reset();
-            MpModContent.Reset();
-            MpPlayerExhibits.Reset();
-            Battle.MpBattleSync.Reset();
+            Leave(L10n.Get(MpText.StatusDisconnected, L10n.Decode(reason)));
         }
     }
 }

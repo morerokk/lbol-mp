@@ -33,9 +33,6 @@ namespace LBOLMP.Session.Battle
         /// </summary>
         public static bool OutOfFight => LocalDown || MpEventBattle.LocalSpectating;
 
-        public static string[] DownedNames =>
-            MpBattleSync.AllSeats.Where(s => s.Down).Select(s => s.Name).ToArray();
-
         public static void RegisterHandlers()
         {
             MpNet.On<PlayerDownMessage>(OnPlayerDown);

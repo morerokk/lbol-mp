@@ -22,7 +22,7 @@ namespace LBOLMP.Session
         /// Dirty but works.
         private static bool _granting;
 
-        public static void RegisterHandlers() => MpNet.On<BorderSensorMessage>(OnRemote);
+        public static void RegisterHandlers() => MpNet.OnRemote<BorderSensorMessage>(OnRemote);
 
         public static void Reset()
         {
@@ -44,11 +44,6 @@ namespace LBOLMP.Session
 
         private static void OnRemote(BorderSensorMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             _owed = true;
             Tick();
         }

@@ -4,31 +4,6 @@ using LBOLMP.Net;
 namespace LBOLMP.Session.Messages
 {
     /// <summary>
-    /// Host starts a battle.
-    /// </summary>
-    [NetMessage(30)]
-    public sealed class BattleStartMessage : NetMessage
-    {
-        public ulong BattleSeed;
-        public string EnemyGroupId;
-        public int PlayerCount;
-
-        public override void Write(NetWriter w)
-        {
-            w.ULong(BattleSeed);
-            w.String(EnemyGroupId);
-            w.Int(PlayerCount);
-        }
-
-        public override void Read(NetReader r)
-        {
-            BattleSeed = r.ULong();
-            EnemyGroupId = r.String();
-            PlayerCount = r.Int();
-        }
-    }
-
-    /// <summary>
     /// Somebody has been handed an extra turn by another player's card, such as Time Dilation.
     /// Everybody should know about this so that they can mark the other player as not actually completed.
     /// </summary>

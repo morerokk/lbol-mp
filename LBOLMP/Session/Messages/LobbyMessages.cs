@@ -393,46 +393,34 @@ namespace LBOLMP.Session.Messages
     }
 
     /// <summary>
-    /// The host's difficulty, as it stands right now on the Start Game screen.
+    /// The host's difficulty, jade boxes and StsMap toggle, as they are right now on the Start Game screen.
     ///
-    /// Sent every time the host moves the selection, and once more to each client as it joins, so a
-    /// client that arrives late is not left showing whatever it picked last time.
+    /// Sent every time the host changes one of them, and once more to each client as it joins.
     /// </summary>
-    [NetMessage(14)]
-    public sealed class LobbyDifficultyMessage : NetMessage
+    [NetMessage(73)]
+    public sealed class LobbySettingsMessage : NetMessage
     {
-        public int Difficulty;
+        /// <summary>A <c>GameDifficulty</c> ordinal.</summary>
+        public int Difficulty = MpConstants.DefaultDifficulty;
 
-        public override void Write(NetWriter w) => w.Int(Difficulty);
-        public override void Read(NetReader r) => Difficulty = r.Int();
-    }
-
-    /// <summary>
-    /// The jade boxes the host has ticked right now on the Start Game screen.
-    ///
-    /// Sent whenever the host's panel refreshes, and once more to each client as it joins, so that
-    /// everybody's panel shows the same list before anyone presses Confirm.
-    /// </summary>
-    [NetMessage(5)]
-    public sealed class LobbyJadeBoxMessage : NetMessage
-    {
         public List<string> JadeBoxes = new List<string>();
 
-        public override void Write(NetWriter w) => w.StringList(JadeBoxes);
-        public override void Read(NetReader r) => JadeBoxes = new List<string>(r.StringArray());
-    }
+        /// <summary>Whether the StsMap mod's map generator is switched on.</summary>
+        public bool StsMap;
 
-    /// <summary>
-    /// Whether the host has the StsMap mod's map generator switched on right now.
-    /// Sent like <see cref="LobbyJadeBoxMessage"/>.
-    /// </summary>
-    [NetMessage(67)]
-    public sealed class LobbyStsMapMessage : NetMessage
-    {
-        public bool Enabled;
+        public override void Write(NetWriter w)
+        {
+            w.Byte((byte)Difficulty);
+            w.StringList(JadeBoxes);
+            w.Bool(StsMap);
+        }
 
-        public override void Write(NetWriter w) => w.Bool(Enabled);
-        public override void Read(NetReader r) => Enabled = r.Bool();
+        public override void Read(NetReader r)
+        {
+            Difficulty = r.Byte();
+            JadeBoxes = new List<string>(r.StringArray());
+            StsMap = r.Bool();
+        }
     }
 
     /// <summary>Periodic mirror of a player's out-of-combat vitals, for the HUD.</summary>

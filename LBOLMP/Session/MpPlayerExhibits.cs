@@ -32,7 +32,7 @@ namespace LBOLMP.Session
         private const float CheckInterval = 2f;
         private static float _nextCheck;
 
-        public static void RegisterHandlers() => MpNet.On<PlayerExhibitsMessage>(OnRemoteExhibits);
+        public static void RegisterHandlers() => MpNet.OnRemote<PlayerExhibitsMessage>(OnRemoteExhibits);
 
         public static void Reset()
         {
@@ -90,11 +90,6 @@ namespace LBOLMP.Session
 
         private static void OnRemoteExhibits(PlayerExhibitsMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             Remember(message.SenderId, message);
         }
 

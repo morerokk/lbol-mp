@@ -20,7 +20,7 @@ namespace LBOLMP.Session
         /// </summary>
         private static bool _applying;
 
-        public static void RegisterHandlers() => MpNet.On<SharedMoneyMessage>(OnRemote);
+        public static void RegisterHandlers() => MpNet.OnRemote<SharedMoneyMessage>(OnRemote);
 
         /// <summary>Whether the run in progress is sharing their money.</summary>
         private static bool Sharing(GameRunController gameRun) =>
@@ -38,7 +38,7 @@ namespace LBOLMP.Session
 
         private static void OnRemote(SharedMoneyMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId || message.Delta == 0)
+            if (message.Delta == 0)
             {
                 return;
             }

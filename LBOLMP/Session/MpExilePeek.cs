@@ -40,9 +40,9 @@ namespace LBOLMP.Session
 
         public static void RegisterHandlers()
         {
-            MpNet.On<ExilePeekRequestMessage>(OnRequest);
+            MpNet.OnRemote<ExilePeekRequestMessage>(OnRequest);
             MpNet.On<ExilePeekMessage>(OnReply);
-            MpNet.On<ExileMarkCopyMessage>(OnMarkCopy);
+            MpNet.OnRemote<ExileMarkCopyMessage>(OnMarkCopy);
         }
 
         public static void Reset()
@@ -92,8 +92,7 @@ namespace LBOLMP.Session
         /// <summary>Somebody wants to see what we have exiled.</summary>
         private static void OnRequest(ExilePeekRequestMessage message)
         {
-            if (message.TargetPlayerId != MpNet.LocalPlayerId
-                || message.SenderId == MpNet.LocalPlayerId)
+            if (message.TargetPlayerId != MpNet.LocalPlayerId)
             {
                 return;
             }
@@ -151,8 +150,7 @@ namespace LBOLMP.Session
 
         private static void OnMarkCopy(ExileMarkCopyMessage message)
         {
-            if (message.TargetPlayerId != MpNet.LocalPlayerId
-                || message.SenderId == MpNet.LocalPlayerId)
+            if (message.TargetPlayerId != MpNet.LocalPlayerId)
             {
                 return;
             }

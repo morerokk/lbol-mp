@@ -15,7 +15,7 @@ namespace LBOLMP.Session.Battle
     /// </summary>
     internal static class MpYuyuko
     {
-        internal static void RegisterHandlers() => MpNet.On<LawOfMortalityMessage>(OnRemoteTrigger);
+        internal static void RegisterHandlers() => MpNet.OnRemote<LawOfMortalityMessage>(OnRemoteTrigger);
 
         /// <summary>Publish a trigger that just went off locally.</summary>
         internal static void Report(BattleAction action)
@@ -36,7 +36,7 @@ namespace LBOLMP.Session.Battle
 
         private static void OnRemoteTrigger(LawOfMortalityMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId || !MpBattleSync.InBattle)
+            if (!MpBattleSync.InBattle)
             {
                 return;
             }

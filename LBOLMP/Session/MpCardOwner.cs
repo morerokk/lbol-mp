@@ -32,19 +32,6 @@ namespace LBOLMP.Session
             Owners.Add(card, playerId);
         }
 
-        internal static void SetAll(IEnumerable<Card> cards, int playerId)
-        {
-            if (cards == null)
-            {
-                return;
-            }
-
-            foreach (var card in cards)
-            {
-                Set(card, playerId);
-            }
-        }
-
         private static int OwnerOf(GameEntity entity)
         {
             if (entity is Card card)

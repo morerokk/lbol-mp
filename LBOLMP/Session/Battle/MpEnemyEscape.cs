@@ -24,7 +24,7 @@ namespace LBOLMP.Session.Battle
         /// </summary>
         private static readonly HashSet<int> Announced = new HashSet<int>();
 
-        internal static void RegisterHandlers() => MpNet.On<EnemyEscapedMessage>(OnRemoteEscape);
+        internal static void RegisterHandlers() => MpNet.OnRemote<EnemyEscapedMessage>(OnRemoteEscape);
 
         internal static void Reset() => Announced.Clear();
 
@@ -46,7 +46,7 @@ namespace LBOLMP.Session.Battle
 
         private static void OnRemoteEscape(EnemyEscapedMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId || !MpBattleSync.InBattle)
+            if (!MpBattleSync.InBattle)
             {
                 return;
             }

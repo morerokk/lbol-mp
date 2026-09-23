@@ -42,8 +42,8 @@ namespace LBOLMP.Session.Battle
 
         public static void RegisterHandlers()
         {
-            MpNet.On<EventBattleChoiceMessage>(OnChoice);
-            MpNet.On<EventBattleChoiceQueryMessage>(OnQuery);
+            MpNet.OnRemote<EventBattleChoiceMessage>(OnChoice);
+            MpNet.OnRemote<EventBattleChoiceQueryMessage>(OnQuery);
         }
 
         public static void Reset()
@@ -105,11 +105,6 @@ namespace LBOLMP.Session.Battle
 
         private static void OnChoice(EventBattleChoiceMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             var choice = new Choice
             {
                 Fighting = message.Fighting,
@@ -141,7 +136,7 @@ namespace LBOLMP.Session.Battle
         /// </summary>
         private static void OnQuery(EventBattleChoiceQueryMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId || !_answered)
+            if (!_answered)
             {
                 return;
             }
@@ -198,7 +193,7 @@ namespace LBOLMP.Session.Battle
 
             MpPlugin.Log.LogInfo(AnyFighting
                 ? $"Everyone has chosen; {FighterCount} player(s) fighting '{EnemyGroupId}'"
-                : "Everyone has chosen; nobody took the fight");
+                : "Everyone has chosen, no one entered combat.");
         }
 
         /// <summary>Who the party is still waiting for, for the log and the banner.</summary>

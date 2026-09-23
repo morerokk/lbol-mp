@@ -10,7 +10,7 @@ namespace LBOLMP.Session.Battle
 {
     internal static class MpVampire
     {
-        internal static void RegisterHandlers() => MpNet.On<EnemyVampireHealMessage>(OnRemoteHeal);
+        internal static void RegisterHandlers() => MpNet.OnRemote<EnemyVampireHealMessage>(OnRemoteHeal);
 
         internal static void Report(EnemyUnit enemy, int amount)
         {
@@ -29,8 +29,7 @@ namespace LBOLMP.Session.Battle
 
         private static void OnRemoteHeal(EnemyVampireHealMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId || !MpBattleSync.InBattle
-                || message.Amount <= 0)
+            if (!MpBattleSync.InBattle || message.Amount <= 0)
             {
                 return;
             }

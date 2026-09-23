@@ -91,9 +91,9 @@ namespace LBOLMP.Session
 
         public static void RegisterHandlers()
         {
-            MpNet.On<HandInspectMessage>(OnInspect);
-            MpNet.On<PlayerCardsMessage>(OnCards);
-            MpNet.On<PlayerDeckMessage>(OnDeck);
+            MpNet.OnRemote<HandInspectMessage>(OnInspect);
+            MpNet.OnRemote<PlayerCardsMessage>(OnCards);
+            MpNet.OnRemote<PlayerDeckMessage>(OnDeck);
         }
 
         /// <summary>Start looking at somebody else's hand.</summary>
@@ -252,11 +252,6 @@ namespace LBOLMP.Session
 
         private static void OnInspect(HandInspectMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             bool watchingUs = message.TargetPlayerId == MpNet.LocalPlayerId;
             bool changed = watchingUs ? Watchers.Add(message.SenderId) : Watchers.Remove(message.SenderId);
 
@@ -270,11 +265,6 @@ namespace LBOLMP.Session
 
         private static void OnCards(PlayerCardsMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             MpSafe.Run("MpHandInspect.OnCards", () =>
             {
                 var mirror = MirrorFor(message.SenderId);
@@ -306,11 +296,6 @@ namespace LBOLMP.Session
 
         private static void OnDeck(PlayerDeckMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             MpSafe.Run("MpHandInspect.OnDeck", () =>
             {
                 var mirror = MirrorFor(message.SenderId);

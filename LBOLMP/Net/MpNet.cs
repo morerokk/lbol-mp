@@ -476,6 +476,20 @@ namespace LBOLMP.Net
             list.Add(m => handler((T)m));
         }
 
+        /// <summary>
+        /// Like <see cref="On{T}"/>, but skips messages we sent ourselves.
+        /// </summary>
+        public static void OnRemote<T>(Action<T> handler) where T : NetMessage
+        {
+            On<T>(m =>
+            {
+                if (m.SenderId != LocalPlayerId)
+                {
+                    handler(m);
+                }
+            });
+        }
+
         // ---------------------------------------------------------------- liveness
 
         /// <summary>

@@ -16,7 +16,7 @@ namespace LBOLMP.Session
         /// </summary>
         private static bool _applying;
 
-        public static void RegisterHandlers() => MpNet.On<StationRestartMessage>(OnRemote);
+        public static void RegisterHandlers() => MpNet.OnRemote<StationRestartMessage>(OnRemote);
 
         internal static bool LocalDecides =>
             !MpSession.IsActive || !MpSession.IsInRun || MpNet.IsHost;
@@ -81,11 +81,6 @@ namespace LBOLMP.Session
 
         private static void OnRemote(StationRestartMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             // Only the host restarts the level. A client saying otherwise is either a bug or somebody being clever, and either way the party does not act on it.
             if (message.SenderId != MpConstants.HostPlayerId)
             {

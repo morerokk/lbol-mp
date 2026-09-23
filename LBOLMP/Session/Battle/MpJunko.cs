@@ -26,10 +26,9 @@ namespace LBOLMP.Session.Battle
 
         internal static void RegisterHandlers()
         {
-            MpNet.On<JunkoImpurityMessage>(OnRemoteImpurity);
+            MpNet.OnRemote<JunkoImpurityMessage>(OnRemoteImpurity);
         }
 
-        /// <summary>Called at the start of every fight as well as at the end of a session.</summary>
         internal static void Reset()
         {
             Gained.Clear();
@@ -122,11 +121,6 @@ namespace LBOLMP.Session.Battle
 
         private static void OnRemoteImpurity(JunkoImpurityMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             Gained[message.SenderId] = message.Philosophy;
             _pending = true;
         }

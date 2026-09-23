@@ -27,7 +27,7 @@ namespace LBOLMP.Session.Battle
 
         private static MethodInfo[] _triggers;
 
-        internal static void RegisterHandlers() => MpNet.On<EnemyStatusTriggerMessage>(OnRemoteTrigger);
+        internal static void RegisterHandlers() => MpNet.OnRemote<EnemyStatusTriggerMessage>(OnRemoteTrigger);
 
         /// <summary>
         /// Every status effect that can be told to go off early, found by the name they all use.
@@ -92,7 +92,7 @@ namespace LBOLMP.Session.Battle
 
         private static void OnRemoteTrigger(EnemyStatusTriggerMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId || !MpBattleSync.InBattle)
+            if (!MpBattleSync.InBattle)
             {
                 return;
             }

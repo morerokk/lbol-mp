@@ -32,7 +32,7 @@ namespace LBOLMP.Session.Battle
 
         internal static void RegisterHandlers()
         {
-            MpNet.On<DroneStunMessage>(OnRemoteStun);
+            MpNet.OnRemote<DroneStunMessage>(OnRemoteStun);
 
             if (StunMethod == null)
             {
@@ -53,7 +53,7 @@ namespace LBOLMP.Session.Battle
 
         private static void OnRemoteStun(DroneStunMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId || !MpBattleSync.InBattle)
+            if (!MpBattleSync.InBattle)
             {
                 return;
             }

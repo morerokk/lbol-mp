@@ -94,39 +94,6 @@ namespace LBOLMP.Session.Messages
     }
 
     /// <summary>
-    /// Generic rendezvous to make sure everyone is synced up at shops (oops, my bad). A player announces they have finished whatever the current phase is
-    /// (event dialogue, card reward, shop, boss reward...) and the host releases everyone at once
-    /// with <see cref="BarrierReleaseMessage"/>.
-    /// </summary>
-    [NetMessage(22)]
-    public sealed class BarrierArriveMessage : NetMessage
-    {
-        public string BarrierId;
-
-        public override void Write(NetWriter w) => w.String(BarrierId);
-        public override void Read(NetReader r) => BarrierId = r.String();
-    }
-
-    [NetMessage(23)]
-    public sealed class BarrierReleaseMessage : NetMessage
-    {
-        public string BarrierId;
-
-        public override void Write(NetWriter w) => w.String(BarrierId);
-        public override void Read(NetReader r) => BarrierId = r.String();
-    }
-
-    /// <summary>Host tells everyone to advance to the next act.</summary>
-    [NetMessage(24)]
-    public sealed class NextStageMessage : NetMessage
-    {
-        public int StageIndex;
-
-        public override void Write(NetWriter w) => w.Int(StageIndex);
-        public override void Read(NetReader r) => StageIndex = r.Int();
-    }
-
-    /// <summary>
     /// Somebody in the party is holding the Border Sensor, so the party is going to Act 4.
     /// </summary>
     [NetMessage(45)]

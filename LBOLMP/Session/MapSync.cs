@@ -20,13 +20,6 @@ namespace LBOLMP.Session
         /// <summary>playerId and the node they voted for on the current map.</summary>
         private static readonly Dictionary<int, (int X, int Y)> Votes = new Dictionary<int, (int, int)>();
 
-        /// <summary>Barriers that have been released, so late arrivals don't wait forever.</summary>
-        private static readonly HashSet<string> ReleasedBarriers = new HashSet<string>();
-
-        /// <summary>Host-side tally of who has reached each barrier.</summary>
-        private static readonly Dictionary<string, HashSet<int>> BarrierArrivals =
-            new Dictionary<string, HashSet<int>>();
-
         /// <summary>Node the group agreed on and that we are about to enter locally.</summary>
         private static (int X, int Y)? _committed;
 
@@ -48,15 +41,11 @@ namespace LBOLMP.Session
             MpNet.On<MapVoteMessage>(OnVote);
             MpNet.On<MapCommitMessage>(OnCommit);
             MpNet.On<BossChosenMessage>(OnBossChosen);
-            MpNet.On<BarrierArriveMessage>(OnBarrierArrive);
-            MpNet.On<BarrierReleaseMessage>(OnBarrierRelease);
         }
 
         public static void Reset()
         {
             Votes.Clear();
-            BarrierArrivals.Clear();
-            ReleasedBarriers.Clear();
             _committed = null;
             _localVote = null;
             _decision = 0;
@@ -105,19 +94,11 @@ namespace LBOLMP.Session
         public static void OnPlayerLeft(int playerId)
         {
             Votes.Remove(playerId);
-            foreach (var arrivals in BarrierArrivals.Values)
-            {
-                arrivals.Remove(playerId);
-            }
 
             // Their absence may have completed a pending decision.
             if (MpNet.IsHost)
             {
                 TryCommit();
-                foreach (var barrierId in BarrierArrivals.Keys.ToList())
-                {
-                    TryRelease(barrierId);
-                }
             }
 
             if (VoteInProgress)
@@ -360,74 +341,6 @@ namespace LBOLMP.Session
         {
             var gameRun = GameMaster.Instance?.CurrentGameRun;
             return gameRun?.CurrentStage?.Index ?? -1;
-        }
-
-        //--
-        // barriers/waiting gates
-        //--
-
-        /// <summary>
-        /// Announce that the local player has finished the current phase. Returns immediately.
-        /// </summary>
-        public static void Arrive(string barrierId)
-        {
-            MpNet.Send(new BarrierArriveMessage { BarrierId = barrierId });
-        }
-
-        public static bool IsReleased(string barrierId) => ReleasedBarriers.Contains(barrierId);
-
-        public static event Action<string> BarrierReleased;
-
-        private static void OnBarrierArrive(BarrierArriveMessage message)
-        {
-            if (!BarrierArrivals.TryGetValue(message.BarrierId, out var arrivals))
-            {
-                arrivals = new HashSet<int>();
-                BarrierArrivals[message.BarrierId] = arrivals;
-            }
-            arrivals.Add(message.SenderId);
-
-            if (MpNet.IsHost)
-            {
-                TryRelease(message.BarrierId);
-            }
-        }
-
-        private static void TryRelease(string barrierId)
-        {
-            if (ReleasedBarriers.Contains(barrierId))
-            {
-                return;
-            }
-
-            if (!BarrierArrivals.TryGetValue(barrierId, out var arrivals))
-            {
-                return;
-            }
-
-            foreach (var player in MpSession.ConnectedPlayers)
-            {
-                if (!arrivals.Contains(player.Id))
-                {
-                    return;
-                }
-            }
-
-            MpNet.Send(new BarrierReleaseMessage { BarrierId = barrierId });
-        }
-
-        private static void OnBarrierRelease(BarrierReleaseMessage message)
-        {
-            ReleasedBarriers.Add(message.BarrierId);
-            BarrierArrivals.Remove(message.BarrierId);
-            BarrierReleased?.Invoke(message.BarrierId);
-        }
-
-        /// <summary>Forget a barrier so the same id can be reused later in the run.</summary>
-        public static void Forget(string barrierId)
-        {
-            ReleasedBarriers.Remove(barrierId);
-            BarrierArrivals.Remove(barrierId);
         }
     }
 }

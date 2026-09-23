@@ -86,7 +86,7 @@ namespace LBOLMP.Session
         private static List<ModEntry> _local;
         private static bool _warned;
 
-        public static void RegisterHandlers() => MpNet.On<ModContentMessage>(OnRemoteContent);
+        public static void RegisterHandlers() => MpNet.OnRemote<ModContentMessage>(OnRemoteContent);
 
         public static void Reset()
         {
@@ -195,11 +195,6 @@ namespace LBOLMP.Session
 
         private static void OnRemoteContent(ModContentMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             ByPlayer[message.SenderId] = message.Mods
                 .Select(ModEntry.Decode)
                 .Where(entry => entry != null)

@@ -188,7 +188,7 @@ namespace LBOLMP.Api
 
         private static int _currentSender = MpConstants.InvalidPlayerId;
 
-        internal static void RegisterHandlers() => MpNet.On<MpApiMessage>(OnMessage);
+        internal static void RegisterHandlers() => MpNet.OnRemote<MpApiMessage>(OnMessage);
 
         private static void CheckKey(string key)
         {
@@ -348,12 +348,6 @@ namespace LBOLMP.Api
 
         private static void OnMessage(MpApiMessage message)
         {
-            // Our own messages come back from the host; those were already delivered in Send if wanted.
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             if (message.TargetPlayerId != MpConstants.BroadcastPlayerId
                 && message.TargetPlayerId != MpNet.LocalPlayerId)
             {

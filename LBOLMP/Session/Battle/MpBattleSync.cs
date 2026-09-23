@@ -65,12 +65,6 @@ namespace LBOLMP.Session.Battle
         /// Why did I even do them like this? I don't get it
         /// </summary>
         public List<string> StatusEffects = new List<string>();
-
-        /// <summary>Most recent card they played, kept briefly so the board can show it.</summary>
-        public string LastCardId;
-        public bool LastCardUpgraded;
-        public float LastCardTime;
-        public int LastCardTargetEnemyIndex;
     }
 
     /// <summary>
@@ -276,24 +270,23 @@ namespace LBOLMP.Session.Battle
 
         public static void RegisterHandlers()
         {
-            MpNet.On<BattleStartMessage>(OnBattleStart);
-            MpNet.On<TurnCompleteMessage>(OnTurnComplete);
+            MpNet.OnRemote<TurnCompleteMessage>(OnTurnComplete);
             MpNet.On<ExtraTurnGrantedMessage>(OnExtraTurnGranted);
-            MpNet.On<EnemyDamageMessage>(OnEnemyDamage);
-            MpNet.On<EnemyStatusMessage>(OnEnemyStatus);
-            MpNet.On<EnemyBlockShieldLossMessage>(OnEnemyBlockShieldLoss);
-            MpNet.On<CuriosityFirepowerMessage>(OnRemoteCuriosity);
-            MpNet.On<RemoteCardPlayMessage>(OnRemoteCardPlay);
-            MpNet.On<RemoteAnimationMessage>(OnRemoteAnimation);
-            MpNet.On<RemoteEffectMessage>(OnRemoteEffect);
-            MpNet.On<RemoteHitMessage>(OnRemoteHit);
-            MpNet.On<RemoteEmoteMessage>(OnRemoteEmote);
-            MpNet.On<BattleStatusMessage>(OnBattleStatus);
-            MpNet.On<BattleProgressMessage>(OnBattleProgress);
+            MpNet.OnRemote<EnemyDamageMessage>(OnEnemyDamage);
+            MpNet.OnRemote<EnemyStatusMessage>(OnEnemyStatus);
+            MpNet.OnRemote<EnemyBlockShieldLossMessage>(OnEnemyBlockShieldLoss);
+            MpNet.OnRemote<CuriosityFirepowerMessage>(OnRemoteCuriosity);
+            MpNet.OnRemote<RemoteCardPlayMessage>(OnRemoteCardPlay);
+            MpNet.OnRemote<RemoteAnimationMessage>(OnRemoteAnimation);
+            MpNet.OnRemote<RemoteEffectMessage>(OnRemoteEffect);
+            MpNet.OnRemote<RemoteHitMessage>(OnRemoteHit);
+            MpNet.OnRemote<RemoteEmoteMessage>(OnRemoteEmote);
+            MpNet.OnRemote<BattleStatusMessage>(OnBattleStatus);
+            MpNet.OnRemote<BattleProgressMessage>(OnBattleProgress);
             MpNet.On<BattleFinishedMessage>(OnBattleFinished);
-            MpNet.On<EnemyVitalsMessage>(OnEnemyVitals);
-            MpNet.On<EnemyDiedMessage>(OnEnemyDied);
-            MpNet.On<EnemyCountersMessage>(OnEnemyCounters);
+            MpNet.OnRemote<EnemyVitalsMessage>(OnEnemyVitals);
+            MpNet.OnRemote<EnemyDiedMessage>(OnEnemyDied);
+            MpNet.OnRemote<EnemyCountersMessage>(OnEnemyCounters);
             MpDownedPlayers.RegisterHandlers();
             MpEventBattle.RegisterHandlers();
             MpEnemyEscape.RegisterHandlers();
@@ -308,37 +301,47 @@ namespace LBOLMP.Session.Battle
 
         public static void Reset()
         {
-            Seats.Clear();
-            Injected.Clear();
-            MpEffects.Reset();
-            MpPartyTargeting.Clear();
-            _seenAboveZero.Clear();
-            _playerAppliedToEnemies.Clear();
-            _reportedSilent.Clear();
-            _lastStatus = null;
-            _lastProgress = null;
+            ClearFightState();
             InBattle = false;
-            EnemyTurnRunning = false;
-            _atEndOfBattleGate = false;
-            _atEnemyTurnGate = false;
-            ResolvingQueuedActions = 0;
-            _waitForLoadIn = false;
-            _reportedFinished = false;
             BattleSeed = 0;
             _finishedSeed = 0;
             _vitalsSequence = 0;
+            PlayerCountAtBattleStart = 1;
+            _reportedSilent.Clear();
+            MpDownedPlayers.Reset();
+            MpEventBattle.Reset();
+            MpPartyEscape.Reset();
+        }
+
+        /// <summary>
+        /// Forget everything that belongs to a single combat, including anything keyed by enemy index, since those restart every fight.
+        /// Called when a combat begins, ends, or when the level restarts.
+        /// </summary>
+        private static void ClearFightState()
+        {
+            Seats.Clear();
+            Injected.Clear();
+            _pendingInjections = 0;
+            ResolvingQueuedActions = 0;
+            EnemyTurnRunning = false;
+            _waitForLoadIn = false;
+            _atEnemyTurnGate = false;
+            _atEndOfBattleGate = false;
+            _reportedFinished = false;
+            _lastStatus = null;
+            _lastProgress = null;
+            _seenAboveZero.Clear();
+            _playerAppliedToEnemies.Clear();
             _seenVitals.Clear();
             _counterSequence.Clear();
             _seenCounters.Clear();
             _announcedDeaths.Clear();
             _forcedKills.Clear();
-            PlayerCountAtBattleStart = 1;
-            MpDownedPlayers.Reset();
-            MpEventBattle.Reset();
+            MpPartyTargeting.Clear();
+            MpEffects.Reset();
+            MpJunko.Reset();
             MpEnemyEscape.Reset();
             MpDoremy.Reset();
-            MpPartyEscape.Reset();
-            MpJunko.Reset();
         }
 
         public static void OnPlayerLeft(int playerId)
@@ -381,29 +384,15 @@ namespace LBOLMP.Session.Battle
                 return;
             }
 
+            ClearFightState();
             BattleSeed = StationSeed(gameRun, enemyGroup.Id);
             PlayerCountAtBattleStart = Math.Max(1, MpSession.ConnectedCount);
             InBattle = true;
-            _atEndOfBattleGate = false;
-            _atEnemyTurnGate = false;
-            ResolvingQueuedActions = 0;
-            _reportedFinished = false;
-            _pendingInjections = 0;
-
+            _finishedSeed = 0;
             _waitForLoadIn = true;
 
             MpHandInspect.ForgetBattleZones();
             MpExilePeek.Reset();
-
-            _finishedSeed = 0;
-            _seenVitals.Clear();
-            _counterSequence.Clear();
-            _seenCounters.Clear();
-            _announcedDeaths.Clear();
-            _forcedKills.Clear();
-
-            _lastStatus = null;
-            _lastProgress = null;
 
             SetWaitingHook(gameRun.Battle, true);
 
@@ -411,11 +400,6 @@ namespace LBOLMP.Session.Battle
             Patches.StartGameInterceptPatch.RepairUsOwner(gameRun.Player);
 
             MapSync.ClearVotes();
-
-            // Reset the "how many rainbow/philosopher's mana has everyone acquired" counter for the Junko fight
-            MpJunko.Reset();
-
-            Seats.Clear();
 
             bool eventFight = MpEventBattle.Active;
 
@@ -435,28 +419,13 @@ namespace LBOLMP.Session.Battle
             MpPlugin.Log.LogInfo($"Battle '{enemyGroup.Id}' starting, seed {BattleSeed}, {PlayerCountAtBattleStart} players");
         }
 
-        private static void OnBattleStart(BattleStartMessage message)
-        {
-            // TODO: is this even necessary? This was once thought to be necessary for syncing enemy intents, but not required with RNGFix.
-        }
-
         public static void LeaveBattle()
         {
             SetWaitingHook(GameMaster.Instance?.CurrentGameRun?.Battle, false);
 
             InBattle = false;
-            EnemyTurnRunning = false;
-            _atEndOfBattleGate = false;
-            _atEnemyTurnGate = false;
-            ResolvingQueuedActions = 0;
-            _waitForLoadIn = false;
-            _reportedFinished = false;
-            Seats.Clear();
-            Injected.Clear();
-            _seenAboveZero.Clear();
-            _playerAppliedToEnemies.Clear();
+            ClearFightState();
             MpEventBattle.EndFight();
-            _pendingInjections = 0;
         }
 
         //--
@@ -526,12 +495,6 @@ namespace LBOLMP.Session.Battle
 
         private static void OnTurnComplete(TurnCompleteMessage message)
         {
-            // Ignore our own turn complete messages just in case they arrive really, really, really late (yes this has happened)
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             if (!IsAboutThisFight(message.BattleSeed))
             {
                 return;
@@ -950,12 +913,6 @@ namespace LBOLMP.Session.Battle
 
         private static void OnEnemyDamage(EnemyDamageMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                // Our own hit, we already resolved it locally.
-                return;
-            }
-
             var battle = GameMaster.Instance?.CurrentGameRun?.Battle;
             var enemy = FindEnemy(battle, message.EnemyIndex);
             if (enemy == null || MpPrivateEnemies.IsPrivate(enemy))
@@ -1084,11 +1041,6 @@ namespace LBOLMP.Session.Battle
 
         private static void OnEnemyBlockShieldLoss(EnemyBlockShieldLossMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             var battle = GameMaster.Instance?.CurrentGameRun?.Battle;
             var enemy = FindEnemy(battle, message.EnemyIndex);
             if (enemy == null || !enemy.IsAlive || MpPrivateEnemies.IsPrivate(enemy))
@@ -1105,11 +1057,6 @@ namespace LBOLMP.Session.Battle
 
         private static void OnEnemyStatus(EnemyStatusMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             var battle = GameMaster.Instance?.CurrentGameRun?.Battle;
             var enemy = FindEnemy(battle, message.EnemyIndex);
             if (enemy == null || MpPrivateEnemies.IsPrivate(enemy))
@@ -1198,11 +1145,6 @@ namespace LBOLMP.Session.Battle
 
         private static void OnRemoteCuriosity(CuriosityFirepowerMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             var battle = GameMaster.Instance?.CurrentGameRun?.Battle;
             var enemy = FindEnemy(battle, message.EnemyIndex);
             if (enemy == null || MpPrivateEnemies.IsPrivate(enemy) || message.Firepower <= 0)
@@ -1255,21 +1197,11 @@ namespace LBOLMP.Session.Battle
 
         private static void OnRemoteCardPlay(RemoteCardPlayMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             var seat = GetSeat(message.SenderId);
             if (seat == null)
             {
                 return;
             }
-
-            seat.LastCardId = message.CardId;
-            seat.LastCardUpgraded = message.Upgraded;
-            seat.LastCardTargetEnemyIndex = message.TargetEnemyIndex;
-            seat.LastCardTime = Time.unscaledTime;
 
             UI.AllyCardPopup.Show(seat.PlayerId, message.CardId, message.Upgraded);
             UI.MpAllyUnits.AimAt(seat.PlayerId, message.TargetEnemyIndex);
@@ -1313,11 +1245,6 @@ namespace LBOLMP.Session.Battle
 
         private static void OnRemoteAnimation(RemoteAnimationMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             UI.MpAllyUnits.PlayAnimation(message.SenderId, message.AnimationName);
         }
 
@@ -1336,11 +1263,6 @@ namespace LBOLMP.Session.Battle
 
         private static void OnRemoteEffect(RemoteEffectMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             UI.MpAllyUnits.PlayEffect(message.SenderId, message.EffectName, message.Delay);
         }
 
@@ -1367,11 +1289,6 @@ namespace LBOLMP.Session.Battle
 
         private static void OnRemoteHit(RemoteHitMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             var info = new DamageInfo
             {
                 Damage = message.Damage,
@@ -1387,11 +1304,6 @@ namespace LBOLMP.Session.Battle
 
         private static void OnRemoteEmote(RemoteEmoteMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             UI.MpEmotes.Play(message.SenderId, message.Emote);
         }
 
@@ -1640,7 +1552,7 @@ namespace LBOLMP.Session.Battle
         /// </summary>
         private static void OnEnemyVitals(EnemyVitalsMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId || !InBattle)
+            if (!InBattle)
             {
                 return;
             }
@@ -1713,7 +1625,7 @@ namespace LBOLMP.Session.Battle
         /// </summary>
         private static void OnEnemyDied(EnemyDiedMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId || !InBattle)
+            if (!InBattle)
             {
                 return;
             }
@@ -1799,7 +1711,7 @@ namespace LBOLMP.Session.Battle
 
         private static void OnEnemyCounters(EnemyCountersMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId || !InBattle)
+            if (!InBattle)
             {
                 return;
             }
@@ -2083,11 +1995,6 @@ namespace LBOLMP.Session.Battle
 
         private static void OnBattleStatus(BattleStatusMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             var seat = GetSeat(message.SenderId);
             if (seat == null)
             {
@@ -2108,11 +2015,6 @@ namespace LBOLMP.Session.Battle
 
         private static void OnBattleProgress(BattleProgressMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             var seat = GetSeat(message.SenderId);
             if (seat == null)
             {

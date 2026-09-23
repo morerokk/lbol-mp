@@ -19,7 +19,7 @@ namespace LBOLMP.Session
         /// <summary>Wings picked up by partners that we haven't turned into feather charges yet.</summary>
         private static int _pendingWings;
 
-        public static void RegisterHandlers() => MpNet.On<CrowTenguWingMessage>(OnRemote);
+        public static void RegisterHandlers() => MpNet.OnRemote<CrowTenguWingMessage>(OnRemote);
 
         public static void Reset() => _pendingWings = 0;
 
@@ -37,11 +37,6 @@ namespace LBOLMP.Session
 
         private static void OnRemote(CrowTenguWingMessage message)
         {
-            if (message.SenderId == MpNet.LocalPlayerId)
-            {
-                return;
-            }
-
             _pendingWings++;
             Tick();
         }
