@@ -2,6 +2,7 @@ using LBOLMP.Net;
 using LBOLMP.Session.Messages;
 using LBoL.Core.SaveData;
 using LBoL.Presentation;
+using LBoL.Presentation.UI;
 using UnityEngine;
 
 namespace LBOLMP.Session
@@ -94,7 +95,7 @@ namespace LBOLMP.Session
                 (int Stage, int X, int Y) ordered = (message.StageIndex, message.X, message.Y);
                 var here = Here();
 
-                if (here == ordered)
+                if (here == ordered && !Loading)
                 {
                     Restart((SaveTiming)message.Timing);
                     return;
@@ -103,13 +104,14 @@ namespace LBOLMP.Session
                 // If we're behind the party RIGHT as we're moving and then someone tries to restart really quickly
                 // (in that small 0.25s timeframe that someone somehow hit), defer the restart until we actually get there
                 // How does this even happen
+                // Same for a restart that lands while we're still loading the last one, which happens when the host restarts twice on a slow machine.
                 _parked = ordered;
                 _parkedTiming = (SaveTiming)message.Timing;
                 _parkedUntil = Time.unscaledTime + ParkSeconds;
 
-                MpPlugin.Log.LogInfo(
-                    $"The host restarted at node ({ordered.X}, {ordered.Y}), but this client is still "
-                    + $"at ({here.X}, {here.Y}); holding the restart until it gets there");
+                MpPlugin.Log.LogInfo(here == ordered
+                    ? $"The host restarted at node ({ordered.X}, {ordered.Y}) while this client is still loading. Waiting with the restart until done loading."
+                    : $"The host restarted at node ({ordered.X}, {ordered.Y}), but this client is still at ({here.X}, {here.Y}), delaying the restart until the client gets there");
             });
         }
 
@@ -139,7 +141,7 @@ namespace LBOLMP.Session
                     return;
                 }
 
-                if (Here() == ordered && CanRestartHere(out _))
+                if (Here() == ordered && !Loading && CanRestartHere(out _))
                 {
                     _parked = null;
                     Restart(_parkedTiming);
@@ -159,6 +161,11 @@ namespace LBOLMP.Session
 
         /// <summary>Drops a held order. Called when a run ends, so it cannot fire into the next one.</summary>
         public static void Reset() => _parked = null;
+
+        /// <summary>
+        /// True while the game is loading a station, such as the previous restart.
+        /// </summary>
+        private static bool Loading => UiManager.IsShowingLoading;
 
         /// <summary>
         /// The act and node this client is standing on.
