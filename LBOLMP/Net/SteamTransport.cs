@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Steamworks;
 
@@ -352,8 +353,17 @@ namespace LBOLMP.Net
 
         private void AcceptIncoming(HSteamNetConnection handle, SteamNetConnectionInfo_t info)
         {
+            // One Steam account can't be here twice, so an old connection from the same account must be closed.
+            var remote = info.m_identityRemote.GetSteamID();
+            foreach (var stale in MpNet.Connections.OfType<SteamNetConnection>()
+                         .Where(c => c.RemoteId == remote && !c.IsClosed).ToList())
+            {
+                MpPlugin.Log.LogWarning($"{stale.RemoteEndPoint} connected a second time, dropping their old connection (player {stale.PlayerId})");
+                stale.Close(L10n.Encode(MpText.ReasonSteamClosed));
+            }
+
             // Refused at the socket when full, which is cheaper than a handshake and a rejection. The handshake checks it too.
-            if (MpNet.Connections.Count >= MpInfo.MaxPlayers - 1)
+            if (MpNet.Connections.Count(c => !c.IsClosed) >= MpInfo.MaxPlayers - 1)
             {
                 SteamNetworkingSockets.CloseConnection(
                     handle, 0, L10n.Encode(MpText.ReasonSessionFull), false);
