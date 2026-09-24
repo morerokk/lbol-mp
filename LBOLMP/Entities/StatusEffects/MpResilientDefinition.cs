@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using LBOLMP.Session;
 using LBoL.Base;
 using LBoL.ConfigData;
 using LBoL.Core;
@@ -111,12 +112,14 @@ namespace LBOLMP.Entities.StatusEffects
 
             if (effect.HasLevel)
             {
-                if (effect.Level <= 0)
+                // Youmu Mod interop for her green exhibit, which applies a minimum level of lock-on.
+                int floor = effect is LockedOn ? YoumuInterop.LockOnFloor(Owner as EnemyUnit) : 0;
+                if (effect.Level <= floor)
                 {
                     return false;
                 }
 
-                effect.Level = Mathf.Max(0, effect.Level - extra);
+                effect.Level = Mathf.Max(floor, effect.Level - extra);
                 if (effect.Level == 0)
                 {
                     React(new RemoveStatusEffectAction(effect, true, 0.1f));

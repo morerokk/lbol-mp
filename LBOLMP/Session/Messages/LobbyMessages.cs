@@ -128,16 +128,24 @@ namespace LBOLMP.Session.Messages
         /// <summary>Extra percent the sender's Vulnerable adds on enemies, over the base 50.</summary>
         public int EnemyVulnerableExtra;
 
+        /// <summary>
+        /// Lock On on enemies doesn't drop below this. 0 for no floor.
+        /// This is used for Youmu mod interop.
+        /// </summary>
+        public int EnemyLockOnFloor;
+
         public override void Write(NetWriter w)
         {
             w.StringList(Exhibits);
             w.Int(EnemyVulnerableExtra);
+            w.Short((short)EnemyLockOnFloor);
         }
 
         public override void Read(NetReader r)
         {
             Exhibits = new List<string>(r.StringArray());
             EnemyVulnerableExtra = r.Int();
+            EnemyLockOnFloor = r.Short();
         }
     }
 

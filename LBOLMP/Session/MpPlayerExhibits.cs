@@ -20,6 +20,12 @@ namespace LBOLMP.Session
             /// Extra percent this player's Vulnerable adds on enemies, over the base 50%.
             /// </summary>
             internal int EnemyVulnerableExtra;
+
+            /// <summary>
+            /// Lock On on enemies doesn't drop below this. 0 for no floor.
+            /// This is used for Youmu mod interop.
+            /// </summary>
+            internal int EnemyLockOnFloor;
         }
 
         private static readonly Dictionary<int, Carried> ByPlayer = new Dictionary<int, Carried>();
@@ -52,6 +58,13 @@ namespace LBOLMP.Session
         public static int EnemyVulnerableExtra(int playerId) =>
             ByPlayer.TryGetValue(playerId, out var carried) ? carried.EnemyVulnerableExtra : 0;
 
+        /// <summary>
+        /// Lock On on enemies doesn't drop below this. 0 for no floor.
+        /// This is used for Youmu mod interop.
+        /// </summary>
+        public static int EnemyLockOnFloor(int playerId) =>
+            ByPlayer.TryGetValue(playerId, out var carried) ? carried.EnemyLockOnFloor : 0;
+
         /// <summary>Publish our exhibits when they change, which is fortunately a bit rare.</summary>
         public static void Tick()
         {
@@ -74,10 +87,13 @@ namespace LBOLMP.Session
             var message = new PlayerExhibitsMessage
             {
                 Exhibits = player.Exhibits.Select(e => e.Id).ToList(),
-                EnemyVulnerableExtra = run.EnemyVulnerableExtraPercentage
+                EnemyVulnerableExtra = run.EnemyVulnerableExtraPercentage,
+                EnemyLockOnFloor = YoumuInterop.LocalLockOnFloor(player)
             };
 
-            string state = message.EnemyVulnerableExtra + ":" + string.Join(",", message.Exhibits.ToArray());
+            string state = string.Join(",", MpSession.ConnectedPlayers.Select(p => p.Id.ToString()).ToArray())
+                           + "|" + message.EnemyVulnerableExtra + ":" + message.EnemyLockOnFloor
+                           + ":" + string.Join(",", message.Exhibits.ToArray());
             if (state == _sent)
             {
                 return;
@@ -98,7 +114,8 @@ namespace LBOLMP.Session
             ByPlayer[playerId] = new Carried
             {
                 Exhibits = message.Exhibits,
-                EnemyVulnerableExtra = message.EnemyVulnerableExtra
+                EnemyVulnerableExtra = message.EnemyVulnerableExtra,
+                EnemyLockOnFloor = message.EnemyLockOnFloor
             };
         }
     }
