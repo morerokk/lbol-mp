@@ -3,7 +3,7 @@
   "Description": "Coop mod for LBoL. Press F2 in the main menu to open the network menu. Host a session over Steam or over a direct IP connection, have other players join, then start or continue a run.",
   "Brief": "Co-op mod. Press F2 to open the multiplayer menu.",
   "Changelog": [
-    "0.12.12: \nFixed compatibility with Youmu mod, particularly her green exhibit (Honed Roukanken).\nHer lock on minimum and lock on being halved instead of cleansed is now synced properly.",
+    "0.12.12: \nFixed compatibility with Youmu mod, particularly her green exhibit (Honed Roukanken).\nHer lock on minimum and lock on being halved instead of cleansed is now synced properly.\nFixed Trickster Rabbit running away too early if you're out of money, causing desyncs.",
     "0.12.11: \nMinor bugfixes (I forgot which ones).\nMinor reductions to bandwidth usage.",
     "0.12.10: \nFixed EMP Device usage not being synced.\nFixed Doremy waking up from sleep too early if another player dealt life damage with Black Notebook, causing desyncs.",
     "0.12.9: \nSmall fixes to LBOL MP mod API.",

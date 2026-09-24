@@ -50,16 +50,27 @@ namespace LBOLMP.Session.Messages
 
         public int Round;
 
+        /// <summary>
+        /// The sender's money as they ended their turn. See <c>MpBattleSync.PartyOutOfMoney</c>.
+        /// </summary>
+        /// <remarks>
+        /// This is used to make the Trickster Rabbit work correctly.
+        /// </remarks>
+        public int Money;
+
         public override void Write(NetWriter w)
         {
             w.ULong(BattleSeed);
             w.Int(Round);
+            // The game caps money at 99999, so we clamp rather than wrap.
+            w.UShort((ushort)System.Math.Min(Money, ushort.MaxValue));
         }
 
         public override void Read(NetReader r)
         {
             BattleSeed = r.ULong();
             Round = r.Int();
+            Money = r.UShort();
         }
     }
 

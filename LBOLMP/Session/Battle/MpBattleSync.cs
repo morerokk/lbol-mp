@@ -35,6 +35,11 @@ namespace LBOLMP.Session.Battle
         /// </summary>
         public int CompletedRound = -1;
 
+        /// <summary>
+        /// Money the player had when they last ended their turn. Set to -1 until they have.
+        /// </summary>
+        public int Money = -1;
+
         public bool Finished;
         public bool Alive = true;
 
@@ -444,7 +449,8 @@ namespace LBOLMP.Session.Battle
             }
 
             local.CompletedRound = round;
-            MpNet.Send(new TurnCompleteMessage { BattleSeed = BattleSeed, Round = round });
+            local.Money = GameMaster.Instance?.CurrentGameRun?.Money ?? 0;
+            MpNet.Send(new TurnCompleteMessage { BattleSeed = BattleSeed, Round = round, Money = local.Money });
             MpPlugin.Log.LogInfo($"Player phase complete for round {round}; waiting at the enemy-turn gate");
         }
 
@@ -504,6 +510,7 @@ namespace LBOLMP.Session.Battle
             if (seat != null && message.Round > seat.CompletedRound)
             {
                 seat.CompletedRound = message.Round;
+                seat.Money = message.Money;
             }
         }
 
@@ -573,6 +580,13 @@ namespace LBOLMP.Session.Battle
             }
             return true;
         }
+
+        /// <summary>
+        /// True when every seat still in the fight had no money left as they ended their turn.
+        /// Only the seats the enemy-turn gate waits on count, so this is the same on every machine once the gate opens.
+        /// </summary>
+        public static bool PartyOutOfMoney =>
+            Seats.Values.Where(s => !s.IsOutOfPlay && !IsUnresponsive(s)).All(s => s.Money == 0);
 
         /// <summary>
         /// Who the party is still waiting on, for the banner and the diagnostics overlay.
