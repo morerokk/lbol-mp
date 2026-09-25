@@ -1481,9 +1481,9 @@ namespace LBOLMP.Session.Battle
         }
 
         /// <summary>
-        /// Publish an enemy the local player deleted outright, such as with Ritual of Exorcism or the Yukari card.
+        /// Publish an enemy deleted outright on this client, such as with Ritual of Exorcism or the Yukari card.
         /// </summary>
-        internal static void ReportForceKill(Unit source, Unit target)
+        internal static void ReportForceKill(ForceKillAction action)
         {
             if (!InBattle || !MpSession.IsActive || SpectatingOnly)
             {
@@ -1491,20 +1491,55 @@ namespace LBOLMP.Session.Battle
             }
 
             var battle = GameMaster.Instance?.CurrentGameRun?.Battle;
-            if (battle == null || source != battle.Player || !(target is EnemyUnit enemy))
+            var args = action.Args;
+            if (battle == null || !(args?.Target is EnemyUnit enemy))
             {
                 return;
             }
 
-            if (_forcedKills.Contains(enemy.Index) || MpPrivateEnemies.IsPrivate(enemy))
+            // Somebody else's effect, replayed here. They report it themselves.
+            if (ConsumeInjected(action))
             {
                 return;
             }
 
-            // Noted so the host's own death sweep doesn't announce the same enemy a second time.
-            _announcedDeaths.Add(enemy.Index);
+            if (_forcedKills.Contains(enemy.Index) || MpPrivateEnemies.IsPrivate(enemy)
+                || !IsOurForceKill(battle, args.Source, action.Source))
+            {
+                return;
+            }
+
+            // Noted so the host's own death sweep doesn't announce the same enemy a second time, and the other way around.
+            if (!_announcedDeaths.Add(enemy.Index))
+            {
+                return;
+            }
 
             MpNet.Send(new EnemyDiedMessage { Seed = BattleSeed, EnemyIndex = enemy.Index });
+        }
+
+        /// <summary>
+        /// Whether a force kill happened on this client alone, so the rest have to be told.
+        /// </summary>
+        /// Anything an enemy or the run itself does happens on every client already. Telling the others about one of those would
+        /// kill the enemy early on a client that hasn't gotten there yet, and then again when its own copy does.
+        private static bool IsOurForceKill(BattleController battle, Unit source, GameEntity cause)
+        {
+            // Our cards, such as the Yukari card and Ritual of Exorcism.
+            if (source == battle.Player)
+            {
+                return true;
+            }
+
+            // An enemy's own kill (Rin's will-o'-wisps), or a partner's stand-in, whose kill is theirs to report.
+            if (source is EnemyUnit || source is PlayerUnit)
+            {
+                return false;
+            }
+
+            // Other mods sometimes pass no source, so go by what caused it.
+            // Nothing at all means it was queued straight onto this client.
+            return cause == null || Patches.StatusReplicationPatch.IsLocalPlayerSource(cause, battle);
         }
 
         /// <summary>

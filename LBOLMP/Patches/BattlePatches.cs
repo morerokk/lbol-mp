@@ -599,15 +599,35 @@ namespace LBOLMP.Patches
     }
 
     /// <summary>
-    /// Send a message when one of our cards deletes an enemy outright instead of damaging it to death.
+    /// Send a message when we delete an enemy outright instead of damaging it to death, by card or by another mod's ForceKillAction.
     /// </summary>
-    [HarmonyPatch(typeof(BattleController), "ForceKill")]
+    /// Patched on the action rather than on BattleController.ForceKill, because only the action knows what caused the kill.
+    [HarmonyPatch(typeof(ForceKillAction), "GetPhases")]
     public static class ForceKillReplicationPatch
     {
         [HarmonyPostfix]
-        private static void Postfix(Unit source, Unit target)
+        private static void Postfix(ForceKillAction __instance, ref IEnumerable<Phase> __result)
         {
-            MpSafe.Run("ForceKillReplicationPatch", () => MpBattleSync.ReportForceKill(source, target));
+            if (__result != null)
+            {
+                __result = Reported(__instance, __result);
+            }
+        }
+
+        private static IEnumerable<Phase> Reported(ForceKillAction action, IEnumerable<Phase> phases)
+        {
+            bool reported = false;
+            foreach (var phase in phases)
+            {
+                yield return phase;
+
+                // Straight after the kill itself, before the death plays out.
+                if (!reported)
+                {
+                    reported = true;
+                    MpSafe.Run("ForceKillReplicationPatch", () => MpBattleSync.ReportForceKill(action));
+                }
+            }
         }
     }
 
