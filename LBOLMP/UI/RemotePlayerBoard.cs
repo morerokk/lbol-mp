@@ -168,6 +168,12 @@ namespace LBOLMP.UI
 
         private static string WaitingText()
         {
+            // The lobby overlay has its own banner for this.
+            if (MpSession.RunStalled)
+            {
+                return null;
+            }
+
             var silent = MpBattleSync.SilentSeats.ToList();
             if (silent.Count > 0)
             {

@@ -355,7 +355,6 @@ namespace LBOLMP.Session.Battle
             {
                 seat.Alive = false;
                 seat.Finished = true;
-                // If the player has disconnected, prevent them from locking up the rest of the battle (ensures they cannot be waited on).
                 seat.CompletedRound = int.MaxValue;
             }
         }
@@ -552,7 +551,7 @@ namespace LBOLMP.Session.Battle
                 {
                     MpPlugin.Log.LogWarning(
                         $"{seat.Name} has not sent anything for {MpSession.UnresponsiveSeconds:F0}s; " +
-                        "the party will stop waiting for them. " + DescribeTurnState());
+                        "still waiting for them. " + DescribeTurnState());
                 }
                 else if (!silent && _reportedSilent.Remove(seat.PlayerId))
                 {
@@ -573,7 +572,7 @@ namespace LBOLMP.Session.Battle
 
             foreach (var seat in Seats.Values)
             {
-                if (!seat.HasCompleted(round) && !IsUnresponsive(seat))
+                if (!seat.HasCompleted(round))
                 {
                     return false;
                 }
@@ -586,7 +585,7 @@ namespace LBOLMP.Session.Battle
         /// Only the seats the enemy-turn gate waits on count, so this is the same on every machine once the gate opens.
         /// </summary>
         public static bool PartyOutOfMoney =>
-            Seats.Values.Where(s => !s.IsOutOfPlay && !IsUnresponsive(s)).All(s => s.Money == 0);
+            Seats.Values.Where(s => !s.IsOutOfPlay).All(s => s.Money == 0);
 
         /// <summary>
         /// Who the party is still waiting on, for the banner and the diagnostics overlay.
@@ -597,7 +596,7 @@ namespace LBOLMP.Session.Battle
             {
                 int round = CurrentRound;
                 return Seats.Values
-                    .Where(s => !s.HasCompleted(round) && !IsUnresponsive(s))
+                    .Where(s => !s.HasCompleted(round))
                     .Select(s => s.Name);
             }
         }
@@ -748,8 +747,18 @@ namespace LBOLMP.Session.Battle
 
         private static IEnumerator<object> Gate(BattleController battle, Func<bool> releaseEarly)
         {
-            if (!MpSession.IsActive || !InBattle || battle == null)
+            if (battle == null)
             {
+                yield break;
+            }
+
+            if (!MpSession.IsActive || !InBattle)
+            {
+                // Lost the host mid-fight. Finishing it alone would leave us somewhere the party isn't.
+                if (MpSession.RunStalled)
+                {
+                    yield return HoldWhileStalled();
+                }
                 yield break;
             }
 
@@ -766,7 +775,7 @@ namespace LBOLMP.Session.Battle
                 while (!MpSafe.Run("TurnGate",
                            () => battle.BattleShouldEnd
                                  || (releaseEarly != null && releaseEarly())
-                                 || (AllSeatsCompleted(round) && battle._debugActionQueue.Count == 0),
+                                 || (!MpSession.RunStalled && AllSeatsCompleted(round) && battle._debugActionQueue.Count == 0),
                            true))
                 {
                     if (waited > nextReport)
@@ -803,6 +812,16 @@ namespace LBOLMP.Session.Battle
             }
         }
 
+        /// <summary>For a client that lost the host: stays put until they quit to the main menu.</summary>
+        private static IEnumerator<object> HoldWhileStalled()
+        {
+            MpPlugin.Log.LogInfo("Holding the fight here until the party is back together");
+            while (MpSession.RunStalled)
+            {
+                yield return null;
+            }
+        }
+
         public static bool AtEnemyTurnGate => _atEnemyTurnGate && InBattle;
 
         private static bool _atEnemyTurnGate;
@@ -826,17 +845,17 @@ namespace LBOLMP.Session.Battle
         private static bool _atEndOfBattleGate;
 
         /// <summary>True once every seat's battle has ended, whether they won or lost.</summary>
-        public static bool AllSeatsFinished => Seats.Values.All(s => s.Finished || IsUnresponsive(s));
+        public static bool AllSeatsFinished => Seats.Values.All(s => s.Finished);
 
         /// <summary>Who is still fighting.</summary>
         public static IEnumerable<string> SeatsStillFighting =>
-            Seats.Values.Where(s => !s.Finished && !IsUnresponsive(s)).Select(s => s.Name);
+            Seats.Values.Where(s => !s.Finished).Select(s => s.Name);
 
         /// <summary>
         /// True when nothing is holding the end-of-battle waiting gate.
         /// </summary>
         public static bool EndOfBattleGateOpen =>
-            AllSeatsFinished || !InBattle || !MpSession.IsActive;
+            !MpSession.RunStalled && (AllSeatsFinished || !InBattle || !MpSession.IsActive);
 
         /// <summary>
         /// Wait for everyone to finish the fight. This avoids the host restarting the level and putting some people on the rewards screen and others back in the battle.
@@ -844,8 +863,18 @@ namespace LBOLMP.Session.Battle
         /// </summary>
         public static IEnumerator<object> WaitForEveryoneToFinish(BattleController battle)
         {
-            if (!MpSession.IsActive || !InBattle || battle == null)
+            if (battle == null)
             {
+                yield break;
+            }
+
+            if (!MpSession.IsActive || !InBattle)
+            {
+                // Lost the host mid-fight. Winning it alone would save us past the party.
+                if (MpSession.RunStalled)
+                {
+                    yield return HoldWhileStalled();
+                }
                 yield break;
             }
 

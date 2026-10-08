@@ -28,6 +28,14 @@ namespace LBOLMP.Patches
         [HarmonyPrefix]
         private static bool Prefix(MapNodeWidget enteringWidget)
         {
+            // Covers a client that lost the host too, which is offline by now.
+            if (!_bypass && MpSession.RunStalled)
+            {
+                MpPlugin.Log.LogWarning("Ignored a map click: the run is on hold until the party is back together");
+                _restoreWidgets = true;
+                return false;
+            }
+
             if (_bypass || !MpSession.IsActive || !MpSession.IsInRun)
             {
                 return true;

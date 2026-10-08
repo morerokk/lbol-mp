@@ -95,12 +95,6 @@ namespace LBOLMP.Session
         {
             Votes.Remove(playerId);
 
-            // Their absence may have completed a pending decision.
-            if (MpNet.IsHost)
-            {
-                TryCommit();
-            }
-
             if (VoteInProgress)
             {
                 MpSession.StatusLine = DescribeVoteState();
@@ -173,7 +167,7 @@ namespace LBOLMP.Session
         /// </summary>
         private static void TryCommit()
         {
-            if (_committed != null)
+            if (_committed != null || MpSession.RunStalled)
             {
                 return;
             }
@@ -196,14 +190,13 @@ namespace LBOLMP.Session
 
         /// <summary>
         /// True when every connected player has voted and all of those votes name the same node.
-        /// Players who have lost connection are not waited on.
         /// </summary>
         private static bool TryGetUnanimousNode(out (int X, int Y) node)
         {
             node = default;
             bool any = false;
 
-            foreach (var player in MpSession.RespondingPlayers)
+            foreach (var player in MpSession.ConnectedPlayers)
             {
                 if (!Votes.TryGetValue(player.Id, out var vote))
                 {
@@ -229,7 +222,7 @@ namespace LBOLMP.Session
         /// </summary>
         public static string DescribeVoteState()
         {
-            var missing = MpSession.RespondingPlayers
+            var missing = MpSession.ConnectedPlayers
                 .Where(p => !Votes.ContainsKey(p.Id))
                 .Select(p => p.Name)
                 .ToList();
@@ -246,7 +239,7 @@ namespace LBOLMP.Session
                 return L10n.Get(MpText.MapMovingToNode);
             }
 
-            var picks = MpSession.RespondingPlayers
+            var picks = MpSession.ConnectedPlayers
                 .Where(p => Votes.ContainsKey(p.Id))
                 .Select(p => L10n.Get(MpText.MapPick, p.Name, Votes[p.Id].X, Votes[p.Id].Y));
 

@@ -134,6 +134,7 @@ namespace LBOLMP.UI
         {
             EnsureStyles();
             DrawCornerHud();
+            DrawStallBanner();
             DrawVoteBanner();
             DrawNotice();
 
@@ -156,7 +157,7 @@ namespace LBOLMP.UI
         /// </summary>
         private void DrawVoteBanner()
         {
-            if (!MpSession.IsActive || !MpSession.IsInRun
+            if (!MpSession.IsActive || !MpSession.IsInRun || MpSession.RunStalled
                 || !MapSync.VoteInProgress || MapSync.PartyAgrees)
             {
                 return;
@@ -170,6 +171,24 @@ namespace LBOLMP.UI
             GUI.Box(rect, GUIContent.none);
             GUI.color = Color.white;
             GUI.Label(new Rect(rect.x + 14f, rect.y + 6f, size.x, size.y), text, _hudStyle);
+        }
+
+        private void DrawStallBanner()
+        {
+            if (!MpSession.RunStalled)
+            {
+                return;
+            }
+
+            string text = L10n.Get(MpText.BoardWaitingForMany, string.Join(", ", MpSession.DroppedFromRun));
+            var size = MpGui.Measure(_hudStyle, text);
+            var rect = new Rect((Screen.width - size.x) * 0.5f - 14f, 64f, size.x + 28f, size.y + 12f);
+
+            GUI.color = new Color(0f, 0f, 0f, 0.8f);
+            GUI.Box(rect, GUIContent.none);
+            GUI.color = new Color(1f, 0.85f, 0.4f);
+            GUI.Label(new Rect(rect.x + 14f, rect.y + 6f, size.x, size.y), text, _hudStyle);
+            GUI.color = Color.white;
         }
 
         /// <summary>

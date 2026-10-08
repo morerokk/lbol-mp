@@ -41,6 +41,8 @@ namespace LBOLMP.Entities.Cards.Tool
 
             config.Colors = new List<ManaColor>();
 
+            config.IsUpgradable = false;
+
             config.ToolPlayableTimes = 1;
             config.Keywords = Keyword.Exile | Keyword.Replenish;
             config.UpgradedKeywords = Keyword.Exile | Keyword.Replenish;
@@ -88,6 +90,18 @@ namespace LBOLMP.Entities.Cards.Tool
     {
         public override bool CanUse =>
             MpEffects.CanSend && MpBattleSync.AllSeats.Any(seat => seat.Down);
+
+        public override void Upgrade()
+        {
+            // TODO: temp fix for runs that are in progress mid-update
+            // When a run is loaded, all cards have their upgrades re-applied
+            // If you try to upgrade a card that isn't upgradable, it throws
+            // To avoid save bricks, we just don't upgrade here
+            if (Config.IsUpgradable)
+            {
+                base.Upgrade();
+            }
+        }
 
         protected override IEnumerable<BattleAction> Actions(
             UnitSelector selector, ManaGroup consumingMana, Interaction precondition)

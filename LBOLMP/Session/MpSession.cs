@@ -178,8 +178,8 @@ namespace LBOLMP.Session
         public static int ConnectedCount => ConnectedPlayers.Count();
 
         /// <summary>
-        /// How long a player has to say *nothing whatsoever* before the rest stop waiting on them.
-        /// This fixes deadlocks caused by weird ass internet
+        /// How long a player has to say *nothing whatsoever* before they're shown as lost contact.
+        /// The party keeps waiting on them regardless: going on without them splits the run.
         /// </summary>
         public const float UnresponsiveSeconds = 45f;
 
@@ -188,9 +188,27 @@ namespace LBOLMP.Session
             playerId != MpNet.LocalPlayerId
             && MpNet.SilenceFor(playerId) > UnresponsiveSeconds;
 
-        /// <summary>Connected players who are still talking to us.</summary>
-        public static IEnumerable<MpPlayer> RespondingPlayers =>
-            ConnectedPlayers.Where(p => !IsUnresponsive(p.Id));
+        /// <summary>Who dropped out of the run we're in, the host included if it's us who lost them.</summary>
+        private static readonly List<string> _droppedFromRun = new List<string>();
+
+        public static IReadOnlyList<string> DroppedFromRun => _droppedFromRun;
+
+        /// <summary>
+        /// True once somebody dropped out mid-run. Nobody moves on without them, or their saves end up at different points in the run.
+        /// Only cleared by going back to the main menu, from where the party can continue the run together.
+        /// </summary>
+        public static bool RunStalled => _droppedFromRun.Count > 0;
+
+        private static void StallRun(string name)
+        {
+            if (_droppedFromRun.Contains(name))
+            {
+                return;
+            }
+
+            _droppedFromRun.Add(name);
+            MpPlugin.Log.LogWarning($"Lost {name} mid-run. Holding the run here until the party quits to the menu and continues together");
+        }
 
         public static MpPlayer LocalPlayer => Get(MpNet.LocalPlayerId);
 
@@ -395,6 +413,7 @@ namespace LBOLMP.Session
             Net.SteamNet.LeaveLobby();
 
             PlayersById.Clear();
+            _droppedFromRun.Clear();
             State = MpSessionState.Offline;
             _run = null;
             HostDifficulty = MpConstants.DefaultDifficulty;
@@ -417,6 +436,11 @@ namespace LBOLMP.Session
         {
             if (State == MpSessionState.Offline)
             {
+                // Lost the host mid-run: the map still needs putting back after a refused click.
+                if (RunStalled)
+                {
+                    Patches.MapVotingPatch.Update();
+                }
                 return;
             }
 
@@ -1149,6 +1173,9 @@ namespace LBOLMP.Session
         /// </summary>
         public static void BackToLobby()
         {
+            // Out of the run, so there's nothing left to hold. Also for a client that lost the host and is offline now.
+            _droppedFromRun.Clear();
+
             if (State == MpSessionState.Offline)
             {
                 return;
@@ -1316,6 +1343,11 @@ namespace LBOLMP.Session
             {
                 player.State = MpPlayerState.Disconnected;
                 StatusLine = L10n.Get(MpText.StatusPlayerLeft, player.Name, L10n.Decode(message.Reason));
+
+                if (IsInRun)
+                {
+                    StallRun(player.Name);
+                }
             }
 
             Battle.MpBattleSync.OnPlayerLeft(message.PlayerId);
@@ -1324,8 +1356,17 @@ namespace LBOLMP.Session
 
         private static void OnDisconnectedFromHost(string reason)
         {
+            bool midRun = IsInRun;
+            string host = Get(MpConstants.HostPlayerId)?.Name ?? "Host";
+
             MpPlugin.Log.LogWarning(L10n.En(MpText.StatusDisconnected, L10n.DecodeEn(reason)));
             Leave(L10n.Get(MpText.StatusDisconnected, L10n.Decode(reason)));
+
+            // Offline now, but carrying on alone would leave this save somewhere the party's isn't.
+            if (midRun)
+            {
+                StallRun(host);
+            }
         }
     }
 }
