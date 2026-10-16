@@ -1,0 +1,10 @@
+# Dialogue for the Performance Lesson event. Keys are the #line: tags in
+# Resources/yarn/MpPerformanceLesson.yarn.
+
+line:mpperf_001: "¡Ustedes también están buscando la rama! ¿Verdad?"
+line:mpperf_002: "Veo que por una vez están trabajando juntas, pero su coordinación deja un poco que desear."
+line:mpperf_optaccept: "[Aceptar ayuda] Elige 1 de 3 cartas multijugador para agregarla al mazo."
+line:mpperf_003: "{0} parece estar mejor coordinada."
+line:mpperf_optrefuse: "[Rechazar] Marcharse."
+# Cirno-exclusive line
+line:mpperf_004: "¡Ya estoy salvando yo solita al equipo, muchas gracias!"

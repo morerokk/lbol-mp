@@ -1,0 +1,100 @@
+# Note: "Partner" is as in "Partner" from Imperishable Night.
+# This refers to other players in multiplayer.
+
+MpResilient:
+  Name: Resistencia
+  Description: |-
+    Al final de su turno, pierde {Level} más de |Débil|, |Vulnerable| y |Marcado|.
+    Gana {Level} menos de |Poder reducido|, hasta un mínimo de 1.
+  Brief: Pierde |Débil|, |Vulnerable| y |Marcado| más rápido, y gana menos |Poder reducido|.
+
+MpOfferingSe:
+  Name: Ofrenda a los sin dueño
+  Description: |-
+    La{Level:plural one=' siguiente' other='s siguientes %'} carta{Level:plural one='' other='s'} de habilidad que juegues también se jugará para todas tus |Compañeras|.
+  Brief: |-
+    Las siguientes cartas de Habilidad que se jueguen también se jugarán para tus |Compañeras|.
+
+MpAnattaSe:
+  Name: Anatta
+  Description: Siempre que salgas del estado |Serenidad|, todos los jugadores ganan {Mana}.
+  Brief: Al salir del estado |Serenidad|, cada jugador gana {Mana}.
+
+MpAbilityPileSe:
+  Name: Pila de habilidades
+  Description: Las cartas de Habilidad cuestan {Mana} maná más.
+  Brief: Las cartas de Habilidad cuestan más.
+
+MpSelfControlSe:
+  Name: Autorrealización
+  Description: |-
+    Al final de cada turno de {PlayerName}, todos los jugadores ganan {Level} de |Poder| si estás en el estado |Pasión|, o {Count} de |Bloqueo| si estás en el estado |Serenidad|.
+  Brief: |-
+    Al final de tu turno, todos los jugadores ganan |Poder| si estás en el estado |Pasión|, o |Bloqueo| si estás en el estado |Serenidad|.
+
+MpPartner:
+  Name: Compañera
+  Description: Los demás jugadores.
+  Brief: Los demás jugadores.
+
+MpFrontalDefenseTalismanSe:
+  Name: Talismán de defensa frontal
+  Description: |-
+    Siempre que {PlayerName} gana |Barrera| de una carta,
+    todas las |Compañeras| ganan la mitad de esa cantidad como |Bloqueo|.
+  Brief: |-
+    La |Barrera| ganada de las cartas también otorga a todas las |Compañeras| la mitad de esa cantidad como |Bloqueo|.
+
+MpScaled:
+  Name: Escalado
+  Description: Cuesta más maná por cada |Compañera| presente.
+  Brief: Cuesta más maná por cada |Compañera| presente.
+
+MpCatalystSe:
+  Name: Catalizador
+  Description: |-
+    Cada vez que {PlayerName} crea una |Poción inestable|, agrega una |Poción inestable| a la pila de robo de una |Compañera| aleatoria {Level:plural one='1 vez' other='% veces'}.
+  Brief: |-
+    Las Pociones inestables creadas también se agregan a la pila de robo de una |Compañera| aleatoria.
+
+MpSharedTechniqueSe:
+  Name: Técnica compartida
+  Description: |-
+    La{Level:plural one='' other='s'} siguiente{Level:plural one=' carta' other='s % cartas'} de ataque que {PlayerName} juegue en este turno también se jugará para todas las |Compañeras|.
+  Brief: |-
+    Tus siguientes cartas de ataque jugadas en este turno también se jugarán para tus |Compañeras|.
+
+MpInspiredBondsSe:
+  Name: Lazos inspiradores
+  Description: |-
+    Cuando se utiliza la |Habilidad activa| o la |Habilidad definitiva| de una |Aliada|, una |Aliada| aleatoria de la mano de cada |Compañera| gana {Level} |Influencia{Level:plural one='' other='s'}|.
+  Brief: |-
+    Las habilidades de las compañeras también otorgan |Influencia| a una |Compañera| aleatoria en la mano de cada |Aliada|.
+
+MpDeepFreezeSe:
+  Name: Congelación profunda
+  Description: |-
+    Cada vez que {PlayerName} aplica |Frío| a un enemigo que ya tiene |Frío|, aplica {Level} de |Vulnerable|.
+  Brief: |-
+    Acumular |Frío| sobre un enemigo también aplica |Vulnerable|.
+
+MpIceShardsSe:
+  Name: Fragmentos de hielo
+  Description: |-
+    Siempre que {PlayerName} inflige daño por un ataque a un enemigo con |Frío|, gana {Level} de |Armadura de escarcha|.
+  Brief: |-
+    Atacar a un enemigo con |Frío| otorga |Armadura de escarcha|.
+
+MpHatefulOrbsSe:
+  Name: Orbes odiosos
+  Description: |-
+    Los |Orbes yin-yang| aplican {Level} de |Débil| y |Vulnerable|.
+  Brief: |-
+    Los |Orbes yin-yang| aplican |Débil| y |Vulnerable|.
+
+MpMimicSe:
+  Name: Mímica
+  Description: |-
+    La{Level:plural one='' other='s'} próxima{Level:plural one=' carta' other='s % cartas'} que juegue {PartnerName} también la{Level:plural one='' other='s'} jugará {PlayerName}.
+  Brief: |-
+    Juega las siguientes cartas que juegue tu |Compañera|.

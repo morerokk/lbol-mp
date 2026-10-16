@@ -1,0 +1,182 @@
+# LBOL MP interface text, En.
+#
+# One entry per key. Keys must match the MpText enum in Localization/MpText.cs and are
+# never translated; only the text to the right of the colon is.
+#
+# {0}, {1} and so on are placeholders the mod fills in at runtime. Keep them, and keep
+# their numbers, but they may be reordered to suit the language.
+#
+# A missing or blank entry falls back to English rather than breaking, so a partial
+# translation is fine to ship.
+
+# ---- lobby window
+LobbyWindowTitle: "LBOL MP  v{0}"
+LobbyNotConnected: "No conectado"
+LobbyYourName: "Tu nombre"
+LobbyDirectConnection: "Conexión directa"
+LobbyPort: "Puerto"
+LobbyHostSession: "Crear sala"
+LobbyHostAddress: "Dirección de la sala"
+LobbyJoinSession: "Unirse a la sala"
+LobbyPortNotANumber: "El puerto no es un número"
+LobbyOfflineHelp: "El anfitrión debe crear una sala y todos los demás deben unirse. Después, todos deben elegir un personaje en la pantalla de inicio de partida. La partida comenzará cuando todos hayan confirmado."
+LobbySteam: "Steam"
+LobbySteamUnavailable: "Steam no está disponible actualmente. Solo se pueden utilizar conexiones de IP directas."
+LobbyHostOverSteam: "Crear partida mediante Steam"
+LobbySteamHelp: "Una vez creada la sala, invita a tus amigos desde la interfaz de Steam. Para unirte a la partida de otra persona, acepta su invitación o únete mediante Steam."
+LobbyHosting: "Sala creada"
+LobbyConnected: "Conectado"
+LobbyHostingDirectIp: "Sala creada mediante IP directa, puerto {0}"
+LobbyHostingSteam: "Sala creada mediante Steam"
+LobbyConnectedDirectIp: "Conectado mediante IP directa con {0}:{1}"
+LobbyConnectedSteam: "Conectado mediante Steam {0}"
+LobbyInviteFriends: "Invitar amigos..."
+LobbyTagHost: " [anfitrion]"
+LobbyTagYou: " [tú]"
+LobbyChoosing: "eligiendo..."
+LobbyPlayerRow: "#{0}  {1}{2}   {3}   {4}"
+LobbyLockedIn: "Confirmado. Esperando a que los demás confirmen su personaje."
+LobbySeed: "Semilla {0}"
+LobbyMapVoteHint: "Haz clic en un nodo del mapa para votar por él. El grupo avanzará cuando todos hayan votado por el mismo nodo."
+LobbyLeaveSession: "Abandonar sala"
+LobbyBalanceSettings: "Ajustes de equilibrio..."
+
+# ---- mismatched sideloaded content
+ModMismatchTitle: "No todos tienen los mismos mods"
+ModMismatchHelp: "Los mods que agregan contenido (como cartas) deben estar instalados para todos."
+# ModMismatchRow example when assembled:
+# "YoumuMod (1 characters, 60 cards): missing for Player2"
+ModMismatchRow: "{0} ({1}): {2}"
+ModMismatchNotice: "No todos tienen el mismo contenido de mods. Pulsa F2 para ver los detalles."
+ModMissingFor: "le falta {0}"
+ModDiffersFor: "una versión diferente de {0}"
+ModYou: "tú"
+ModKindCharacters: "{0} personajes"
+ModKindCards: "{0} cartas"
+ModKindExhibits: "{0} exhibiciones"
+ModKindEnemies: "{0} enemigos"
+ModKindAdventures: "{0} eventos"
+
+# ---- balance settings window
+SettingsWindowTitle: "Ajustes de equilibrio"
+SettingsIntro: "Cuánto aumenta la dificultad del juego al haber más jugadores."
+SettingsHostNote: "Todos estos ajustes los determina el anfitrión. Si te unes a la partida de otra persona, se utilizarán sus ajustes y los tuyos serán ignorados."
+SettingsNextRunNote: "Los cambios se guardan al instante y se aplican a partir de la próxima partida."
+SettingsLockedForThisRun: "Hay una partida en curso. Los cambios no se aplicarán hasta la próxima partida."
+SettingsDefault: "Predeterminado"
+SettingsResetAll: "Restablecer todos los valores predeterminados"
+SettingsClose: "Cerrar"
+SettingsNothingToShow: "No se encontraron los ajustes de equilibrio."
+SettingEnemyHpScaleName: "Salud de los enemigos por jugador adicional"
+SettingEnemyHpScaleHelp: "Salud máxima adicional que gana cada enemigo por cada jugador adicional."
+SettingEscalationName: "Escalamiento del Acto {0}"
+SettingEscalationHelp: "Salud máxima adicional de los enemigos en este Acto, además de la establecida arriba. Este aumento se acumula una vez más por cada jugador adicional, haciendo que los enemigos obtengan progresivamente más salud cuantos más jugadores haya. 0 desactiva esta opción para este Acto."
+SettingReviveHpName: "Salud al revivir"
+SettingReviveHpHelp: "Cantidad de salud máxima con la que un jugador derrotado vuelve a la partida cuando el grupo gana el combate. Entre 0 y 1 (0% - 100%). Los jugadores siempre reviven con al menos 1 de vida."
+SettingResilienceName: "Enemigos Resistentes"
+SettingResilienceHelp: "Todos los enemigos ganan el estado Resistente. Los enemigos pierden los efectos negativos más rápido con cada jugador adicional. Desactiva esta opción para mantener la velocidad de los efectos negativos para que sea igual al modo de un jugador."
+SettingMultiplayerCardsName: "Activar cartas multijugador"
+SettingSharedPartyPositionsName: "Mostrar posiciones real del grupo"
+SettingPlayerNamesOnCardsName: "Mostrar nombres de los jugadores en las cartas"
+SettingsTabTitle: "Multijugador"
+
+# ---- main menu
+MainMenuMultiplayer: "Multijugador"
+
+# ---- party scoreboard
+ScoreboardName: "Jugador"
+ScoreboardHp: "Vida"
+ScoreboardPower: "Energia"
+ScoreboardGold: "Oro"
+
+# ---- corner HUD
+HudParty: "Grupo ({0})"
+HudPlayerRow: "{0}  {1}/{2}{3}"
+HudVoteNode: "  -> ({0},{1})"
+HudVoteStillChoosing: "  -> todavía eligiendo"
+
+# ---- player state
+StateInLobby: "en la sala"
+StateReady: "listo"
+StateResuming: "listo para continuar"
+StateHp: "{0}/{1} PV"
+StateDisconnected: "desconectado"
+
+# ---- battle board
+BoardDefeated: "Has sido derrotado. Espera a que tus compañeros terminen el combate."
+BoardSittingOut: "Estás viendo este combate como un espectador."
+BoardWaitingForOne: "Esperando a que {0} termine su turno"
+BoardWaitingForOneToFinish: "Esperando a que {0} termine el combate"
+BoardWaitingForMany: "Esperando a {0}"
+BoardLostContact: "Se ha perdido la conexión con {0}. Continuaremos sin él por ahora."
+BoardBlock: "BLQ {0}"
+BoardShield: "BAR {0}"
+ActivitySpectating: "espectando"
+ActivityDownSpectating: "derrotado, espectando"
+ActivityDone: "hecho"
+ActivityDown: "derrotado"
+ActivityTurnOver: "turno terminado"
+ActivityHand: "mano {0}"
+
+# ---- emotes
+EmoteNice: "¡Genial!"
+EmoteNegative: "..."
+EmoteHurryUp: "¿Vas a tardar mucho...?"
+
+# ---- map voting
+MapWaitingForOne: "Esperando a que {0} elija un nodo"
+MapWaitingForMany: "Esperando a {0}"
+MapMovingToNode: "Avanzando hacia el nodo elegido"
+MapPartySplit: "El grupo está dividido: {0}"
+MapPick: "{0} -> ({1},{2})"
+MapHeadingTo: "Rumbo a ({0}, {1})"
+RestartPartyMoving: "No puedes reiniciar mientras el grupo se dirige al siguiente nodo. Inténtalo de nuevo cuando lleguen."
+
+# ---- inspecting a hand
+InspectBanner: "Viendo la mano de {0}. Haz clic derecho o pulsa Esc para volver."
+InspectZoneTitle: "{0} - {1}"
+
+# ---- session status
+StatusHostFailed: "No se pudo crear la sala: {0}"
+StatusHostingOnPort: "Sala creada en el puerto {0}"
+StatusHostSteamFailed: "No se pudo crear la sala mediante Steam: {0}"
+StatusOpeningSteamLobby: "Abriendo una sala de Steam......"
+StatusHostingOverSteam: "Sala creada mediante Steam. Invita a tus amigos desde la interfaz."
+StatusConnecting: "Conectando..."
+StatusConnectFailed: "No se ha podido conectar: {0}"
+StatusAlreadyInSession: "Abandona tu sala actual antes de unirte a otra"
+StatusConnectingSteam: "Conectando mediante Steam..."
+StatusConnectSteamFailed: "No se pudo conectar mediante Steam: {0}"
+StatusConnectedAsPlayer: "Conectado como jugador {0}"
+StatusRejected: "Rechazado: {0}"
+StatusWaitingForPlayers: "Esperando a los demás jugadores..."
+StatusWaitingForNames: "Esperando a {0}..."
+StatusWaitingToResume: "Listo para continuar. Esperando al resto del grupo..."
+StatusRunStarted: "Partida iniciada (semilla {0})"
+StatusRunResumed: "Partida reanudada (semilla {0})"
+StatusBackInLobby: "De vuelta en la sala. Inicia una nueva partida o continúa esta junto al resto."
+NoticeResumeStaggered: "No todos guardaron en el mismo punto. El jugador más atrasado alcanzará al grupo."
+StatusPlayerLeft: "{0} ha abandonado la partida: {1}"
+StatusDisconnected: "Disconectado: {0}"
+StatusSteamLobbyFailed: "No se puede abrir una sala de Steam"
+StatusSteamJoinFailed: "No se ha podido unir a esa sala de Steam"
+
+# ---- error/networking messages that are human-readable
+ReasonProtocolMismatch: "Versión incompatible: el anfitrión uso el protocolo {0} y tú el {1}. Asegúrase de que el mod esté actualizado."
+ReasonRunInProgress: "La partida ya ha comenzado, no puedes unirte."
+ReasonStartSplit: "Algunos miembros del grupo han iniciado una partida nueva y otros han continuado una partida guardada. Todos deben elegir la misma opción."
+ReasonResumeDifferentRuns: "Estas partidas guardadas no pertenecen a la misma partida. Todos deben continuar la partida que estaban jugando juntos."
+ReasonSessionFull: "La sala está llena, no puedes unirte."
+ReasonYouLeft: "Has abandonado la sala."
+ReasonRemoteClosed: "Se ha cerrado la conexión."
+ReasonConnectionFailed: "Error de conexión"
+ReasonSteamClosed: "La conexión de Steam se ha cerrado"
+ReasonReadFailed: "Error de lectura: {0}"
+ReasonWriteFailed: "Error de escritura: {0}"
+ReasonSendFailed: "Error de envío: {0}"
+ReasonTimedOut: "Tiempo de conexión agotado con {0}:{1}"
+
+# ---- transports
+ErrorSteamUnavailable: "Steam no está disponible"
+ErrorSteamListenFailed: "Steam rechazó la apertura del socket de escucha"
+ErrorSteamConnectFailed: "Steam rechazó la apertura de la conexión"

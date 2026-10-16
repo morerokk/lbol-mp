@@ -5,8 +5,7 @@
     <LangVersion>latest</LangVersion>
     <AssemblyName>LBOLMP</AssemblyName>
     <RootNamespace>LBOLMP</RootNamespace>
-    <!-- The one real version. tools/Sync-Version.ps1 copies it into MpInfo.cs,
-         manifest.json and modinfo.json, and the build runs it. -->
+    <!-- The canonical version, this is copied elsewhere where needed -->
     <Version>0.12.14</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>

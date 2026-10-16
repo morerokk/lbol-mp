@@ -1,0 +1,13 @@
+# Note: "Partner" is as in "Partner" from Imperishable Night.
+# This refers to other players in multiplayer.
+
+MpShareTheWealth:
+  Name: Compartir la riqueza
+  Description: |-
+    Cada vez que un jugador gane o pierda <sprite="Point" name="Gold">, todos los demás jugadores también ganarán o perderán esa misma cantidad de <sprite="Point" name="Gold">.
+
+MpAbilityPile:
+  Name: Pila de habilidades
+  Description: |-
+    La primera carta de Habilidad que juegues en cada combate también se juega para todos tus |Compañeras|.
+    Cada vez que juegues otra carta de Habilidad después de esa, todas las cartas de Habilidad cuestan {Mana} maná más.

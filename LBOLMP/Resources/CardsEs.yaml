@@ -1,0 +1,242 @@
+# Note: "Partner" is as in "Partner" from Imperishable Night.
+# This refers to other players in multiplayer.
+
+MpDefibrillator:
+  Name: Desfibrilador
+  Description: |-
+    Revive a todas las |Compañeras| caídas con un {Value1}% de vida.
+    No pueden perder vida durante {Value2} turno{Value2:plural one='' other='s'}.
+    |Limitado【{DeckCounter}】|
+
+MpDonateBlock:
+  Name: Frontera remota
+  Description: |-
+    Elige una |Compañera|.
+    La |Compañera| gana {Block} de |Bloqueo|.
+  UpgradedDescription: |-
+    Elige una |Compañera||.
+    La |Compañera| gana {Block} de |Bloqueo| {Value1} veces.
+
+MpAnatta:
+  Name: Anatta
+  Description: |-
+    Siempre que {PlayerName} salga del estado |Serenidad|, todos los jugadores ganan {Mana}.
+    Entra en el estado |Serenidad|.
+
+MpWhim:
+  Name: Capricho
+  Description: |-
+    Elige una |Compañera|.
+    La |Compañera| juega las {Value1} cartas superiores de su pila de robo.
+  UpgradedDescription: |-
+    Elige una |Compañera|.
+    La |Compañera| juega las {Value1} cartas superiores de su pila de robo.
+
+MpBorrowTechniques:
+  Name: Técnicas prestadas
+  Description: |-
+    Elige una |Compañera|.
+    Elige 1 de {Value1} cartas aleatorias de su grupo de cartas para agregarla a la mano. Cuesta {Mana} |temporalmente|, tiene |Exilio| y |Etéreo|.
+
+MpBladeSymphony:
+  Name: Sinfonía de cuchillas
+  Description: |-
+    Exilia hasta {Value1} |Cuchillos arrojadizos| de la mano.
+    Agrega esa cantidad de |Cuchillos arrojadizos| con |Autoexilio| a la parte superior de la pila de robo de cada |Compañera|.
+
+MpOffering:
+  Name: Ofrenda a los sin dueño
+  Description: |-
+    La{Value1:plural one=' próxima' other='s próximas %'} carta{Value1:plural one='' other='s'} de Habilidad que se juegue{Value1:plural one='' other='n'} también se jugará{Value1:plural one='' other='n'} para todas las |Compañeras|.
+  FlavorText: |-
+    Lo que se da gratis, en realidad, no se da en absoluto. Pero perder oro sería sacrificar la jugabilidad por el lore.
+
+MpEscapePlan:
+  Name: Plan de escape
+  Description: |-
+    Elige una |Compañera|.
+    Ambos ganan {Value1} de |Evasión|.
+
+MpFrontalDefenseTalisman:
+  Name: Talismán de defensa frontal
+  Description: |-
+    Siempre que ganes |Barrera| de una carta,
+    todas las |Compañeras| ganan la mitad de esa cantidad como |Bloqueo|.
+
+MpRewind:
+  Name: Rebobinar
+  Description: |-
+    Elige una |Compañera|.
+    Intercambia su pila de robo y su pila de descarte.
+    La |Compañera| roba {Value1} carta{Value1:plural one='' other='s'}.
+
+MpIntrusiveThought:
+  Name: Pensamiento intrusivo
+  Description: |-
+    Elige una |Compañera|.
+    Descarta 1 carta de tu mano.
+    La |Compañera| juega esa carta.
+  DetailText: |-
+    Las |Copias| y las Herramientas no pueden ser objetivo.
+    Si la carta elegida como objetivo es una Habilidad o tiene |Exilio|, se convierte en una |Copia|.
+
+MpSelfControl:
+  Name: Autorrealización
+  Description: |-
+    Elegir: Entrar en el estado |Pasión| o |Serenidad|.
+    Al final de cada turno de {PlayerName}, todos los jugadores ganan {Value1} de |Poder| si estás en el estado |Pasión|, o {Value2} de |Bloqueo| si estás en el estado |Serenidad|.
+  ExtraDescription1: Entra en el estado |Pasión|.
+  ExtraDescription2: Entra en el estado |Serenidad|.
+
+MpIceBlock:
+  Name: Bloque de hielo
+  Description: |-
+    Elige a cualquier jugador. No puede perder vida por un turno.
+    Pierde todo su |Bloqueo|, |Barrera| y |Evasión|.
+    Retiene las cartas de su mano durante este turno y termina su turno.
+
+MpEntrust:
+  Name: Confianza
+  Description: |-
+    Elige una |Compañera|.
+    Gana {Value1} de |Poder temporal|. Pierde toda el |Poder| y |Poder temporal|. La |Compañera| gana esa misma cantidad de |Poder| y |Poder Temporal|.
+
+MpYinYangDistribution:
+  Name: Distribución del Yin-Yang
+  Description: |-
+    Agrega un |Orbe yin-yang| a la mano de cada jugador.
+  UpgradedDescription: |-
+    Agrega un |Orbe yin-yang+| a la mano de cada jugador.
+
+MpTimeDilation:
+  Name: Dilatación del tiempo
+  Description: |-
+    Elige una |Compañera|.
+    Esa |Compañera| toma un turno extra.
+    Finaliza el turno de {PlayerName}.
+
+MpDivergingTimePeek:
+  Name: Visión de tiempos divergentes
+  Description: |-
+    Elige una |Compañera|.
+    Agrega 1 carta de su pila de |Exilio| a tu mano. |Cuesta temporalmente| {Mana}, tiene |Exilio| y |Etéreo|.
+  DetailText: |-
+    Las |Copias| no pueden ser seleccionadas como objetivo.
+    La carta agregada a tu mano se convierte en una |Copia|.
+    Si la carta es una Habilidad o tiene |Exilio|, su carta también se convierte en una |Copia|.
+
+MpCleanse:
+  Name: Limpiar
+  Description: |-
+    Elimina todos los efectos negativos de todas las |Compañeras|.
+    |Escalado| {Mana}
+  UpgradedDescription: |-
+    Elimina todos los efectos negativos de todos los jugadores.
+    |Escalado| {Mana}
+
+MpChemistryLesson:
+  Name: Lección de química
+  Description: |-
+    Por cada |Poción inestable| que haya en la pila de robo y/o de descarte, agrega una |Poción inestable| a la pila de robo de una |Compañera| aleatoria.
+  UpgradedDescription: |-
+    Agrega una |Poción inestable| a la pila de robo.
+    Por cada |Poción inestable| que haya en la pila de robo y/o de descarte, agrega una |Poción inestable| a la pila de robo de una |Compañera| aleatoria.
+  FlavorText: |-
+    Agrega la nitroglicerina al final.
+    Si empieza a burbujear, corre.
+
+MpCatalyst:
+  Name: Catalizador
+  Description: |-
+    Cada vez que {PlayerName} crea una |Poción inestable|, agrega una |Poción inestable| a la pila de robo de una |Compañera| aleatoria.
+  UpgradedDescription: |-
+    Cada vez que {PlayerName} crea una |Poción inestable|, agrega una |Poción inestable| a la pila de robo de una |Compañera| aleatoria.
+    Agrega 2 |Pociones inestables| a la pila de robo.
+
+MpOvercharge:
+  Name: Sobrepotencia
+  Description: |-
+    Gana {Value1} de |Poder temporal|.
+    |Sobrecarga| {Value2}: Todas las |Compañeras| ganan {Value1} de |Poder temporal|.
+
+MpWrenchToss:
+  Name: Llave inglesa arrojadiza
+  Description: |-
+    Inflige {Damage} de daño.
+    Aumenta el daño de esta carta en {Value1} durante este combate y la carta se agrega a la parte superior de la pila de robo de una |Compañera| aleatoria. Se puede gastar maná de cualquier color para pagar su coste.
+  FlavorText: |-
+    Se endurece en respuesta al trauma físico.
+
+MpAuraOfTranquility:
+  Name: Aura de tranquilidad
+  Description: |-
+    |Por cada <sprite="ManaSprite" name="2"> gastado|: Agrega un |Puro| a la mano de cada |Compañera|.
+  UpgradedDescription: |-
+    |Por cada <sprite="ManaSprite" name="2"> gastado|: Agrega un |Puro+| a la mano de cada |Compañera|.
+
+MpCosmicInsight:
+  Name: Percepción cósmica
+  Description: |-
+    Agrega una |Astrología| a la mano de cada jugador.
+  UpgradedDescription: |-
+    Agrega una |Astrología+| a la mano de cada jugador.
+
+MpSharedTechnique:
+  Name: Técnica compartida
+  Description: |-
+    En este turno, la{Value1:plural one='' other='s'} siguiente{Value1:plural one='% carta' other='s % cartas'} de ataque que se juegue se jugará también para todas las |Compañeras|.
+
+MpBackUp:
+  Name: Apoyo
+  Description: |-
+    Elige una |Compañera|.
+    Elige una carta |Aliada| en la mano. Agrega esa carta a la mano de la |Compañera|. |Cuesta temporalmente| {Mana} y tiene |Etéreo|.
+
+MpIceWall:
+  Name: Muro de hielo
+  Description: |-
+    Todas las |Compañeras| ganan |Armadura de escarcha| igual a tu |Armadura de escarcha| actual.
+  UpgradedDescription: |-
+    Todas las |Compañeras| ganan |Armadura de escarcha| igual a tu |Armadura de escarcha| actual.
+    Gana |Bloqueo| igual a tu |Armadura de escarcha| actual.
+
+MpInspiredBonds:
+  Name: Lazos inspiradores
+  Description: |-
+    Cada vez que se use la |a:Habilidad activa| o |u:Habilidad definitiva| de una |Aliada|, una |Aliada| aleatoria en la mano de cada |Compañera| gana {Value1} |Influencia|.
+    Agrega una |e:Hada de la Luz| aleatoria a la mano de cada |Compañera|. |Cuesta temporalmente| {Mana} y tiene |Etéreo|.
+
+MpDeepFreeze:
+  Name: Congelación profunda
+  Description: |-
+    Cada vez que {PlayerName} aplique |Frío| a un enemigo que ya tenga |Frío|, aplica {Value1} de |Vulnerable|.
+  UpgradedDescription: |-
+    Cada vez que {PlayerName} aplique |Frío| a un enemigo que ya tenga |Frío|, aplica {Value1} de |Vulnerable|.
+    Aplica |Frío| a cada enemigo.
+
+MpIceShards:
+  Name: Fragmentos de hielo
+  Description: |-
+    Cada vez que cualquier jugador inflige daño por un ataque a un enemigo con |Frío|, gana {Value1} |Armadura{Value1:plural one='' other='s'} de escarcha|.
+    Aplica |Frío| a cada enemigo.
+
+MpHatefulOrbs:
+  Name: Orbes odiosos
+  Description: |-
+    Los |Orbes yin-yang| aplican {Value1} de |Débil| y |Vulnerable|.
+    Agrega un |Orbe yin-yang| a la mano.
+  UpgradedDescription: |-
+    Los |Orbes yin-yang| aplican {Value1} de |Débil| y |Vulnerable|.
+    Agrega un |Orbe yin-yang+| a la mano.
+
+MpProtect:
+  Name: Proteger
+  Description: |-
+    Elige una |Compañera|.
+    Ambos ganan {Shield} de |Barrera|.
+
+MpMimic:
+  Name: Mímica
+  Description: |-
+    Elige una |Compañera|.
+    Juega la{Value1:plural one='' other='s'} próxima{Value1:plural one=' carta' other='s % cartas'} que juegue.

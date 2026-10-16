@@ -1,0 +1,5 @@
+MpCrowTenguFeather:
+  Name: Alas de cuervo tengu
+  Description: |-
+    {PlayerName} puede ignorar las rutas que puede elegir del siguiente nivel, hasta {Counter:plural one='% vez' other='% veces'}.
+    Gana {Value1} cargas adicionales cada vez que una |Compañera| consigue las Alas de cuervo tengu.
