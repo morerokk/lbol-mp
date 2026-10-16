@@ -111,6 +111,7 @@ namespace LBOLMP.Session.Battle
             if (!args.CanCancel)
             {
                 MpPlugin.Log.LogWarning("Something insists this death cannot be cancelled; the run ends here");
+                AnnounceDown();
                 return;
             }
 
@@ -175,6 +176,9 @@ namespace LBOLMP.Session.Battle
 
             seat.Down = true;
             MpPlugin.Log.LogInfo($"{seat.Name} was knocked out");
+
+            // Their stand-in only dies on this message, not on 0 HP
+            UI.MpAllyUnits.SyncVitals(seat);
         }
 
         private static void OnPlayerRevived(PlayerRevivedMessage message)

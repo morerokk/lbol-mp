@@ -28,7 +28,7 @@ namespace LBOLMP.Session
             }
         }
 
-        /// <summary><c>MapButtonPatch.ApplyToggle(StartGamePanel, bool, Func&lt;Stage[]&gt;)</c>, which sets the panel's stages.</summary>
+        /// <summary><c>MapButtonPatch.ApplyToggle(StartGamePanel, bool, Stage[])</c>, which sets the panel's stages.</summary>
         public static MethodInfo ApplyToggleMethod
         {
             get
@@ -56,7 +56,7 @@ namespace LBOLMP.Session
 
             _useStsMap = AccessTools.Field(type, "UseStSMap");
             var applyToggle = AccessTools.Method(type, "ApplyToggle",
-                new[] { typeof(StartGamePanel), typeof(bool), typeof(Func<Stage[]>) });
+                new[] { typeof(StartGamePanel), typeof(bool), typeof(Stage[]) });
 
             if (_useStsMap == null || _useStsMap.FieldType != typeof(bool) || applyToggle == null)
             {
@@ -82,7 +82,7 @@ namespace LBOLMP.Session
         }
 
         /// <summary>Point the panel's stages at StsMap's or the vanilla ones.</summary>
-        public static void Apply(StartGamePanel panel, bool enabled, Func<Stage[]> vanillaStages)
+        public static void Apply(StartGamePanel panel, bool enabled, Stage[] vanillaStages)
         {
             if (Installed)
             {

@@ -674,12 +674,12 @@ namespace LBOLMP.UI
 
                 SyncStatusEffects(ally, seat);
 
-                if (newHp <= 0 && unit.Status == UnitStatus.Alive)
+                if (seat.Down && unit.Status == UnitStatus.Alive)
                 {
                     unit.Status = UnitStatus.Dead;
                     PlayDeath(ally);
                 }
-                else if (newHp > 0 && unit.Status != UnitStatus.Alive)
+                else if (!seat.Down && newHp > 0 && unit.Status != UnitStatus.Alive)
                 {
                     Revive(ally);
                 }
@@ -697,14 +697,16 @@ namespace LBOLMP.UI
             }
 
             MpSafe.Run("MpAllyUnits.PlayDeath",
-                () => MpPlugin.Instance.StartCoroutine(DeathRoutine(ally.View)));
+                () => MpPlugin.Instance.StartCoroutine(DeathRoutine(ally)));
         }
 
         /// <summary>
         /// Mirrors the game's own death sequence but at 50% volume.
         /// </summary>
-        private static IEnumerator DeathRoutine(UnitView view)
+        private static IEnumerator DeathRoutine(Ally ally)
         {
+            var view = ally.View;
+
             view.SetStatusVisible(false);
             view.DeathAnimation();
 
@@ -727,6 +729,12 @@ namespace LBOLMP.UI
 
             EffectManager.CreateEffect(effect, view.transform, 0f, null, false, true);
             yield return new WaitForSeconds(delay);
+
+            // Revived during the wait: hiding them now would leave an invisible, living ghost
+            if (ally.Unit != null && ally.Unit.Status == UnitStatus.Alive)
+            {
+                yield break;
+            }
 
             AudioManager.PlaySfx(sfx, AllyVolume);
             view.Die();

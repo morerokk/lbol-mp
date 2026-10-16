@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -21,7 +20,7 @@ namespace LBOLMP.Patches
         private const string TogglePath = "DifficultyPanel/MainRoot/StSMapToggle";
 
         /// <summary>The vanilla stage list StsMap swaps out, from the last time the panel was shown.</summary>
-        private static Func<Stage[]> _vanillaStages;
+        private static Stage[] _vanillaStages;
 
         /// <summary>True while we are the ones calling StsMap's ApplyToggle.</summary>
         private static bool _applying;
@@ -35,9 +34,9 @@ namespace LBOLMP.Patches
         /// <summary>
         /// Runs whenever StsMap shows or flips its toggle.
         /// </summary>
-        private static void Postfix(StartGamePanel panel, bool isOn, Func<Stage[]> vanillaFunc)
+        private static void Postfix(StartGamePanel panel, bool isOn, Stage[] vanillaStages)
         {
-            _vanillaStages = vanillaFunc;
+            _vanillaStages = vanillaStages;
             if (_applying)
             {
                 return;
