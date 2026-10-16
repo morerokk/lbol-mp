@@ -44,9 +44,7 @@ namespace LBOLMP.Session
         /// </summary>
         private static readonly HashSet<string> Ignored = new HashSet<string>
         {
-            nameof(Entities.Cards.Reimu.MpProtect),
-            nameof(Entities.Cards.Reimu.MpHatefulOrbs),
-            nameof(Entities.Cards.Neutral.MpMimic)
+
         };
 
         private static bool _inMultiplayerRun;
