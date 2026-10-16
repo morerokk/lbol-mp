@@ -205,6 +205,12 @@ namespace LBOLMP.UI
             Switch(right, switchTemplate, MpPlugin.MultiplayerCardsEnabled,
                 () => L10n.Get(MpText.SettingMultiplayerCardsName),
                 () => Config(MpPlugin.MultiplayerCardsEnabled));
+            Switch(right, switchTemplate, MpPlugin.ForceHostPacks,
+                () => L10n.Get(MpText.SettingForceHostPacksName),
+                () => Config(MpPlugin.ForceHostPacks));
+            Switch(right, switchTemplate, MpPlugin.ForceHostJadeBoxes,
+                () => L10n.Get(MpText.SettingForceHostJadeBoxesName),
+                () => Config(MpPlugin.ForceHostJadeBoxes));
             Switch(right, switchTemplate, MpPlugin.SharedPartyPositions,
                 () => L10n.Get(MpText.SettingSharedPartyPositionsName),
                 () => Config(MpPlugin.SharedPartyPositions));
@@ -361,6 +367,8 @@ namespace LBOLMP.UI
             yield return MpPlugin.ReviveHpFraction;
             yield return MpPlugin.EnableEnemyResilience;
             yield return MpPlugin.MultiplayerCardsEnabled;
+            yield return MpPlugin.ForceHostPacks;
+            yield return MpPlugin.ForceHostJadeBoxes;
             yield return MpPlugin.SharedPartyPositions;
             yield return MpPlugin.ShowPlayerNamesOnCards;
 

@@ -160,14 +160,15 @@ namespace LBOLMP.Patches
                     $"Starting on the host's difficulty ({difficulty}) rather than the one selected here ({pending.Difficulty})");
             }
 
-            // Same for the jade boxes, which have to match or the party is playing two different games.
-            var jadeBoxes = BuildJadeBoxes(MpSession.RunJadeBoxes);
+            // Same for the jade boxes, unless the host lets everyone pick. The host-only ones follow the host regardless.
             var ours = pending.JadeBoxes.Select(jadeBox => jadeBox.Id).ToList();
-            if (!jadeBoxes.Select(jadeBox => jadeBox.Id).SequenceEqual(ours))
+            var jadeBoxes = BuildJadeBoxes(MpSession.StartingJadeBoxes(ours));
+            if (!new HashSet<string>(jadeBoxes.Select(jadeBox => jadeBox.Id)).SetEquals(ours))
             {
                 MpPlugin.Log.LogInfo(
-                    $"Starting with the host's jade boxes ({MpSession.DescribeJadeBoxes(jadeBoxes.Select(j => j.Id))}) "
-                    + $"rather than the ones selected here ({MpSession.DescribeJadeBoxes(ours)})");
+                    $"Starting with jade boxes ({MpSession.DescribeJadeBoxes(jadeBoxes.Select(j => j.Id))}) "
+                    + $"rather than the ones selected here ({MpSession.DescribeJadeBoxes(ours)}), "
+                    + (MpSession.RunForcesJadeBoxes ? "as the host forces theirs" : "as the host decides the host-only ones"));
             }
 
             MpPlugin.Log.LogInfo($"Starting multiplayer run with seed {seed} on {difficulty}");

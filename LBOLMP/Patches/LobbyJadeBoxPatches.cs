@@ -11,12 +11,17 @@ namespace LBOLMP.Patches
     /// <summary>
     /// Force the host to be authoritative of the jade boxes the party plays with.
     /// Clients can open the list and read it, but every toggle mirrors the host's.
+    /// If the host doesn't force their jade boxes, only the host-only ones are synced.
     /// </summary>
     [HarmonyPatch(typeof(StartGamePanel))]
     public static class LobbyJadeBoxPatch
     {
         /// <summary>True when we are the one choosing the jade boxes (singleplayer or host).</summary>
         private static bool WeAreChoosingJadeBoxes => !MpNet.IsOnline || MpNet.IsHost;
+
+        /// <summary>True when this client's toggle has to show the host's choice instead of our own.</summary>
+        private static bool Mirrored(string id) =>
+            !WeAreChoosingJadeBoxes && (MpSession.HostForcesJadeBoxes || MpSession.IsHostOnlyJadeBox(id));
 
         /// <summary>
         /// Insert the host's choices into the panel's selections
@@ -41,6 +46,7 @@ namespace LBOLMP.Patches
         /// <summary>
         /// Let clients into the list even if they have not unlocked jade boxes themselves.
         /// They are only reading it, and they are going to be playing with these either way.
+        /// When they're free to pick their own, they still have to see what the host forces on them.
         /// </summary>
         [HarmonyPostfix]
         [HarmonyPatch("SetJadeBoxStatus")]
@@ -94,20 +100,19 @@ namespace LBOLMP.Patches
         }
 
         /// <summary>
-        /// Prevent clients from changing jadeboxes
+        /// Prevent clients from changing the jadeboxes the host decides
         /// </summary>
         private static void LockForClient(StartGamePanel panel)
         {
-            bool locked = !WeAreChoosingJadeBoxes;
-
             foreach (var pair in panel._jadeBoxToggles)
             {
-                if (locked)
+                bool mirrored = Mirrored(pair.Key.Id);
+                if (mirrored)
                 {
                     pair.Value.Toggle.SetIsOnWithoutNotify(MpSession.HostJadeBoxes.Contains(pair.Key.Id));
                 }
 
-                pair.Value.Toggle.interactable = !locked;
+                pair.Value.Toggle.interactable = !mirrored;
             }
         }
 
@@ -117,7 +122,8 @@ namespace LBOLMP.Patches
         /// </summary>
         private static void ShowHostSelection(StartGamePanel panel)
         {
-            panel.jadeBoxSetImage.fillAmount = MpSession.HostJadeBoxes.Count > 0 ? 1f : 0f;
+            int count = MpSession.HostForcesJadeBoxes ? MpSession.HostJadeBoxes.Count : panel.ActiveJadeBoxCount;
+            panel.jadeBoxSetImage.fillAmount = count > 0 ? 1f : 0f;
             panel.SetNoClearHint();
         }
 

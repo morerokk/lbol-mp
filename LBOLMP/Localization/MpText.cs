@@ -75,6 +75,8 @@ namespace LBOLMP
         SettingResilienceName,
         SettingResilienceHelp,
         SettingMultiplayerCardsName,
+        SettingForceHostPacksName,
+        SettingForceHostJadeBoxesName,
         SettingSharedPartyPositionsName,
         SettingPlayerNamesOnCardsName,
         SettingsTabTitle,

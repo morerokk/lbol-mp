@@ -131,12 +131,16 @@ namespace LBOLMP.UI
 
             return config
                 .Where(pair => pair.Key.Section == Section)
-                // Everything else here is difficulty scaling, so the card toggle goes last.
-                .OrderBy(pair => ReferenceEquals(pair.Value, MpPlugin.MultiplayerCardsEnabled) ? 1 : 0)
+                .OrderBy(pair => IsPartyRule(pair.Value) ? 1 : 0)
                 .ThenBy(pair => pair.Key.Key, StringComparer.Ordinal)
                 .Select(pair => pair.Value)
                 .ToList();
         }
+
+        private static bool IsPartyRule(ConfigEntryBase entry) =>
+            ReferenceEquals(entry, MpPlugin.MultiplayerCardsEnabled)
+            || ReferenceEquals(entry, MpPlugin.ForceHostPacks)
+            || ReferenceEquals(entry, MpPlugin.ForceHostJadeBoxes);
 
         private void DrawEntry(ConfigEntryBase entry)
         {
@@ -191,6 +195,20 @@ namespace LBOLMP.UI
             {
                 name = L10n.Get(MpText.SettingMultiplayerCardsName);
                 help = string.Empty;
+                return;
+            }
+
+            if (ReferenceEquals(entry, MpPlugin.ForceHostPacks))
+            {
+                name = L10n.Get(MpText.SettingForceHostPacksName);
+                help = entry.Description?.Description;
+                return;
+            }
+
+            if (ReferenceEquals(entry, MpPlugin.ForceHostJadeBoxes))
+            {
+                name = L10n.Get(MpText.SettingForceHostJadeBoxesName);
+                help = entry.Description?.Description;
                 return;
             }
 

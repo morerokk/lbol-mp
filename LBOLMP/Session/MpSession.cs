@@ -49,6 +49,7 @@ namespace LBOLMP.Session
 
             // Only a new run carries these, a resumed one already has them in its save.
             public List<string> JadeBoxes;
+            public bool? ForceJadeBoxes;
             public List<string> Packs;
             public bool? StsMap;
         }
@@ -123,6 +124,42 @@ namespace LBOLMP.Session
         /// seed. Falls back to the lobby list, and then to none.
         /// </summary>
         public static IReadOnlyList<string> RunJadeBoxes => _run?.JadeBoxes ?? HostJadeBoxes;
+
+        private static bool _hostForcesJadeBoxes = true;
+
+        /// <summary>
+        /// Whether the host makes everyone play with their jade boxes, as it stands in the lobby.
+        /// </summary>
+        public static bool HostForcesJadeBoxes => MpNet.IsHost ? MpPlugin.ForceHostJadeBoxes.Value : _hostForcesJadeBoxes;
+
+        /// <summary>Same, but as the host decided for the run being started.</summary>
+        public static bool RunForcesJadeBoxes => _run?.ForceJadeBoxes ?? HostForcesJadeBoxes;
+
+        /// <summary>
+        /// Jade boxes that break unless everyone has them or nobody does, so they always follow the host.
+        /// </summary>
+        private static readonly HashSet<string> HostOnlyJadeBoxes = new HashSet<string>
+        {
+            nameof(Entities.JadeBoxes.MpShareTheWealth)
+        };
+
+        public static bool IsHostOnlyJadeBox(string id) => HostOnlyJadeBoxes.Contains(id);
+
+        /// <summary>
+        /// The jade boxes this client starts the run with: the host's, or our own with the host-only ones following the host.
+        /// </summary>
+        public static List<string> StartingJadeBoxes(IEnumerable<string> ours)
+        {
+            if (RunForcesJadeBoxes)
+            {
+                return RunJadeBoxes.ToList();
+            }
+
+            // Host-only first, so a group clash can never drop one of them
+            return RunJadeBoxes.Where(IsHostOnlyJadeBox)
+                .Concat(ours.Where(id => !IsHostOnlyJadeBox(id)))
+                .ToList();
+        }
 
         /// <summary>Whether the host has the StsMap mod's map toggle on in the lobby.</summary>
         public static bool HostStsMap { get; private set; }
@@ -264,6 +301,9 @@ namespace LBOLMP.Session
             MpNet.On<LobbySettingsMessage>(OnLobbySettings);
             MpNet.On<PlayerStatusMessage>(OnPlayerStatus);
             MpNet.On<PlayerLeftMessage>(OnPlayerLeft);
+
+            MpPlugin.ForceHostJadeBoxes.SettingChanged += (sender, args) =>
+                MpSafe.Run("PublishForceHostJadeBoxes", PublishForceHostJadeBoxes);
 
             MapSync.RegisterHandlers();
             MpHandInspect.RegisterHandlers();
@@ -418,6 +458,7 @@ namespace LBOLMP.Session
             _run = null;
             HostDifficulty = MpConstants.DefaultDifficulty;
             HostJadeBoxes = new List<string>();
+            _hostForcesJadeBoxes = true;
             HostStsMap = false;
             _heardHostSettings = false;
             StatusLine = statusLine;
@@ -656,6 +697,22 @@ namespace LBOLMP.Session
         }
 
         /// <summary>
+        /// The host has changed whether their jade boxes are forced on everyone. Tell the rest of the lobby.
+        /// </summary>
+        private static void PublishForceHostJadeBoxes()
+        {
+            if (!MpNet.IsOnline || !MpNet.IsHost)
+            {
+                return;
+            }
+
+            MpPlugin.Log.LogInfo(MpPlugin.ForceHostJadeBoxes.Value
+                ? "Everyone now plays with the host's jade boxes"
+                : "Everyone now picks their own jade boxes, bar the host-only ones");
+            MpNet.Send(LobbySettings());
+        }
+
+        /// <summary>
         /// The host has flipped StsMap's map toggle. Tell the rest of the lobby.
         /// </summary>
         public static void PublishHostStsMap(bool enabled)
@@ -674,6 +731,7 @@ namespace LBOLMP.Session
         {
             Difficulty = HostDifficulty,
             JadeBoxes = new List<string>(HostJadeBoxes),
+            ForceJadeBoxes = MpPlugin.ForceHostJadeBoxes.Value,
             StsMap = HostStsMap
         };
 
@@ -699,10 +757,13 @@ namespace LBOLMP.Session
             }
 
             var jadeBoxes = message.JadeBoxes ?? new List<string>();
-            if (all || !jadeBoxes.SequenceEqual(HostJadeBoxes))
+            if (all || !jadeBoxes.SequenceEqual(HostJadeBoxes) || message.ForceJadeBoxes != _hostForcesJadeBoxes)
             {
                 HostJadeBoxes = jadeBoxes;
-                MpPlugin.Log.LogInfo($"The host set the jade boxes to {DescribeJadeBoxes(HostJadeBoxes)}");
+                _hostForcesJadeBoxes = message.ForceJadeBoxes;
+                MpPlugin.Log.LogInfo(_hostForcesJadeBoxes
+                    ? $"The host set the jade boxes to {DescribeJadeBoxes(HostJadeBoxes)}"
+                    : $"Everyone picks their own jade boxes; the host-only ones are {DescribeJadeBoxes(HostJadeBoxes.Where(IsHostOnlyJadeBox))}");
                 MpSafe.Run("ApplyHostJadeBoxes", Patches.LobbyJadeBoxPatch.ApplyHostChoice);
             }
 
@@ -906,12 +967,14 @@ namespace LBOLMP.Session
                 Seed = seed,
                 Difficulty = difficulty,
                 JadeBoxes = new List<string>(jadeBoxes),
+                ForceJadeBoxes = MpPlugin.ForceHostJadeBoxes.Value,
                 EnemyHpScalePerExtraPlayer = MpPlugin.EnemyHpScalePerExtraPlayer.Value,
                 EnemyHpEscalationByAct = LocalEscalationSettings(),
                 ReviveHpFraction = MpPlugin.ReviveHpFraction.Value,
                 EnemyResilience = MpPlugin.EnableEnemyResilience.Value,
                 MultiplayerCards = MpPlugin.MultiplayerCardsEnabled.Value,
                 Packs = MpPacks.Local(),
+                ForcePacks = MpPlugin.ForceHostPacks.Value,
                 StsMap = StsMapInterop.Enabled
             });
         }
@@ -1046,9 +1109,16 @@ namespace LBOLMP.Session
                 EnemyResilience = message.EnemyResilience,
                 MultiplayerCards = message.MultiplayerCards,
                 JadeBoxes = message.JadeBoxes ?? new List<string>(),
-                Packs = message.Packs ?? new List<string>(),
+                ForceJadeBoxes = message.ForceJadeBoxes,
+                // Null leaves everyone's own packs alone
+                Packs = message.ForcePacks ? message.Packs ?? new List<string>() : null,
                 StsMap = message.StsMap
             });
+
+            if (!message.ForcePacks && !MpNet.IsHost)
+            {
+                MpPlugin.Log.LogInfo("The host lets everyone play with their own booster packs");
+            }
 
             foreach (var player in PlayersById.Values)
             {

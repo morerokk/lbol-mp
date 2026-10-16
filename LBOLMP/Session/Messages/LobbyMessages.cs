@@ -204,8 +204,14 @@ namespace LBOLMP.Session.Messages
         /// The jade boxes the whole party starts with, ticked on the host's panel.
         public List<string> JadeBoxes = new List<string>();
 
+        /// If true, the host's jadeboxes are forced (except Share the Wealth).
+        public bool ForceJadeBoxes = true;
+
         /// The booster packs the host has switched on, which decide the card pool for everyone.
         public List<string> Packs = new List<string>();
+
+        /// If true, the host's booster packs are forced.
+        public bool ForcePacks = true;
 
         /// Whether the StsMap mod's map generator is on for the party.
         public bool StsMap;
@@ -223,7 +229,9 @@ namespace LBOLMP.Session.Messages
             w.Bool(EnemyResilience);
             w.Bool(MultiplayerCards);
             w.StringList(JadeBoxes);
+            w.Bool(ForceJadeBoxes);
             w.StringList(Packs);
+            w.Bool(ForcePacks);
             w.Bool(StsMap);
         }
 
@@ -241,7 +249,9 @@ namespace LBOLMP.Session.Messages
             EnemyResilience = r.Bool();
             MultiplayerCards = r.Bool();
             JadeBoxes = new List<string>(r.StringArray());
+            ForceJadeBoxes = r.Bool();
             Packs = new List<string>(r.StringArray());
+            ForcePacks = r.Bool();
             StsMap = r.Bool();
         }
     }
@@ -413,6 +423,9 @@ namespace LBOLMP.Session.Messages
 
         public List<string> JadeBoxes = new List<string>();
 
+        /// <summary>False when clients pick their own jade boxes, bar the host-only ones.</summary>
+        public bool ForceJadeBoxes = true;
+
         /// <summary>Whether the StsMap mod's map generator is switched on.</summary>
         public bool StsMap;
 
@@ -420,6 +433,7 @@ namespace LBOLMP.Session.Messages
         {
             w.Byte((byte)Difficulty);
             w.StringList(JadeBoxes);
+            w.Bool(ForceJadeBoxes);
             w.Bool(StsMap);
         }
 
@@ -427,6 +441,7 @@ namespace LBOLMP.Session.Messages
         {
             Difficulty = r.Byte();
             JadeBoxes = new List<string>(r.StringArray());
+            ForceJadeBoxes = r.Bool();
             StsMap = r.Bool();
         }
     }

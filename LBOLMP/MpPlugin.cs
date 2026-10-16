@@ -55,6 +55,16 @@ namespace LBOLMP
         /// </summary>
         public static ConfigEntry<bool> MultiplayerCardsEnabled;
 
+        /// <summary>
+        /// Whether everyone plays with the host's booster packs, or their own.
+        /// </summary>
+        public static ConfigEntry<bool> ForceHostPacks;
+
+        /// <summary>
+        /// Whether everyone plays with the host's jade boxes, or their own. Share the Wealth is always host-forced to avoid issues.
+        /// </summary>
+        public static ConfigEntry<bool> ForceHostJadeBoxes;
+
         public static ConfigEntry<bool> VerboseLogging;
         public static ConfigEntry<bool> ForceCombatEvents;
         public static ConfigEntry<bool> ForceDoremyEvent;
@@ -139,6 +149,10 @@ namespace LBOLMP
                 "How much of their max health should a defeated player be revived with. Number between 0-1. You always revive with at least 1 HP. The host's setting is used.");
             MultiplayerCardsEnabled = Config.Bind("Balance", nameof(MultiplayerCardsEnabled), true,
                 "If enabled, multiplayer cards can be found during runs. The host's setting is used.");
+            ForceHostPacks = Config.Bind("Balance", nameof(ForceHostPacks), true,
+                "If enabled by the host, the host's booster packs are used for everyone in the session.");
+            ForceHostJadeBoxes = Config.Bind("Balance", nameof(ForceHostJadeBoxes), true,
+                "If enabled by the host, the host's jadeboxes are used for everyone in the session.");
             ForceCombatEvents = Config.Bind("Debug", nameof(ForceCombatEvents), false,
                 "DEBUG: Force Yachie or Miyoi events at event nodes.");
             ForceDoremyEvent = Config.Bind("Debug", nameof(ForceDoremyEvent), false,
