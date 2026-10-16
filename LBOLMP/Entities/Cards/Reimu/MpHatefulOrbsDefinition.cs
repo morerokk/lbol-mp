@@ -38,8 +38,6 @@ namespace LBOLMP.Entities.Cards.Reimu
             config.RelativeCards = new List<string> { nameof(YinyangCard), nameof(ShuihuoCard), nameof(FengleiCard) };
             config.UpgradedRelativeCards = new List<string> { nameof(YinyangCard) + "+", nameof(ShuihuoCard), nameof(FengleiCard) };
 
-            // TODO: Temp disabled
-            config.DebugLevel = 3;
             config.Illustrator = "";
 
             return config;
