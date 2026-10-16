@@ -3,6 +3,7 @@ using LBOLMP.Session.Messages;
 using LBoL.Core.SaveData;
 using LBoL.Presentation;
 using LBoL.Presentation.UI;
+using LBoL.Presentation.UI.Panels;
 using UnityEngine;
 
 namespace LBOLMP.Session
@@ -242,6 +243,10 @@ namespace LBOLMP.Session
         /// </summary>
         private static void Teardown()
         {
+            // Separate, so a failure here can't skip the rest
+            MpSafe.Run("MpRestart.HandView", UI.MpHandView.Close);
+            MpSafe.Run("MpRestart.EventDialog", StopEventDialog);
+
             MpSafe.Run("MpRestart.Teardown", () =>
             {
                 UI.MpUiTeardown.CloseOpenWindows();
@@ -257,6 +262,21 @@ namespace LBOLMP.Session
                 MapSync.ClearCommit();
                 Patches.MapVotingPatch.Reset();
             });
+        }
+
+        /// <summary>
+        /// Stop the event dialog from holding up the host's ordered restart forever
+        /// </summary>
+        private static void StopEventDialog()
+        {
+            var vn = UiManager.GetPanel<VnPanel>();
+            if (vn == null || (!vn.IsRunning && !Battle.MpEventBattle.ModRequestedBattle))
+            {
+                return;
+            }
+
+            MpPlugin.Log.LogInfo("Stopping the event's dialog and its fight before the level restarts");
+            vn.Stop();
         }
     }
 }

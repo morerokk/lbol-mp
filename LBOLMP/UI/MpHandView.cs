@@ -52,6 +52,20 @@ namespace LBOLMP.UI
 
         public static void Tick() => MpSafe.Run("MpHandView", Refresh);
 
+        /// <summary>
+        /// Close the hand preview *immediately*, for when the host decided to restart.
+        /// </summary>
+        internal static void Close()
+        {
+            MpHandInspect.End();
+
+            if (_active)
+            {
+                var playBoard = TryGetPanel<PlayBoard>();
+                Leave(playBoard != null ? playBoard.CardUi : null);
+            }
+        }
+
         private static void Refresh()
         {
             var playBoard = TryGetPanel<PlayBoard>();
