@@ -3,9 +3,12 @@ using HarmonyLib;
 using LBOLMP.Session;
 using LBoL.Base;
 using LBoL.Core;
+using LBoL.EntityLib.Adventures.Common;
+using LBoL.EntityLib.Adventures.Shared12;
 using LBoL.EntityLib.Adventures.Shared23;
 using LBoL.EntityLib.Adventures.Stage1;
 using LBoL.EntityLib.Adventures.Stage3;
+using UnityEngine;
 
 namespace LBOLMP.Patches
 {
@@ -14,7 +17,7 @@ namespace LBOLMP.Patches
     /// </summary>
     internal static class PartyGate
     {
-        internal delegate bool Qualifies(int hp, int maxHp, int power);
+        internal delegate bool Qualifies(int hp, int maxHp, int power, int money);
 
         internal static bool WholeParty(GameRunController gameRun, Qualifies qualifies)
         {
@@ -31,6 +34,7 @@ namespace LBOLMP.Patches
                 int hp = mine ? self.Hp : player.Hp;
                 int maxHp = mine ? self.MaxHp : player.MaxHp;
                 int power = mine ? self.Power : player.Power;
+                int money = mine ? gameRun.Money : player.Money;
 
                 if (maxHp <= 0)
                 {
@@ -38,7 +42,7 @@ namespace LBOLMP.Patches
                     return false;
                 }
 
-                if (!qualifies(hp, maxHp, power))
+                if (!qualifies(hp, maxHp, power, money))
                 {
                     return false;
                 }
@@ -62,7 +66,7 @@ namespace LBOLMP.Patches
             }
 
             bool everyone = MpSafe.Run("RumiaDrivingPartyGate",
-                () => PartyGate.WholeParty(gameRun, (hp, maxHp, power) => power >= RequiredPower), true);
+                () => PartyGate.WholeParty(gameRun, (hp, maxHp, power, money) => power >= RequiredPower), true);
 
             if (!everyone)
             {
@@ -85,7 +89,7 @@ namespace LBOLMP.Patches
             }
 
             bool everyone = MpSafe.Run("BackgroundDancersPartyGate",
-                () => PartyGate.WholeParty(gameRun, (hp, maxHp, power) => AboveTenPercent(hp, maxHp)), true);
+                () => PartyGate.WholeParty(gameRun, (hp, maxHp, power, money) => AboveTenPercent(hp, maxHp)), true);
 
             if (!everyone)
             {
@@ -145,5 +149,88 @@ namespace LBOLMP.Patches
 
         private static bool HasRemovableMisfortune(GameRunController gameRun) =>
             gameRun.BaseDeckWithoutUnremovable.Any(c => c.CardType == CardType.Misfortune);
+    }
+
+    /// <summary>
+    /// Disable Keine's event if at least 1 player does not have 100 gold.
+    /// </summary>
+    [HarmonyPatch(typeof(KeineSales.KeineSalesWeighter), nameof(KeineSales.KeineSalesWeighter.WeightFor))]
+    public static class KeineSalesPartyGatePatch
+    {
+        private const int RequiredGold = 100;
+
+        [HarmonyPostfix]
+        private static void Postfix(GameRunController gameRun, ref float __result)
+        {
+            if (__result <= 0f)
+            {
+                return;
+            }
+
+            bool everyone = MpSafe.Run("KeineSalesPartyGate",
+                () => PartyGate.WholeParty(gameRun, (hp, maxHp, power, money) => money >= RequiredGold), true);
+
+            if (!everyone)
+            {
+                __result = 0f;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Make the Yorigami Sisters' jewelry night market event take everyone's gold into account.
+    /// Note: normally, players with not enough gold can always take the "I'm broke" option.
+    /// This seems a bit cruel, so all players must have at least 100 gold for it to appear at all.
+    /// </summary>
+    [HarmonyPatch(typeof(YorigamiSisters.YorigamiSistersWeighter), nameof(YorigamiSisters.YorigamiSistersWeighter.WeightFor))]
+    public static class YorigamiSistersPartyWeightPatch
+    {
+        // "Spare Me" fee amount
+        private const int MinimumGold = 100;
+
+        [HarmonyPostfix]
+        private static void Postfix(GameRunController gameRun, ref float __result)
+        {
+            float weight = MpSafe.Run("YorigamiSistersPartyWeight", () => PartyWeight(gameRun), -1f);
+
+            if (weight >= 0f)
+            {
+                __result = weight;
+            }
+        }
+
+        private static float PartyWeight(GameRunController gameRun)
+        {
+            if (!MpSession.IsActive || !MpSession.IsInRun)
+            {
+                return -1f;
+            }
+
+            var self = gameRun?.Player;
+            int total = 0;
+            int money = 0;
+
+            foreach (var player in MpSession.ConnectedPlayers)
+            {
+                int own = player.IsLocal && self != null ? gameRun.Money : player.Money;
+                if (own < MinimumGold)
+                {
+                    MpPlugin.Log.LogInfo($"Yorigami event: {player.Name} has {own} gold, event will not be given");
+                    return 0f;
+                }
+
+                total++;
+                money += own;
+            }
+
+            if (total == 0)
+            {
+                return -1f;
+            }
+
+            float weight = Mathf.Clamp01(money / (200f * total) - 1f);
+            MpPlugin.Log.LogInfo($"Yorigami event: party has {money} gold across {total} players, weighting at {weight}");
+            return weight;
+        }
     }
 }

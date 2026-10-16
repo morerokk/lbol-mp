@@ -7,7 +7,7 @@
         /// <summary>
         /// Mod version for LBOL MP.
         /// </summary>
-        public const string Version = "0.12.12";
+        public const string Version = "0.12.13";
 
         /// <summary>
         /// The current networking protocol version. Only clients with the same versions can join each other.
