@@ -3,7 +3,7 @@
   "Description": "Coop mod for LBoL. Press F2 in the main menu to open the network menu. Host a session over Steam or over a direct IP connection, have other players join, then start or continue a run.",
   "Brief": "Co-op mod. Press F2 to open the multiplayer menu.",
   "Changelog": [
-    "0.12.16: \nFixed compatibility with More Map Options/StS Map.\nFixed Ultramarine Orb Elixir causing invisible ghost players when a player was revived.",
+    "0.12.16: \nFixed compatibility with More Map Options/StS Map.\nFixed Ultramarine Orb Elixir causing invisible ghost players when a player was revived.\nFixed restarting during events sometimes causing infinite loading or no restart to happen.\nFixed restarting during hand previews causing game freezes or infinite loads.",
     "0.12.15: \nAdded more options for syncing booster packs and jadeboxes. The host can now choose to allow clients to pick their own booster packs and jadeboxes.\nThis is intended to better facilitate the Lost Duels of Legend mod (check it out!).\nShare the Wealth jadebox is still always host-decided.",
     "0.12.14: \nAdded a few more multiplayer-exclusive cards, particularly for Reimu.\nAdded multiplayer-exclusive card filter in the main menu.\nAdded Spanish translations by xerox asutnima (thanks!).",
     "0.12.13: \nReworked lost connection logic. If someone disconnects, the game will no longer try to continue without them. If someone completely disconnects, you will now have to exit to the menu and have the player rejoin.\n(This is in response to runs being unfairly lost when one player loses connection. The downside is that you now have to redo the combat.)\nFixed syncing on Yorigami Sisters and Keine events.",
