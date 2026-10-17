@@ -7,6 +7,8 @@ MpDefibrillator:
     Revive all downed |Partners| with {Value1}% Life.
     They can't lose life for {Value2} turn.
     |Limited【{DeckCounter}】|
+  FlavorText: |-
+    Wake up!
 
 MpDonateBlock:
   Name: Remote Boundary
@@ -47,7 +49,7 @@ MpBladeSymphony:
 MpOffering:
   Name: Offering to the Ownerless
   Description: |-
-    The next {Value1:plural one='Ability card' other='% Ability cards'} played will also be played for all |Partners|.
+    The next {Value1:plural one='Ability card played is' other='% Ability cards played are'} also played for all |Partners|.
   FlavorText: |-
     What is given away freely is not, in fact, given at all. But losing gold would be sacrificing gameplay for lore.
 
@@ -79,6 +81,8 @@ MpIntrusiveThought:
   DetailText: |-
     |Copies| and Tools cannot be targeted.
     If the targeted card is an Ability or has |Exile|, it becomes a |Copy|.
+  FlavorText: |-
+    Is this your card? No? Yes it is~
 
 MpSelfControl:
   Name: Self-Fulfillment
@@ -100,6 +104,8 @@ MpEntrust:
   Description: |-
     Choose a |Partner|.
     Gain {Value1} |Temporary Firepower|. Lose all |Firepower| and |Temporary Firepower|. They gain that much |Firepower| and |Temporary Firepower|.
+  FlavorText: |-
+    Rumor has it you can pawn off your bad luck to someone else, too.
 
 MpYinYangDistribution:
   Name: Yin-Yang Distribution
@@ -182,7 +188,7 @@ MpCosmicInsight:
 MpSharedTechnique:
   Name: Shared Technique
   Description: |-
-    In this turn, the next {Value1:plural one='% attack card' other='% attack cards'} played is also played for all |Partners|.
+    In this turn, the next {Value1:plural one='% attack card played is' other='% attack cards played are'} also played for all |Partners|.
 
 MpBackUp:
   Name: Back Up
