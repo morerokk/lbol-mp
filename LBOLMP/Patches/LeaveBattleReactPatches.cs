@@ -6,19 +6,8 @@ using LBoL.Core.Battle;
 namespace LBOLMP.Patches
 {
     /// <summary>
-    /// Leaving a battle clears every status effect, and a few of them queue an action when they
-    /// are removed (Burst plays its "burst ends" effect). Vanilla never has one of those left over:
-    /// the last EndPlayerTurnAction always runs first and takes Burst off.
-    ///
-    /// In multiplayer it can be left over. A partner's card reaching this client after the local
-    /// turn already ended (like aoe event horizon from the ability pile jadebox) gives the local
-    /// player a Burst that no turn end will ever remove. If that same play wins the fight, the
-    /// removal reacts outside of any action resolution, ActionResolver throws, and the exception
-    /// kills GameMaster's battle flow: this player sits on the battle forever while everyone else
-    /// moves on to the rewards.
-    ///
-    /// While the battle is being left, such reactions are dropped instead. There is nothing left
-    /// to resolve them in anyway.
+    /// Fix status effects like Burst causing errors when leaving combat.
+    /// For example: entering Burst after your turn has already ended, then winning combat without taking another turn would otherwise cause errors in the game.
     /// </summary>
     [HarmonyPatch(typeof(BattleController), nameof(BattleController.Leave))]
     public static class LeavingBattlePatch
