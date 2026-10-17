@@ -972,10 +972,19 @@ namespace LBOLMP.Session.Battle
                 return;
             }
 
-            var damageType = (DamageType)message.DamageType;
-            var info = damageType == DamageType.Attack
-                ? DamageInfo.Attack(message.Amount, message.IsAccuracy)
-                : DamageInfo.HpLose(message.Amount, true);
+            DamageInfo info;
+            switch ((DamageType)message.DamageType)
+            {
+                case DamageType.Attack:
+                    info = DamageInfo.Attack(message.Amount, message.IsAccuracy);
+                    break;
+                case DamageType.Reaction:
+                    info = DamageInfo.Reaction(message.Amount, true);
+                    break;
+                default:
+                    info = DamageInfo.HpLose(message.Amount, true);
+                    break;
+            }
 
             // Deliberately left without a cause, it's already handled elsewhere.
             var damage = Inject(new DamageAction(source, enemy, info, message.GunName));
