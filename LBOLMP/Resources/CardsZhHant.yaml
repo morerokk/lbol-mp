@@ -130,10 +130,8 @@ MpCleanse:
   Name: 淨化
   Description: |-
     移除所有|隊友|身上的所有負面狀態。
-    |背負|{Mana}
   UpgradedDescription: |-
     移除所有玩家身上的所有負面狀態。
-    |背負|{Mana}
 
 MpChemistryLesson:
   Name: 化學課

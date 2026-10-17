@@ -1,8 +1,12 @@
 using LBoL.Base;
 using LBoL.ConfigData;
+using LBoL.Core;
+using LBoL.Core.Cards;
+using LBoL.Core.Helpers;
 using LBoL.Core.StatusEffects;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
+using LBoLEntitySideloader.CustomKeywords;
 using UnityEngine;
 
 namespace LBOLMP.Entities.StatusEffects
@@ -29,7 +33,21 @@ namespace LBOLMP.Entities.StatusEffects
 
     // Never applied to anything
     [EntityLogic(typeof(MpScaledDefinition))]
-    public sealed class MpScaled : StatusEffect
+    public sealed class MpScaled : StatusEffect, IExtendedKeywordName
     {
+        public string ExtendedKeywordName(Card card) =>
+            TypeFactory<StatusEffect>.LocalizeProperty(nameof(MpScaled), "Name", true, false)
+            + " " + UiUtils.ManaGroupToText(card.Mana, false);
+    }
+
+    public sealed class MpScaledKeyword : CardKeyword
+    {
+        public MpScaledKeyword() : base(nameof(MpScaled))
+        {
+            descPos = KwDescPos.Last;
+            hasExtendedKeywordName = true;
+        }
+
+        public override CardKeyword Clone(CloningMethod cloningMethod) => new MpScaledKeyword();
     }
 }

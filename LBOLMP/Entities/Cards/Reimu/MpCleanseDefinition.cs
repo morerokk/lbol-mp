@@ -7,6 +7,7 @@ using LBoL.Core.Battle.Interactions;
 using LBoL.Core.Cards;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
+using LBoLEntitySideloader.CustomKeywords;
 using LBOLMP.Entities.StatusEffects;
 using LBOLMP.Net;
 using LBOLMP.Session;
@@ -37,8 +38,8 @@ namespace LBOLMP.Entities.Cards.Reimu
             config.Keywords = Keyword.Exile;
             config.UpgradedKeywords = Keyword.Exile;
 
-            config.RelativeEffects = new List<string> { nameof(MpPartner), nameof(MpScaled) };
-            config.UpgradedRelativeEffects = new List<string> { nameof(MpPartner), nameof(MpScaled) };
+            config.RelativeEffects = new List<string> { nameof(MpPartner) };
+            config.UpgradedRelativeEffects = new List<string> { nameof(MpPartner) };
 
             // Mana pip for Scaled X
             config.Mana = new ManaGroup { Any = 1 };
@@ -61,6 +62,12 @@ namespace LBOLMP.Entities.Cards.Reimu
         private static int PartySize => Mathf.Clamp(MpSession.IsActive ? MpSession.ConnectedCount : 2, 2, 4);
 
         public override ManaGroup AdditionalCost => new ManaGroup { Any = PartySize - 1 };
+
+        public override void Initialize()
+        {
+            base.Initialize();
+            this.AddCustomKeyword(new MpScaledKeyword());
+        }
 
         protected override IEnumerable<BattleAction> Actions(UnitSelector selector, ManaGroup consumingMana, Interaction precondition)
         {

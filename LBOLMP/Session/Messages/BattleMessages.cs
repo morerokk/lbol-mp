@@ -58,12 +58,27 @@ namespace LBOLMP.Session.Messages
         /// </remarks>
         public int Money;
 
+        /// <summary>
+        /// False while the sender was down or only watching. See <c>MpBattleSync.HalfThePartyLacks</c>.
+        /// </summary>
+        public bool Fighting = true;
+
+        /// <summary>
+        /// Which of <c>MpBattleSync.WatchedStatuses</c> the sender had as they ended their turn.
+        /// </summary>
+        /// <remarks>
+        /// Used by Fox Youkai and Drowned Girl to decide whether to re-apply their debuff.
+        /// </remarks>
+        public List<string> Statuses = new List<string>();
+
         public override void Write(NetWriter w)
         {
             w.ULong(BattleSeed);
             w.Int(Round);
             // The game caps money at 99999, so we clamp rather than wrap.
             w.UShort((ushort)System.Math.Min(Money, ushort.MaxValue));
+            w.Bool(Fighting);
+            w.StringList(Statuses);
         }
 
         public override void Read(NetReader r)
@@ -71,6 +86,8 @@ namespace LBOLMP.Session.Messages
             BattleSeed = r.ULong();
             Round = r.Int();
             Money = r.UShort();
+            Fighting = r.Bool();
+            Statuses = new List<string>(r.StringArray());
         }
     }
 

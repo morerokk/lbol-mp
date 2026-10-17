@@ -60,12 +60,59 @@ namespace LBOLMP.UI
         /// <summary>Only the multiplayer-exclusive cards out of <paramref name="types"/>.</summary>
         internal static IEnumerable<Type> Narrow(IEnumerable<Type> types)
         {
-            // MpCardAvailability is what actually keeps these out of singleplayer, so it decides
             var exclusive = new HashSet<Type>(Library.EnumerateCardTypes()
-                .Where(entry => MpCardAvailability.IsMultiplayerOnly(entry.Item2.Id))
+                .Where(entry => MpCardAvailability.IsMultiplayerOnly(entry.Item2.Id) || HasMultiplayerKeyword(entry.Item1))
                 .Select(entry => entry.Item1));
 
             return types.Where(exclusive.Contains).ToList();
+        }
+
+        private static readonly Dictionary<Type, bool> KeywordCache = new Dictionary<Type, bool>();
+
+        private static bool _keywordsUnavailable;
+
+        private static bool HasMultiplayerKeyword(Type type)
+        {
+            if (_keywordsUnavailable || type == null)
+            {
+                return false;
+            }
+
+            if (KeywordCache.TryGetValue(type, out bool cached))
+            {
+                return cached;
+            }
+
+            bool found = false;
+
+            if (!type.Assembly.GetName().Name.StartsWith("LBoL.", StringComparison.Ordinal))
+            {
+                try
+                {
+                    found = CarriesMultiplayerKeyword(type);
+                }
+                catch (Exception e) when (e is MissingMethodException || e is TypeLoadException)
+                {
+                    _keywordsUnavailable = true;
+                    MpPlugin.Log.LogWarning("This Sideloader has no custom keywords; the multiplayer filter only shows cards registered with LBOL MP");
+                }
+                catch (Exception e)
+                {
+                    MpPlugin.Log.LogWarning($"Could not check {type.Name} for a Multiplayer keyword: {e.Message}");
+                }
+            }
+
+            KeywordCache[type] = found;
+            return found;
+        }
+
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+        private static bool CarriesMultiplayerKeyword(Type type)
+        {
+            var card = Library.CreateCard(type);
+            return card != null && LBoLEntitySideloader.CustomKeywords.KeywordManager.AllCustomKeywords(card)
+                .Any(keyword => keyword?.kwSEid != null
+                                && keyword.kwSEid.IndexOf("Multiplayer", StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
         private static void Build(MuseumPanel panel)

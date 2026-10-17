@@ -129,10 +129,8 @@ MpCleanse:
   Name: Cleanse
   Description: |-
     Remove all debuffs from all |Partners|.
-    |Scaled| {Mana}
   UpgradedDescription: |-
     Remove all debuffs from all players.
-    |Scaled| {Mana}
 
 MpChemistryLesson:
   Name: Chemistry Lesson

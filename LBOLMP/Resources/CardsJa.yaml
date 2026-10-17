@@ -142,10 +142,8 @@ MpCleanse:
   Name: 浄化
   Description: |-
     すべての|仲間|からデバフをすべて解除する。
-    |代償|{Mana}
   UpgradedDescription: |-
     すべてのプレイヤーからデバフをすべて解除する。
-    |代償|{Mana}
 
 MpChemistryLesson:
   Name: 化学の授業

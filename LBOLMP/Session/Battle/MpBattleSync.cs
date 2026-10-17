@@ -40,6 +40,12 @@ namespace LBOLMP.Session.Battle
         /// </summary>
         public int Money = -1;
 
+        public int TurnEndRound = -1;
+
+        public bool FightingAtTurnEnd;
+
+        public List<string> StatusesAtTurnEnd = new List<string>();
+
         public bool Finished;
         public bool Alive = true;
 
@@ -449,7 +455,22 @@ namespace LBOLMP.Session.Battle
 
             local.CompletedRound = round;
             local.Money = GameMaster.Instance?.CurrentGameRun?.Money ?? 0;
-            MpNet.Send(new TurnCompleteMessage { BattleSeed = BattleSeed, Round = round, Money = local.Money });
+
+            var player = GameMaster.Instance?.CurrentGameRun?.Player;
+            local.TurnEndRound = round;
+            local.FightingAtTurnEnd = !MpDownedPlayers.OutOfFight;
+            local.StatusesAtTurnEnd = player == null
+                ? new List<string>()
+                : WatchedStatuses.Where(id => player.StatusEffects.Any(effect => effect.Id == id)).ToList();
+
+            MpNet.Send(new TurnCompleteMessage
+            {
+                BattleSeed = BattleSeed,
+                Round = round,
+                Money = local.Money,
+                Fighting = local.FightingAtTurnEnd,
+                Statuses = local.StatusesAtTurnEnd
+            });
             MpPlugin.Log.LogInfo($"Player phase complete for round {round}; waiting at the enemy-turn gate");
         }
 
@@ -511,6 +532,39 @@ namespace LBOLMP.Session.Battle
                 seat.CompletedRound = message.Round;
                 seat.Money = message.Money;
             }
+
+            if (seat != null && message.Round >= seat.TurnEndRound)
+            {
+                seat.TurnEndRound = message.Round;
+                seat.FightingAtTurnEnd = message.Fighting;
+                seat.StatusesAtTurnEnd = message.Statuses ?? new List<string>();
+            }
+        }
+
+        /// <summary>
+        /// Statuses each player reports as they end their turn.
+        /// Used for enemies that change their intent based on current debuff status.
+        /// </summary>
+        public static readonly string[] WatchedStatuses =
+        {
+            nameof(FoxCharm),
+            nameof(LBoL.EntityLib.StatusEffects.Basic.Drowning)
+        };
+
+        /// <summary>
+        /// True if at least half of the players in combat do not have said status effect.
+        /// </summary>
+        public static bool? DoEnoughPlayersLackStatus(string statusId)
+        {
+            int round = CurrentRound;
+            var fighting = Seats.Values.Where(s => s.TurnEndRound == round && s.FightingAtTurnEnd).ToList();
+            if (fighting.Count == 0)
+            {
+                return null;
+            }
+
+            int lacking = fighting.Count(s => !s.StatusesAtTurnEnd.Contains(statusId));
+            return lacking * 2 >= fighting.Count;
         }
 
         /// <summary>
