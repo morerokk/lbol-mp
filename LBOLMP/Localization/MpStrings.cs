@@ -22,7 +22,8 @@ namespace LBOLMP
             [Locale.En] = "Resources/UiEn.yaml",
             [Locale.ZhHans] = "Resources/UiZhHans.yaml",
             [Locale.ZhHant] = "Resources/UiZhHant.yaml",
-            [Locale.Ja] = "Resources/UiJa.yaml"
+            [Locale.Ja] = "Resources/UiJa.yaml",
+            [Locale.Es] = "Resources/UiEs.yaml"
         };
 
         private static readonly Dictionary<Locale, Dictionary<string, string>> Tables =

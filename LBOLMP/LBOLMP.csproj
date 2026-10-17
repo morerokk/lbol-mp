@@ -6,7 +6,7 @@
     <AssemblyName>LBOLMP</AssemblyName>
     <RootNamespace>LBOLMP</RootNamespace>
     <!-- The canonical version, this is copied elsewhere where needed -->
-    <Version>0.12.17</Version>
+    <Version>0.12.18</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <DebugType>none</DebugType>

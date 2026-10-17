@@ -9,7 +9,7 @@ namespace LBOLMP
     /// <summary>
     /// Turns a <see cref="MpText"/> key into the correctly translated text.
     ///
-    /// The mod supports English, Simplified Chinese, Traditional Chinese and Japanese.
+    /// The mod supports English, Simplified Chinese, Traditional Chinese, Japanese and Spanish.
     /// Everything else falls back to English.
     /// 
     /// Note: language can change mid-game and defaults to Chinese during the startup phase of the game, so this is necessary to fresh fetch content from each time.
@@ -27,7 +27,7 @@ namespace LBOLMP
         private const char Escape = '\\';
 
         /// <summary>
-        /// The language to render in: currently only ever <c>En</c>, <c>ZhHans</c> or <c>ZhHant</c>.
+        /// The language to render in
         /// </summary>
         public static Locale Current
         {
@@ -51,6 +51,7 @@ namespace LBOLMP
                     case Locale.ZhHans:
                     case Locale.ZhHant:
                     case Locale.Ja:
+                    case Locale.Es:
                         return locale;
                     // Anything else falls back to English (including English)
                     default:
@@ -135,29 +136,17 @@ namespace LBOLMP
 
         private static string Lookup(MpText key, Locale locale)
         {
-            // If Japanese text exists, return it
-            if (locale == Locale.Ja)
+            // If text exists in the requested language, return it
+            var text = MpStrings.Get(key, locale);
+            if (text != null)
             {
-                var ja = MpStrings.Get(key, Locale.Ja);
-                if (ja != null)
-                {
-                    return ja;
-                }
+                return text;
             }
 
             // An edge case that should probably never happen, but I put it in anyway:
             // Traditional Chinese is preferred if that is the user's current language, but if that string is missing,
             // then Simplified Chinese is an acceptable fallback (surely)
             if (locale == Locale.ZhHant)
-            {
-                var zhHant = MpStrings.Get(key, Locale.ZhHant);
-                if (zhHant != null)
-                {
-                    return zhHant;
-                }
-            }
-
-            if (locale == Locale.ZhHans || locale == Locale.ZhHant)
             {
                 var zhHans = MpStrings.Get(key, Locale.ZhHans);
                 if (zhHans != null)
