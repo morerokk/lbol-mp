@@ -110,6 +110,7 @@ namespace LBOLMP
         BoardWaitingForOneToFinish,
         BoardWaitingForMany,
         BoardLostContact,
+        BoardConnectionLost,
         BoardBlock,
         BoardShield,
         ActivitySpectating,

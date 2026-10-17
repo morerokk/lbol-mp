@@ -180,7 +180,7 @@ namespace LBOLMP.UI
                 return;
             }
 
-            string text = L10n.Get(MpText.BoardWaitingForMany, string.Join(", ", MpSession.DroppedFromRun));
+            string text = L10n.Get(MpText.BoardConnectionLost, string.Join(", ", MpSession.DroppedFromRun));
             var size = MpGui.Measure(_hudStyle, text);
             var rect = new Rect((Screen.width - size.x) * 0.5f - 14f, 64f, size.x + 28f, size.y + 12f);
 

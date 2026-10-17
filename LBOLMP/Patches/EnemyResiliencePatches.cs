@@ -30,6 +30,34 @@ namespace LBOLMP.Patches
             return resilient != null && resilient.Level > 0 ? resilient : null;
         }
 
+        internal static void DecayStatuses(Unit unit, DurationDecreaseTiming timing)
+        {
+            var resilient = Of(unit);
+            if (resilient == null)
+            {
+                return;
+            }
+
+            bool activated = false;
+            foreach (var effect in unit.StatusEffects)
+            {
+                if (!(effect is Weak || effect is Vulnerable) || !effect.HasDuration || !effect.IsAutoDecreasing
+                    || effect.Duration <= 1 || !effect.Config.DurationDecreaseTiming.HasFlag(timing))
+                {
+                    continue;
+                }
+
+                // Goes to 1 at most
+                effect.Duration = Mathf.Max(1, effect.Duration - resilient.Level);
+                activated = true;
+            }
+
+            if (activated)
+            {
+                resilient.NotifyActivating();
+            }
+        }
+
         /// <summary>
         /// Applied straight onto the unit rather than through an <c>ApplyStatusEffectAction</c>, so we can apply it right away (deals with start-of-combat effects).
         /// </summary>
@@ -86,41 +114,52 @@ namespace LBOLMP.Patches
     /// Whenever an enemy would lose Weak or Vulnerable to natural decay, they lose X more (1 for each stack of Resilient).
     /// </summary>
     /// Due to reasons, we cannot cleanly do this in the status effect itself, so we do it in a patch here.
-    [HarmonyPatch(typeof(BattleController), "TurnEndDecreaseDuration")]
+    [HarmonyPatch(typeof(BattleController))]
     public static class EnemyDebuffResiliencePatch
     {
+        [HarmonyPatch("TurnStartDecreaseDuration")]
         [HarmonyPrefix]
-        private static void Prefix(Unit target)
+        private static void TurnStart(Unit target)
         {
-            MpSafe.Run("EnemyDebuffResiliencePatch", () =>
-            {
-                var resilient = MpResilience.Of(target);
-                if (resilient == null)
-                {
-                    return;
-                }
+            MpSafe.Run("EnemyDebuffResiliencePatch.TurnStart", () => MpResilience.DecayStatuses(target,
+                target.IsExtraTurn ? DurationDecreaseTiming.ExtraTurnStart : DurationDecreaseTiming.NormalTurnStart));
+        }
 
+        [HarmonyPatch("TurnEndDecreaseDuration")]
+        [HarmonyPrefix]
+        private static void TurnEnd(Unit target)
+        {
+            MpSafe.Run("EnemyDebuffResiliencePatch.TurnEnd", () =>
+            {
                 bool extraTurn = target.HasStatusEffect<ExtraTurn>()
                                  || (target.HasStatusEffect<SuperExtraTurn>() && !target.IsExtraTurn);
-                var timing = extraTurn ? DurationDecreaseTiming.EndTurnForExtra : DurationDecreaseTiming.EndTurnForRound;
+                MpResilience.DecayStatuses(target,
+                    extraTurn ? DurationDecreaseTiming.EndTurnForExtra : DurationDecreaseTiming.EndTurnForRound);
+            });
+        }
 
-                bool activated = false;
-                foreach (var effect in target.StatusEffects)
+        [HarmonyPatch("RoundStartDecreaseDurations")]
+        [HarmonyPrefix]
+        private static void RoundStart(BattleController __instance)
+        {
+            MpSafe.Run("EnemyDebuffResiliencePatch.RoundStart", () =>
+            {
+                foreach (var unit in __instance.AllAliveUnits)
                 {
-                    if (!(effect is Weak || effect is Vulnerable) || !effect.HasDuration || !effect.IsAutoDecreasing
-                        || effect.Duration <= 1 || !effect.Config.DurationDecreaseTiming.HasFlag(timing))
-                    {
-                        continue;
-                    }
-
-                    // Down to 1 at most, because the game takes the last stack off and removes it.
-                    effect.Duration = Mathf.Max(1, effect.Duration - resilient.Level);
-                    activated = true;
+                    MpResilience.DecayStatuses(unit, DurationDecreaseTiming.RoundStart);
                 }
+            });
+        }
 
-                if (activated)
+        [HarmonyPatch("RoundEndDecreaseDurations")]
+        [HarmonyPrefix]
+        private static void RoundEnd(BattleController __instance)
+        {
+            MpSafe.Run("EnemyDebuffResiliencePatch.RoundEnd", () =>
+            {
+                foreach (var unit in __instance.AllAliveUnits)
                 {
-                    resilient.NotifyActivating();
+                    MpResilience.DecayStatuses(unit, DurationDecreaseTiming.RoundEnd);
                 }
             });
         }
