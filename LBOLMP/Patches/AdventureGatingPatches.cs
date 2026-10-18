@@ -178,6 +178,59 @@ namespace LBOLMP.Patches
     }
 
     /// <summary>
+    /// Kosuzu bookstore event is now weighted based on how many people would normally qualify.
+    /// </summary>
+    /// (I don't want to disable the whole event just because 1 person in a 6-man group is poverty-running)
+    [HarmonyPatch(typeof(KosuzuBookstore.KosuzuBookShopWeighter), nameof(KosuzuBookstore.KosuzuBookShopWeighter.WeightFor))]
+    public static class KosuzuBookstorePartyWeightPatch
+    {
+        private const int RequiredGold = 120;
+
+        [HarmonyPostfix]
+        private static void Postfix(GameRunController gameRun, ref float __result)
+        {
+            float weight = MpSafe.Run("KosuzuBookstorePartyWeight", () => PartyShare(gameRun), -1f);
+
+            if (weight >= 0f)
+            {
+                __result = weight;
+            }
+        }
+
+        private static float PartyShare(GameRunController gameRun)
+        {
+            if (!MpSession.IsActive || !MpSession.IsInRun)
+            {
+                return -1f;
+            }
+
+            var self = gameRun?.Player;
+            int total = 0;
+            int affording = 0;
+
+            foreach (var player in MpSession.ConnectedPlayers)
+            {
+                total++;
+
+                int money = player.IsLocal && self != null ? gameRun.Money : player.Money;
+                if (money >= RequiredGold)
+                {
+                    affording++;
+                }
+            }
+
+            if (total == 0)
+            {
+                return -1f;
+            }
+
+            float weight = affording / (float)total;
+            MpPlugin.Log.LogInfo($"Kosuzu event: {affording} of {total} players have {RequiredGold} gold, weighting at {weight}");
+            return weight;
+        }
+    }
+
+    /// <summary>
     /// Make the Yorigami Sisters' jewelry night market event take everyone's gold into account.
     /// Note: normally, players with not enough gold can always take the "I'm broke" option.
     /// This seems a bit cruel, so all players must have at least 100 gold for it to appear at all.

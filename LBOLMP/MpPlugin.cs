@@ -177,6 +177,7 @@ namespace LBOLMP
             Session.MpPacks.Tick();
             UI.MpScoreboard.Tick();
             UI.MpLobbyBanner.Tick();
+            Patches.CompanionMenuLockPatch.Tick();
 
             Net.SteamNet.EnsureCallbacks();
             UI.MpPortraits.Warm();

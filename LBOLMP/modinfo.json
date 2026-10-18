@@ -3,6 +3,7 @@
   "Description": "Coop mod for LBoL. Press F2 in the main menu to open the network menu. Host a session over Steam or over a direct IP connection, have other players join, then start or continue a run.",
   "Brief": "Co-op mod. Press F2 to open the multiplayer menu.",
   "Changelog": [
+    "0.12.21: \nImproved compatibility with Lost Branch Companion mod. The quick start/reset run buttons are unavailable while in a multiplayer lobby, since this broke the game.\nKosuzu bookstore event is now weighted depending on how many players have at least 120 gold.",
     "0.12.20: \nReworked Cirno's Ice Wall card. It now gives Block to other(all) players equal to your current frost armor. It has Scaled 1 but no longer has Exile.",
     "0.12.19: \nImproved compatibility with Three Fairies of Light character mod. Silence signs are now synced correctly. They now also apply to all players.",
     "0.12.18: \nFixed Spanish translation not working in the F2/Multiplayer menu.",
@@ -80,7 +81,7 @@
     "0.2.0: \nFixed map voting getting stuck in many cases. Tweaked extra turn and end-of-turn behaviors.",
     "0.1.0: \nInitial development build."
   ],
-  "Version": "0.12.20",
+  "Version": "0.12.21",
   "Author": "Rokk",
   "Tags": [
     "Mod",
