@@ -313,6 +313,7 @@ namespace LBOLMP.Session
             MpRunFlags.RegisterHandlers();
             MpModContent.RegisterHandlers();
             MpPlayerExhibits.RegisterHandlers();
+            ThreeFairiesInterop.RegisterHandlers();
             MpSharedMoney.RegisterHandlers();
             MpRestart.RegisterHandlers();
             Battle.MpBattleSync.RegisterHandlers();
@@ -1187,6 +1188,7 @@ namespace LBOLMP.Session
             MpRunCredit.Reset();
             MpModContent.Reset();
             MpPlayerExhibits.Reset();
+            ThreeFairiesInterop.Reset();
         }
 
         private static void AdoptRunRules(RunRules rules)
@@ -1421,6 +1423,7 @@ namespace LBOLMP.Session
             }
 
             Battle.MpBattleSync.OnPlayerLeft(message.PlayerId);
+            ThreeFairiesInterop.OnPlayerLeft(message.PlayerId);
             MapSync.OnPlayerLeft(message.PlayerId);
         }
 

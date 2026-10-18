@@ -751,4 +751,16 @@ namespace LBOLMP.Session.Messages
             EnemyIndex = r.Int();
         }
     }
+
+    /// <summary>
+    /// See ThreeFairiesInterop. Which silence signs are active.
+    /// </summary>
+    [NetMessage(74)]
+    public sealed class SilenceSignMessage : NetMessage
+    {
+        public ushort Rules;
+
+        public override void Write(NetWriter w) => w.UShort(Rules);
+        public override void Read(NetReader r) => Rules = r.UShort();
+    }
 }

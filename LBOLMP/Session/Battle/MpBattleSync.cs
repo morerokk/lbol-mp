@@ -463,6 +463,8 @@ namespace LBOLMP.Session.Battle
                 ? new List<string>()
                 : WatchedStatuses.Where(id => player.StatusEffects.Any(effect => effect.Id == id)).ToList();
 
+            MpSafe.Run("ThreeFairiesInterop.Publish", ThreeFairiesInterop.Publish);
+
             MpNet.Send(new TurnCompleteMessage
             {
                 BattleSeed = BattleSeed,
@@ -2014,6 +2016,7 @@ namespace LBOLMP.Session.Battle
             MpSafe.Run("AnnounceEnemyDeaths", AnnounceEnemyDeaths);
             MpSafe.Run("BroadcastEnemyCounters", BroadcastEnemyCounters);
             MpSafe.Run("BroadcastEnemyVitals", BroadcastEnemyVitals);
+            MpSafe.Run("ThreeFairiesInterop.Publish", ThreeFairiesInterop.Publish);
 
             if (Time.unscaledTime < _nextStatusBroadcast)
             {
