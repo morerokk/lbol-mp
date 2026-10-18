@@ -61,18 +61,86 @@ namespace LBOLMP.UI
         private const float AllyScale = 0.92f;
 
         /// <summary>
-        /// Where each extra player stands, relative to the local player's root.
+        /// Party formations.
         /// </summary>
-        private static readonly Vector2[] Offsets =
+        private static readonly Vector2[][] Formations =
         {
-            new Vector2(-1.35f, -1.75f),
-            new Vector2(-1.35f, 0.8f),
-            new Vector2(-2.7f, -0.70f),
-            new Vector2(-2.7f, 1.85f),
-            //new Vector2(-4.05f, 0.35f)
-            // Player 6 would cover up the UI, so she's placed above and slightly behind the local player instead
-            new Vector2(-0.6f, 2f)
+            // 2 players, only used if "Show real party positions" is enabled
+            new[]
+            {
+                new Vector2(-0.721f, 0.775f),
+                new Vector2(-0.721f, -2.433f)
+            },
+            // 3 players
+            new[]
+            {
+                new Vector2(0.9f, -0.325f),
+                new Vector2(-1.65f, -2.1f),
+                new Vector2(-1.65f, 1.133f)
+            },
+            // 4 players. Front is raised a little bit so the health bars line up with the scaled-down partners.
+            new[]
+            {
+                new Vector2(1.948f, -0.314f),
+                new Vector2(-0.2f, -2.575f),
+                new Vector2(-0.2f, 1.721f),
+                new Vector2(-2.348f, -0.427f)
+            },
+            // 5 players
+            new[]
+            {
+                new Vector2(2.609f, -0.217f),
+                new Vector2(0.363f, -2.033f),
+                new Vector2(0.363f, 0.992f),
+                new Vector2(-2.2f, -2.4f),
+                new Vector2(-2.2f, 0.458f)
+            },
+            // 6 players
+            new[]
+            {
+                new Vector2(2.717f, -0.267f),
+                new Vector2(0.43f, -1.583f),
+                new Vector2(0.43f, 1.042f),
+                new Vector2(-1.797f, -2.842f),
+                new Vector2(-1.797f, -0.3f),
+                new Vector2(-1.797f, 2.067f)
+            }
         };
+
+        /// <summary>
+        /// The 2-player formation when "Show real party positions" is disabled.
+        /// </summary>
+        private static readonly Vector2[] PairFormation =
+        {
+            new Vector2(0.817f, 0f),
+            new Vector2(-1.35f, -1.75f)
+        };
+
+        /// <summary>How many players the formation on screen is for.</summary>
+        private static int PartySize => MpSession.ConnectedCount;
+
+        /// <summary>The formation for a party of this size.</summary>
+        private static Vector2[] FormationFor(int partySize)
+        {
+            int size = Mathf.Clamp(partySize, 2, MpInfo.MaxPlayers);
+            return size == 2 && !SeatedLayout ? PairFormation : Formations[size - 2];
+        }
+
+        /// <summary>A spot in the formation for a party of this size. Slot 0 is the front.</summary>
+        private static Vector2 FormationSpot(int partySize, int slot)
+        {
+            var formation = FormationFor(partySize);
+            return formation[Mathf.Clamp(slot, 0, formation.Length - 1)];
+        }
+
+        /// <summary>
+        /// How big everybody else is drawn for a party of this size.
+        /// </summary>
+        /// <remarks>
+        /// 2-player parties with "Show real party positions" enabled are drawn at full size.
+        /// </remarks>
+        private static float AllyScaleFor(int partySize) =>
+            partySize <= 2 && SeatedLayout ? 1f : AllyScale;
 
         /// <summary>The local player's view, or null.</summary>
         private static UnitView _displaced;
@@ -84,27 +152,29 @@ namespace LBOLMP.UI
             MpPlugin.SharedPartyPositions != null && MpPlugin.SharedPartyPositions.Value;
 
         /// <summary>
-        /// Where a player is (literally). <c>Vector2.zero</c> is the front, where a single player game would put you.
+        /// Where a player is (literally). <c>Vector2.zero</c> is where a single player game would put you.
         ///
         /// By default everybody is the main character of their own screen, so you are on the front
         /// position and the rest of the party queues up behind you. If SharedPartyPositions is enabled, you are in the position you are "actually" in in the party.
         /// </summary>
-        private static Vector2 StandingSpot(int playerId)
+        private static Vector2 StandingSpot(int playerId) => FormationSpot(PartySize, SlotOf(playerId));
+
+        /// <summary>Which slot of the formation a player stands in.</summary>
+        private static int SlotOf(int playerId)
         {
-            int slot;
             if (SeatedLayout)
             {
                 // Seats are places in the roster rather than player ids, so this survives somebody
                 // leaving and rejoining under a different number.
                 int seat = MpSession.SeatIndexOf(playerId);
-                slot = seat < 0 ? Offsets.Length - 1 : seat - 1;
-            }
-            else
-            {
-                slot = QueueIndexOf(playerId);
+                if (seat >= 0)
+                {
+                    return seat;
+                }
+                return playerId == MpNet.LocalPlayerId ? 0 : int.MaxValue;
             }
 
-            return slot < 0 ? Vector2.zero : Offsets[Mathf.Clamp(slot, 0, Offsets.Length - 1)];
+            return QueueIndexOf(playerId) + 1;
         }
 
         /// <summary>
@@ -137,6 +207,7 @@ namespace LBOLMP.UI
         /// </summary>
         private static void PlaceEveryone(GameDirector director)
         {
+            float scale = AllyScaleFor(PartySize);
             foreach (var ally in Allies.Values)
             {
                 if (ally.Root == null)
@@ -146,6 +217,7 @@ namespace LBOLMP.UI
 
                 var spot = StandingSpot(ally.PlayerId);
                 ally.Root.transform.localPosition = new Vector3(spot.x, spot.y, 0f);
+                ally.Root.transform.localScale = Vector3.one * scale;
             }
 
             PlaceLocalPlayer(director.PlayerUnitView);
@@ -156,7 +228,14 @@ namespace LBOLMP.UI
         /// </summary>
         private static void PlaceLocalPlayer(UnitView view)
         {
-            if (!SeatedLayout || view == null)
+            if (view == null)
+            {
+                ReturnLocalPlayer();
+                return;
+            }
+
+            var spot = StandingSpot(MpNet.LocalPlayerId);
+            if (spot == Vector2.zero)
             {
                 ReturnLocalPlayer();
                 return;
@@ -169,7 +248,6 @@ namespace LBOLMP.UI
                 _displacedHome = view.transform.localPosition;
             }
 
-            var spot = StandingSpot(MpNet.LocalPlayerId);
             view.transform.localPosition = _displacedHome + new Vector3(spot.x, spot.y, 0f);
         }
 
@@ -396,7 +474,7 @@ namespace LBOLMP.UI
                 root.transform.SetParent(director.playerRoot, false);
                 var spot = StandingSpot(player.Id);
                 root.transform.localPosition = new Vector3(spot.x, spot.y, 0f);
-                root.transform.localScale = Vector3.one * AllyScale;
+                root.transform.localScale = Vector3.one * AllyScaleFor(PartySize);
                 ally.Root = root;
 
                 var instance = UnityEngine.Object.Instantiate(director.unitPrefab, root.transform);
