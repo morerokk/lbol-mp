@@ -76,6 +76,7 @@ namespace LBOLMP.Entities.Cards.Cirno
 
             receivedCard.SetTurnCost(PassedCost);
             receivedCard.IsEthereal = true;
+            receivedCard.IsCopy = true;
 
             yield return new AddCardsToHandAction(new[] { receivedCard });
         }

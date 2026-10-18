@@ -3,7 +3,8 @@
   "Description": "Coop mod for LBoL. Press F2 in the main menu to open the network menu. Host a session over Steam or over a direct IP connection, have other players join, then start or continue a run.",
   "Brief": "Co-op mod. Press F2 to open the multiplayer menu.",
   "Changelog": [
-    "0.12.19: \nImproved compatibility with Three Fairies of Light character mod. Silence signs that say they apply to everyone, are now synced correctly. They now also apply to all players.",
+    "0.12.20: \nReworked Cirno's Ice Wall card. It now gives Block to other(all) players equal to your current frost armor. It has Scaled 1 but no longer has Exile.",
+    "0.12.19: \nImproved compatibility with Three Fairies of Light character mod. Silence signs are now synced correctly. They now also apply to all players.",
     "0.12.18: \nFixed Spanish translation not working in the F2/Multiplayer menu.",
     "0.12.17: \nFixed Resilient buff on enemies not working properly.\nFixed multiplayer card filter in the Collection menu not showing certain multiplayer cards from other mods.\nFixed Fox Youkai and Drowned Girl having desynced intents when their debuffs are cleansed or resisted.\nMinor tweaks to Scaled keyword to make it look better on the card.",
     "0.12.16: \nFixed compatibility with More Map Options/StS Map.\nFixed Ultramarine Orb Elixir causing invisible ghost players when a player was revived.\nFixed restarting during events sometimes causing infinite loading or no restart to happen.\nFixed restarting during hand previews causing game freezes or infinite loads.\nFixed Doremy waking up too early from non-attack damage (like Sword of Hisou).",
@@ -79,7 +80,7 @@
     "0.2.0: \nFixed map voting getting stuck in many cases. Tweaked extra turn and end-of-turn behaviors.",
     "0.1.0: \nInitial development build."
   ],
-  "Version": "0.12.19",
+  "Version": "0.12.20",
   "Author": "Rokk",
   "Tags": [
     "Mod",

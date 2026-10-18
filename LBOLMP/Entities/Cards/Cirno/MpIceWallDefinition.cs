@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using LBOLMP.Entities.StatusEffects;
 using LBOLMP.Net;
+using LBOLMP.Session;
 using LBoL.Base;
 using LBoL.ConfigData;
 using LBoL.Core;
@@ -10,18 +11,21 @@ using LBoL.Core.Cards;
 using LBoL.EntityLib.StatusEffects.Cirno;
 using LBoLEntitySideloader;
 using LBoLEntitySideloader.Attributes;
-using LBoLEntitySideloader.Entities;
+using LBoLEntitySideloader.CustomKeywords;
+using UnityEngine;
 
 namespace LBOLMP.Entities.Cards.Cirno
 {
-    /// <summary>How much Frost Armor everybody is getting.</summary>
+    /// <summary>
+    /// How much Block the other player is getting
+    /// </summary>
     public sealed class MpIceWallPayload : MpEffectPayload
     {
-        public int FrostArmor;
+        public int Block;
     }
 
     /// <summary>
-    /// Copies your own Frost Armor onto every partner.
+    /// Gives every partner Block equal to your own Frost Armor
     /// </summary>
     public sealed class MpIceWallDefinition : LbolMpMultiplayerCardTemplate<MpIceWallPayload>
     {
@@ -34,14 +38,17 @@ namespace LBOLMP.Entities.Cards.Cirno
             config.Rarity = Rarity.Uncommon;
             config.Owner = VanillaCharNames.Cirno;
             config.Colors = new List<ManaColor> { ManaColor.Blue };
-            config.Cost = new ManaGroup { Any = 1, Blue = 1 };
+            config.Cost = new ManaGroup { Blue = 1 };
             config.TargetType = TargetType.Self;
-            config.Keywords = Keyword.Exile;
-            config.UpgradedKeywords = Keyword.Exile;
 
             config.RelativeEffects = new List<string> { nameof(MpPartner), nameof(FrostArmor) };
             config.UpgradedRelativeEffects = new List<string> { nameof(MpPartner), nameof(FrostArmor) };
+            config.RelativeKeyword = Keyword.Block;
             config.UpgradedRelativeKeyword = Keyword.Block;
+
+            // Mana pip for Scaled X
+            config.Mana = new ManaGroup { Any = 1 };
+            config.UpgradedMana = new ManaGroup { Any = 1 };
 
             config.Illustrator = "たれみなみ";
 
@@ -51,19 +58,28 @@ namespace LBOLMP.Entities.Cards.Cirno
         public override IEnumerable<BattleAction> Receive(
             MpIceWallPayload payload, BattleController battle, int senderId)
         {
-            if (payload.FrostArmor <= 0 || battle.BattleShouldEnd)
+            if (payload.Block <= 0 || battle.BattleShouldEnd)
             {
                 yield break;
             }
 
-            yield return new ApplyStatusEffectAction<FrostArmor>(
-                battle.Player, payload.FrostArmor, occupationTime: 0.2f);
+            yield return new CastBlockShieldAction(battle.Player, payload.Block, 0);
         }
     }
 
     [EntityLogic(typeof(MpIceWallDefinition))]
     public sealed class MpIceWall : Card
     {
+        private static int PartySize => Mathf.Clamp(MpSession.IsActive ? MpSession.ConnectedCount : 2, 2, 4);
+
+        public override ManaGroup AdditionalCost => new ManaGroup { Any = PartySize - 1 };
+
+        public override void Initialize()
+        {
+            base.Initialize();
+            this.AddCustomKeyword(new MpScaledKeyword());
+        }
+
         protected override IEnumerable<BattleAction> Actions(
             UnitSelector selector, ManaGroup consumingMana, Interaction precondition)
         {
@@ -73,7 +89,7 @@ namespace LBOLMP.Entities.Cards.Cirno
                 yield break;
             }
 
-            MpEffects.Send(Id, new MpIceWallPayload { FrostArmor = frost }, MpEffectTarget.AllPartners);
+            MpEffects.Send(Id, new MpIceWallPayload { Block = frost }, MpEffectTarget.AllPartners);
 
             if (IsUpgraded)
             {

@@ -82,7 +82,7 @@ MpIntrusiveThought:
     |Copies| and Tools cannot be targeted.
     If the targeted card is an Ability or has |Exile|, it becomes a |Copy|.
   FlavorText: |-
-    Is this your card? No? Yes it is~
+    Is this your card?
 
 MpSelfControl:
   Name: Self-Fulfillment
@@ -194,15 +194,16 @@ MpBackUp:
   Name: Back Up
   Description: |-
     Choose a |Partner|.
-    Choose a |Teammate| card in the hand. Add that card to their hand. It |temporarily costs| {Mana} and has |Ethereal|.
+    Choose a |Teammate| card in the hand. Add a copy of that card to their hand. It |temporarily costs| {Mana} and has |Ethereal|.
 
 MpIceWall:
   Name: Ice Wall
   Description: |-
-    All |Partners| gain |Frost Armor| equal to the current |Frost Armor|.
+    All |Partners| gain |Block| equal to {PlayerName}'s |Frost Armor|.
   UpgradedDescription: |-
-    All |Partners| gain |Frost Armor| equal to the current |Frost Armor|.
-    Gain |Block| equal to the current |Frost Armor|.
+    All players gain |Block| equal to {PlayerName}'s |Frost Armor|.
+  FlavorText: |-
+    Stop blocking the Emperium!
 
 MpInspiredBonds:
   Name: Inspired Bonds
