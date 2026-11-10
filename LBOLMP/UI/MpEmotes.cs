@@ -86,7 +86,7 @@ namespace LBOLMP.UI
 
         public static void Update()
         {
-            if (!Available || Time.unscaledTime < _nextEmote)
+            if (!Available || MpChat.IsOpen || Time.unscaledTime < _nextEmote)
             {
                 return;
             }

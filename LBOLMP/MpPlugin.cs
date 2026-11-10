@@ -106,6 +106,7 @@ namespace LBOLMP
 
             gameObject.AddComponent<LobbyOverlay>();
             gameObject.AddComponent<RemotePlayerBoard>();
+            gameObject.AddComponent<MpChat>();
         }
 
         private void SetupConfig()
@@ -165,7 +166,7 @@ namespace LBOLMP
 
         private void Update()
         {
-            if (Input.GetKeyDown(DiagnosticsHotkey.Value))
+            if (Input.GetKeyDown(DiagnosticsHotkey.Value) && !MpChat.IsOpen)
             {
                 ShowDiagnostics = !ShowDiagnostics;
                 if (ShowDiagnostics)

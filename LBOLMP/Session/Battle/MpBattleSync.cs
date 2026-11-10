@@ -348,6 +348,8 @@ namespace LBOLMP.Session.Battle
             _seenCounters.Clear();
             _announcedDeaths.Clear();
             _forcedKills.Clear();
+            _enemyCausedDeaths.Clear();
+            _deferredDeaths.Clear();
             MpPartyTargeting.Clear();
             MpEffects.Reset();
             MpJunko.Reset();
@@ -1558,6 +1560,19 @@ namespace LBOLMP.Session.Battle
         private static readonly HashSet<int> _forcedKills = new HashSet<int>();
 
         /// <summary>
+        /// Enemies another enemy force-killed, such as Rin detonating a spirit or a spirit blowing itself up, and the round it happened in.
+        /// </summary>
+        /// Every client plays those out on its own enemy turn, so the host's death notice for one must not land before that.
+        /// (It's Rin again)
+        private static readonly Dictionary<int, int> _enemyCausedDeaths = new Dictionary<int, int>();
+
+        /// <summary>
+        /// Host death notices held back until this client's own enemy turn for that round has run. Enemy index to round.
+        /// </summary>
+        /// A slow client would otherwise lose the spirit early, and then Rin would detonate a second truke on the enemy turn.
+        private static readonly Dictionary<int, int> _deferredDeaths = new Dictionary<int, int>();
+
+        /// <summary>
         /// Kill an enemy the host says is dead, but only once at most.
         /// </summary>
         /// This used a deferred action that actually checks if the enemy is still alive right before applying the kill.
@@ -1579,7 +1594,7 @@ namespace LBOLMP.Session.Battle
         /// </summary>
         internal static void ReportForceKill(ForceKillAction action)
         {
-            if (!InBattle || !MpSession.IsActive || SpectatingOnly)
+            if (!InBattle || !MpSession.IsActive)
             {
                 return;
             }
@@ -1587,6 +1602,16 @@ namespace LBOLMP.Session.Battle
             var battle = GameMaster.Instance?.CurrentGameRun?.Battle;
             var args = action.Args;
             if (battle == null || !(args?.Target is EnemyUnit enemy))
+            {
+                return;
+            }
+
+            if (args.Source is EnemyUnit)
+            {
+                _enemyCausedDeaths[enemy.Index] = battle.RoundCounter;
+            }
+
+            if (SpectatingOnly)
             {
                 return;
             }
@@ -1678,6 +1703,12 @@ namespace LBOLMP.Session.Battle
                     continue;
                 }
 
+                // Its death notice carries the round and waits on slower clients; a zero here would kill it on them right away.
+                if (!enemy.IsAlive && _enemyCausedDeaths.ContainsKey(enemy.Index))
+                {
+                    continue;
+                }
+
                 vitals.Add(enemy.Index);
                 vitals.Add(enemy.IsAlive ? enemy.Hp : 0);
                 vitals.Add(enemy.Block);
@@ -1759,7 +1790,12 @@ namespace LBOLMP.Session.Battle
                     continue;
                 }
 
-                MpNet.Send(new EnemyDiedMessage { Seed = BattleSeed, EnemyIndex = enemy.Index });
+                MpNet.Send(new EnemyDiedMessage
+                {
+                    Seed = BattleSeed,
+                    EnemyIndex = enemy.Index,
+                    Round = _enemyCausedDeaths.TryGetValue(enemy.Index, out int round) ? round : -1
+                });
             }
         }
 
@@ -1779,7 +1815,20 @@ namespace LBOLMP.Session.Battle
             }
 
             var battle = GameMaster.Instance?.CurrentGameRun?.Battle;
-            var enemy = FindEnemy(battle, message.EnemyIndex);
+
+            // Another enemy killed it on the host's enemy turn. Ours will do the same once it gets there.
+            if (message.Round >= 0 && !EnemyRoundPlayedOut(message.Round))
+            {
+                _deferredDeaths[message.EnemyIndex] = message.Round;
+                return;
+            }
+
+            ApplyRemoteDeath(battle, message.EnemyIndex, "MP remote enemy death");
+        }
+
+        private static void ApplyRemoteDeath(BattleController battle, int enemyIndex, string reason)
+        {
+            var enemy = FindEnemy(battle, enemyIndex);
             if (enemy == null || !enemy.IsAlive || enemy.IsEscaped || MpPrivateEnemies.IsPrivate(enemy))
             {
                 return;
@@ -1792,7 +1841,41 @@ namespace LBOLMP.Session.Battle
                 return;
             }
 
-            ForceKillOnce(battle, enemy, "MP remote enemy death");
+            ForceKillOnce(battle, enemy, reason);
+        }
+
+        /// <summary>
+        /// True once this client's enemy turn for that round is over.
+        /// </summary>
+        private static bool EnemyRoundPlayedOut(int round) => CurrentRound > round;
+
+        /// <summary>
+        /// Apply held-back death notices once our own enemy turn has had its go.
+        /// Anything still alive by then is a real desync, and the host's word wins.
+        /// </summary>
+        private static void ResolveDeferredDeaths()
+        {
+            if (_deferredDeaths.Count == 0 || !InBattle)
+            {
+                return;
+            }
+
+            var battle = GameMaster.Instance?.CurrentGameRun?.Battle;
+            if (battle == null)
+            {
+                return;
+            }
+
+            foreach (var pair in _deferredDeaths.ToList())
+            {
+                if (!EnemyRoundPlayedOut(pair.Value))
+                {
+                    continue;
+                }
+
+                _deferredDeaths.Remove(pair.Key);
+                ApplyRemoteDeath(battle, pair.Key, "MP remote enemy death (deferred)");
+            }
         }
 
         //--
@@ -2014,6 +2097,7 @@ namespace LBOLMP.Session.Battle
             AnnounceSilentSeats();
             SweepSpentStatusEffects();
             MpSafe.Run("AnnounceEnemyDeaths", AnnounceEnemyDeaths);
+            MpSafe.Run("ResolveDeferredDeaths", ResolveDeferredDeaths);
             MpSafe.Run("BroadcastEnemyCounters", BroadcastEnemyCounters);
             MpSafe.Run("BroadcastEnemyVitals", BroadcastEnemyVitals);
             MpSafe.Run("ThreeFairiesInterop.Publish", ThreeFairiesInterop.Publish);

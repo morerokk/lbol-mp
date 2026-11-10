@@ -125,6 +125,9 @@ namespace LBOLMP
         EmoteNegative,
         EmoteHurryUp,
 
+        // ------------------------------------------------------------------ chat
+        ChatPrompt,
+
         // ------------------------------------------------------------------ map voting
         MapWaitingForOne,
         MapWaitingForMany,

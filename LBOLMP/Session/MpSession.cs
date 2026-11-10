@@ -318,6 +318,7 @@ namespace LBOLMP.Session
             MpRestart.RegisterHandlers();
             Battle.MpBattleSync.RegisterHandlers();
             Api.MpApi.RegisterHandlers();
+            UI.MpChat.RegisterHandlers();
         }
 
         public static bool Host(int port)

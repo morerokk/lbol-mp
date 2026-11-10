@@ -656,16 +656,23 @@ namespace LBOLMP.Session.Messages
         public ulong Seed;
         public int EnemyIndex;
 
+        /// <summary>
+        /// The round another enemy killed it in, or -1 for any other death.
+        /// </summary>
+        public int Round = -1;
+
         public override void Write(NetWriter w)
         {
             w.ULong(Seed);
             w.Int(EnemyIndex);
+            w.Int(Round);
         }
 
         public override void Read(NetReader r)
         {
             Seed = r.ULong();
             EnemyIndex = r.Int();
+            Round = r.Int();
         }
     }
 

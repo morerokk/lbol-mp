@@ -123,6 +123,9 @@ EmoteNice: "ナイス！"
 EmoteNegative: "・・・"
 EmoteHurryUp: "そろそろお願いします・・・"
 
+# ---- chat
+ChatPrompt: "(Enter to send, Esc to cancel)"
+
 # ---- map voting
 MapWaitingForOne: "{0}がノードを選択するのを待っています"
 MapWaitingForMany: "{0} を待っています"

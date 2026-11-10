@@ -108,6 +108,9 @@ EmoteNice: "漂亮！"
 EmoteNegative: "……"
 EmoteHurryUp: "快点吧……"
 
+# ---- chat
+ChatPrompt: "(Enter to send, Esc to cancel)"
+
 # ---- map voting
 MapWaitingForOne: "等待 {0} 选择节点"
 MapWaitingForMany: "等待 {0}"

@@ -16,6 +16,8 @@ namespace LBOLMP.UI
         private static RectTransform _root;
         private static RectTransform _table;
         private static TextMeshProUGUI _textTemplate;
+        private static TextMeshProUGUI _chatLog;
+        private static int _chatLogRevision = -1;
         private static bool _givenUp;
 
         /// <summary>Which players the rows were built for, so a join or leave rebuilds them.</summary>
@@ -27,7 +29,7 @@ namespace LBOLMP.UI
         internal static void Tick()
         {
             bool wanted = MpSafe.Run("MpScoreboard.Wanted",
-                () => MpSession.IsActive && MpSession.IsInRun
+                () => MpSession.IsActive && MpSession.IsInRun && !MpChat.IsOpen
                       && Input.GetKey(MpPlugin.ScoreboardHotkey.Value), false);
 
             if (!wanted)
@@ -72,6 +74,8 @@ namespace LBOLMP.UI
             {
                 update();
             }
+
+            UpdateChatLog();
         }
 
         //--
@@ -119,10 +123,11 @@ namespace LBOLMP.UI
             dim.raycastTarget = false;
 
             _table = Panel("Table", _root);
-            _table.anchorMin = new Vector2(0.5f, 0.5f);
-            _table.anchorMax = new Vector2(0.5f, 0.5f);
-            _table.pivot = new Vector2(0.5f, 0.5f);
-            _table.anchoredPosition = Vector2.zero;
+            // Hung from the top and growing down, so a full party still leaves the bottom free for the chat log.
+            _table.anchorMin = new Vector2(0.5f, 1f);
+            _table.anchorMax = new Vector2(0.5f, 1f);
+            _table.pivot = new Vector2(0.5f, 1f);
+            _table.anchoredPosition = new Vector2(0f, -TableTopMargin);
             _table.sizeDelta = new Vector2(Width, 0f);
 
             var layout = _table.gameObject.AddComponent<VerticalLayoutGroup>();
@@ -135,6 +140,8 @@ namespace LBOLMP.UI
 
             var fitter = _table.gameObject.AddComponent<ContentSizeFitter>();
             fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            BuildChatLog();
 
             _root.gameObject.SetActive(false);
             return true;
@@ -151,6 +158,9 @@ namespace LBOLMP.UI
         private const float RowHeight = 96f;
         private const float RowSpacing = 18f;
         private const float ColumnSpacing = 50f;
+
+        /// <summary>Gap between the top of the screen and the table, clear of the game's top bar.</summary>
+        private const float TableTopMargin = 300f;
 
         private static void Rebuild(List<MpPlayer> players)
         {
@@ -211,6 +221,71 @@ namespace LBOLMP.UI
                 Set(power, live.MaxPower > 0 ? live.Power + "/" + live.MaxPower : live.Power.ToString());
                 Set(gold, live.Money.ToString());
             });
+        }
+
+        //--
+        // chat log
+        //--
+
+        /// <summary>Gap between the bottom of the screen and the newest chat line.</summary>
+        private const float ChatLogBottomMargin = 120f;
+
+        private const float ChatLogFontScale = 0.85f;
+
+        /// <summary>
+        /// The last few chat lines, along the bottom of the screen and as wide as the table.
+        /// Grows upwards from the newest line.
+        /// </summary>
+        private static void BuildChatLog()
+        {
+            _chatLog = UnityEngine.Object.Instantiate(_textTemplate, _root, false);
+            _chatLog.gameObject.name = "ChatLog";
+            _chatLog.gameObject.SetActive(true);
+
+            var localized = _chatLog.GetComponent<LocalizedText>();
+            if (localized != null)
+            {
+                localized.key = string.Empty;
+            }
+
+            _chatLog.text = string.Empty;
+            _chatLog.color = Color.white;
+            _chatLog.fontSize = _textTemplate.fontSize * ChatLogFontScale;
+            _chatLog.alignment = TextAlignmentOptions.BottomLeft;
+            _chatLog.enableAutoSizing = false;
+            _chatLog.textWrappingMode = TextWrappingModes.Normal;
+            _chatLog.overflowMode = TextOverflowModes.Overflow;
+            _chatLog.raycastTarget = false;
+
+            var rect = _chatLog.rectTransform;
+            rect.anchorMin = new Vector2(0.5f, 0f);
+            rect.anchorMax = new Vector2(0.5f, 0f);
+            rect.pivot = new Vector2(0.5f, 0f);
+            rect.anchoredPosition = new Vector2(0f, ChatLogBottomMargin);
+            rect.sizeDelta = new Vector2(Width, 0f);
+
+            var fitter = _chatLog.gameObject.AddComponent<ContentSizeFitter>();
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            _chatLogRevision = -1;
+        }
+
+        private static void UpdateChatLog()
+        {
+            if (_chatLog == null || _chatLogRevision == MpChat.LogRevision)
+            {
+                return;
+            }
+
+            _chatLogRevision = MpChat.LogRevision;
+
+            var lines = MpChat.Log.Select(line =>
+            {
+                string text = MpChat.NoParse(line.Name) + ": " + MpChat.NoParse(line.Text);
+                return line.Thought ? "<i>" + text + "</i>" : text;
+            });
+
+            _chatLog.text = string.Join("\n", lines.ToArray());
         }
 
         private static void Set(TextMeshProUGUI cell, string text)

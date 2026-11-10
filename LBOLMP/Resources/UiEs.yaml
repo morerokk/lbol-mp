@@ -123,6 +123,9 @@ EmoteNice: "¡Genial!"
 EmoteNegative: "..."
 EmoteHurryUp: "¿Vas a tardar mucho...?"
 
+# ---- chat
+ChatPrompt: "(Enter to send, Esc to cancel)"
+
 # ---- map voting
 MapWaitingForOne: "Esperando a que {0} elija un nodo"
 MapWaitingForMany: "Esperando a {0}"

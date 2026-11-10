@@ -86,7 +86,7 @@ namespace LBOLMP.UI
 
         private void Update()
         {
-            if (Input.GetKeyDown(MpPlugin.LobbyHotkey.Value))
+            if (Input.GetKeyDown(MpPlugin.LobbyHotkey.Value) && !MpChat.IsOpen)
             {
                 SetVisible(!_visible);
             }
