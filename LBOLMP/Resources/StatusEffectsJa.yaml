@@ -81,3 +81,17 @@ MpIceShardsSe:
     {PlayerName}が|冷気|を持つ敵に攻撃ダメージを与える度、そのプレイヤーは|フロストアーマー|{Level}を得る。
   Brief: |-
     |冷気|を持つ敵に攻撃ダメージを与える度、そのプレイヤーは|フロストアーマー|を得る。
+    
+MpHatefulOrbsSe:
+  Name: 邪念の陰陽玉
+  Description: |-
+    |陰陽玉|が|脱力|{Level}と|弱体|{Level}を与えるようになる。
+  Brief: |-
+    |陰陽玉|が|脱力|と|弱体|を与えるようになる。
+
+MpMimicSe:
+  Name: 模倣
+  Description: |-
+    {PartnerName}が次にプレイする{Level}枚のカードを、{PlayerName}もプレイする。
+  Brief: |-
+    |仲間|が次にプレイするカードをプレイする。

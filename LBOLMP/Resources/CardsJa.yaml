@@ -210,10 +210,9 @@ MpBackUp:
 MpIceWall:
   Name: 氷壁
   Description: |-
-    すべての|仲間|は、現在の|フロストアーマー|と同じ値の|フロストアーマー|を得る。
+    すべての|仲間|は、{PlayerName}の|フロストアーマー|と同じ値の|フロストアーマー|を得る。
   UpgradedDescription: |-
-    すべての|仲間|は、現在の|フロストアーマー|と同じ値の|フロストアーマー|を得る。
-    |フロストアーマー|の値に等しい|ブロック|を得る。
+    すべての|仲間|は、{PlayerName}の|フロストアーマー|と同じ値の|フロストアーマー|を得る。
 
 MpInspiredBonds:
   Name: 絆の触発
@@ -234,3 +233,24 @@ MpIceShards:
   Name: 氷の欠片
   Description: |-
     いずれかのプレイヤーが|冷気|を持つ敵に攻撃ダメージを与える度、そのプレイヤーは|フロストアーマー|{Value1}を得る。
+
+MpHatefulOrbs:
+  Name: 邪念の陰陽玉
+  Description: |-
+    |陰陽玉|が|脱力|{Value1}と|弱体|{Value1}を与えるようになる。
+    手札に1枚|陰陽玉|を加える。
+  UpgradedDescription: |-
+    |陰陽玉|が|脱力|{Value1}と|弱体|{Value1}を与えるようになる。
+    手札に1枚|陰陽玉+|を加える。
+
+MpProtect:
+  Name: 守護
+  Description: |-
+    |仲間|を選ぶ。
+    あなたとその|仲間|は{Shield}|バリア|を得る。
+
+MpMimic:
+  Name: 模倣
+  Description: |-
+    |仲間|を選ぶ。
+    その|仲間|が次にプレイする{Value1}枚のカードをプレイする。

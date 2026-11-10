@@ -1,6 +1,15 @@
 # Note: "Partner" is as in "Partner" from Imperishable Night.
 # This refers to other players in multiplayer.
 
+MpDefibrillator:
+  Name: 除顫器
+  Description: |-
+    復活所有陣亡的|隊友|至最大生命值的 {Value1}%。
+    {Value2} 回合內她們不能失去生命。
+    |消耗品【{DeckCounter}】|
+  FlavorText: |-
+    醒醒！
+
 MpDonateBlock:
   Name: 遙距結界
   Description: |-
@@ -30,13 +39,13 @@ MpBorrowTechniques:
   Name: 借鑑技巧
   Description: |-
     選擇一名|隊友|。
-    從她的備選池中的 {Value1} 張牌選擇 1 張牌加入手中，它|暫塑|為{Mana}，具有|放逐|、|虛無|。
+    從她的備選池中隨機 {Value1} 張牌裡選擇 1 張加入手中，它|暫塑|為{Mana}，具有|放逐|、|虛無|。
 
 MpBladeSymphony:
   Name: 飛刀交響曲
   Description: |-
     從手牌中|放逐|至多 {Value1} 張|飛刀|。
-    將等量的|飛刀|加入每位|隊友|的手中。
+    將等量具有|自動放逐|的|飛刀|置於每名|隊友|的抽牌堆頂。
 
 MpOffering:
   Name: 向無主者的供奉
@@ -55,7 +64,7 @@ MpFrontalDefenseTalisman:
   Name: 前線防禦護身符
   Description: |-
     {PlayerName}從卡牌獲得|護盾|時，
-    所有|隊友|獲得一半的|格擋|。
+    所有|隊友|獲得該數值一半的|格擋|。
 
 MpRewind:
   Name: 回溯
@@ -73,6 +82,8 @@ MpIntrusiveThought:
   DetailText: |-
     |複製|和道具牌不能被選擇。
     如果被選擇的牌是能力牌或有|放逐|，它獲得|複製|。
+  FlavorText: |-
+    你選的是這張牌嗎？
 
 MpSelfControl:
   Name: 自我圓滿
@@ -86,15 +97,17 @@ MpIceBlock:
   Name: 寒冰屏障
   Description: |-
     選擇一名玩家。
-    她免疫所有的傷害一回合。
+    她一回合內不能失去生命。
     移除她所有的|格擋|、|護盾|及|閃避|。
     她|保留|當前的手牌一回合，結束她的回合。
 
 MpEntrust:
-  Name: 相信着你
+  Name: 相信著你
   Description: |-
     選擇一名|隊友|。
     獲得 {Value1} 點|暫得火力|。失去所有|火力|和|暫得火力|。她獲得等量的|火力|和|暫得火力|。
+  FlavorText: |-
+    據說你也可以把霉運轉嫁給別人。
 
 MpYinYangDistribution:
   Name: 陰陽調和
@@ -107,7 +120,8 @@ MpTimeDilation:
   Name: 時間膨脹
   Description: |-
     選擇一名|隊友|。
-    結束{PlayerName}的回合，她進行一個額外的回合。
+    她進行一個額外的回合。
+    結束{PlayerName}的回合。
 
 MpDivergingTimePeek:
   Name: 發散的時之鋒
@@ -117,14 +131,7 @@ MpDivergingTimePeek:
   DetailText: |-
     |複製|牌不能被選中。
     加入你手中的牌為|複製|。
-    如果該牌是能力牌或有|放逐|，她的副本也將獲得|複製|。
-
-MpDefibrillator:
-  Name: 除顫器
-  Description: |-
-    復活所有陣亡的|隊友|至最大生命值的 {Value1}%。
-    {Value2} 回合內她們不能失去生命。
-    |消耗品【{DeckCounter}】|
+    如果該牌是能力牌或有|放逐|，她的那張牌也將成為|複製|。
 
 MpCleanse:
   Name: 淨化
@@ -156,22 +163,22 @@ MpOvercharge:
   Name: 過充
   Description: |-
     獲得 {Value1} 點|暫得火力|。
-    |過載| {Value2}：所有|隊友|獲得 {Value1} 點|暫得火力|。
+    |超載 {Value2} |：所有|隊友|獲得 {Value1} 點|暫得火力|。
 
 MpWrenchToss:
   Name: 扳手投擲
   Description: |-
     造成 {Damage} 點傷害。
-    此牌提高 {Value1} 點效果，將此牌加入一名隨機|隊友|的抽牌堆頂。{SelfName}的費用可以用任意顏色支付。
+    本場戰鬥中此牌的傷害提高 {Value1} 點，將此牌置於一名隨機|隊友|的抽牌堆頂。{SelfName}的費用可以用任意顏色支付。
   FlavorText: |-
     它會因應物理衝擊而硬化。
 
 MpAuraOfTranquility:
   Name: 清靜的氣質
   Description: |-
-    |每支付<sprite="ManaSprite" name="2">|：將一張|純粹|加入每名|隊友|的手中。
+    |每支付|<sprite="ManaSprite" name="2">：將一張|純粹|加入每名|隊友|的手中。
   UpgradedDescription: |-
-    |每支付<sprite="ManaSprite" name="2">|：將一張|純粹+|加入每名|隊友|的手中。
+    |每支付|<sprite="ManaSprite" name="2">：將一張|純粹+|加入每名|隊友|的手中。
 
 MpCosmicInsight:
   Name: 星際洞見
@@ -189,15 +196,16 @@ MpBackUp:
   Name: 支援
   Description: |-
     選擇一名|隊友|。
-    選擇一張|同伴|手牌。將該牌加入她的手牌。它|暫塑|為{Mana}，具有|虛無|。
+    選擇一張|同伴|手牌。將該牌的一張複製加入她的手中。它|暫塑|為{Mana}，具有|虛無|。
 
 MpIceWall:
   Name: 冰牆
   Description: |-
-    所有|隊友|獲得現有|寒冰甲|等量的|寒冰甲|。
+    所有|隊友|獲得等同於{PlayerName}|寒冰甲|層數的|格擋|。
   UpgradedDescription: |-
-    所有|隊友|獲得現有|寒冰甲|等量的|寒冰甲|。
-    獲得現有|寒冰甲|等量的|格擋|。
+    所有玩家獲得等同於{PlayerName}|寒冰甲|層數的|格擋|。
+  FlavorText: |-
+    別再堵華麗金屬了！
 
 MpInspiredBonds:
   Name: 受啟發的羈絆
@@ -218,3 +226,24 @@ MpIceShards:
   Description: |-
     任何玩家對擁有|寒冷|的敵人造成攻擊傷害時，她獲得 {Value1} 層|寒冰甲|。
     對所有敵人施加|寒冷|。
+
+MpHatefulOrbs:
+  Name: 憎惡之玉
+  Description: |-
+    |陰陽玉|施加 {Value1} 回合的|虛弱|和|易傷|。
+    將一張|陰陽玉|加入手中。
+  UpgradedDescription: |-
+    |陰陽玉|施加 {Value1} 回合的|虛弱|和|易傷|。
+    將一張|陰陽玉+|加入手中。
+
+MpProtect:
+  Name: 守護
+  Description: |-
+    選擇一名|隊友|。
+    {PlayerName}和她一起獲得 {Shield} 點|護盾|。
+
+MpMimic:
+  Name: 模仿
+  Description: |-
+    選擇一名|隊友|。
+    打出她接下來打出的 {Value1} 張牌。

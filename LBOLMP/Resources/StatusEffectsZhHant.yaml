@@ -3,10 +3,10 @@ MpResilient:
   Description: |-
     回合結束時額外失去 {Level} 層|虛弱|、|易傷|和|鎖定|。
     獲得的|失去火力|減少 {Level} 點，但不低於 1 點。
-  Brief: 更快的失去|虛弱|、|易傷|和|鎖定|，且獲得的|失去火力|減少。
+  Brief: 更快地失去|虛弱|、|易傷|和|鎖定|，且獲得的|失去火力|減少。
 
 MpOfferingSe:
-  Name: 無主的供奉
+  Name: 向無主者的供奉
   Description: 你接下來打出的 {Level} 張能力牌同時為你的所有|隊友|打出。
   Brief: 你接下來的 {Level} 張能力牌同時為|隊友|打出。
 
@@ -28,17 +28,17 @@ MpAbilityPileSe:
 MpSelfControlSe:
   Name: 自我圓滿
   Description: |-
-    玩家的回合結束時，她處於|熱情|則所有玩家獲得 {Level} 點|火力|；處於|平靜|則所有玩家獲得 {Count} 點|格擋|。
+    {PlayerName}的回合結束時，她處於|熱情|則所有玩家獲得 {Level} 點|火力|；處於|平靜|則所有玩家獲得 {Count} 點|格擋|。
   Brief: |-
-    玩家的回合結束時，她處於|熱情|則所有玩家獲得 {Level} 點|火力|；處於|平靜|則所有玩家獲得 {Count} 點|格擋|。
+    你的回合結束時，若你處於|熱情|則所有玩家獲得|火力|；處於|平靜|則所有玩家獲得|格擋|。
 
 MpFrontalDefenseTalismanSe:
   Name: 前線防禦護身符
   Description: |-
-    妳從卡牌獲得|護盾|時，
-    所有|隊友|獲得一半的|格擋|。
+    {PlayerName}從卡牌獲得|護盾|時，
+    所有|隊友|獲得該數值一半的|格擋|。
   Brief: |-
-    妳從卡牌獲得|護盾|時，所有|隊友|獲得一半的|格擋|。
+    你從卡牌獲得|護盾|時，所有|隊友|獲得該數值一半的|格擋|。
 
 MpScaled:
   Name: 背負
@@ -76,6 +76,20 @@ MpDeepFreezeSe:
 MpIceShardsSe:
   Name: 冰屑
   Description: |-
-    任何玩家對擁有|寒冷|的敵人造成攻擊傷害時，她獲得 {Level} 層|寒冰甲|。
+    每當{PlayerName}對擁有|寒冷|的敵人造成攻擊傷害時，獲得 {Level} 層|寒冰甲|。
   Brief: |-
-    任何玩家對擁有|寒冷|的敵人造成攻擊傷害時，她獲得若干層|寒冰甲|。
+    攻擊擁有|寒冷|的敵人時獲得|寒冰甲|。
+
+MpHatefulOrbsSe:
+  Name: 憎惡之玉
+  Description: |-
+    |陰陽玉|施加 {Level} 回合的|虛弱|和|易傷|。
+  Brief: |-
+    |陰陽玉|施加|虛弱|和|易傷|。
+
+MpMimicSe:
+  Name: 模仿
+  Description: |-
+    {PartnerName}打出的下 {Level} 張牌也會被{PlayerName}打出。
+  Brief: |-
+    打出|隊友|接下來打出的牌。
